@@ -65,6 +65,7 @@ const App = () => {
     };
     
     window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('auth-state-changed', checkAuth);
     
     // Check if routes exist on load
     const checkRoutes = () => {
@@ -89,6 +90,7 @@ const App = () => {
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('auth-state-changed', checkAuth);
     };
   }, []);
   
