@@ -110,27 +110,26 @@ const Dashboard: React.FC = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <ResourceCard
-                id="resource-1"
                 type="need"
                 category="water"
                 title="Clean Drinking Water"
                 description="Urgently need bottled water for family of 4, including infant."
                 location="Riverside District, Block 3"
                 urgent={true}
+                requestId="resource-1"
               />
               
               <ResourceCard
-                id="resource-2"
                 type="offer"
                 category="shelter"
                 title="Temporary Housing Available"
                 description="Can accommodate up to 3 people in spare rooms. Has generator and supplies."
                 location="Hillcrest Area, 22 Oak Street"
                 contact="555-123-4567"
+                requestId="resource-2"
               />
               
               <ResourceCard
-                id="resource-3"
                 type="need"
                 category="medical"
                 title="Diabetes Medication"
@@ -138,15 +137,16 @@ const Dashboard: React.FC = () => {
                 location="Downtown, Apartment Complex B"
                 contact="555-987-6543"
                 urgent={true}
+                requestId="resource-3"
               />
               
               <ResourceCard
-                id="resource-4"
                 type="offer"
                 category="food"
                 title="Hot Meals Available"
                 description="Serving hot meals from 12-2pm daily. Can deliver to elderly or disabled."
                 location="Community Center, 100 Main St"
+                requestId="resource-4"
               />
             </div>
           </AnimatedTransition>
