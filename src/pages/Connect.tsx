@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import AnimatedTransition from '../components/AnimatedTransition';
 import ResourceCard from '../components/ResourceCard';
-import { Plus, ArrowRight, Filter } from 'lucide-react';
+import { Plus, ArrowRight, Filter, UserCheck, AlertTriangle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from 'react-router-dom';
 import RequestForm from '@/components/RequestForm';
@@ -26,13 +26,20 @@ const Connect = () => {
   const [requests, setRequests] = useState<ResourceRequest[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [filter, setFilter] = useState('all');
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [actingMode, setActingMode] = useState<string>('');
   const { toast } = useToast();
   const navigate = useNavigate();
   
-  // Get current user
-  const currentUser = JSON.parse(localStorage.getItem('authUser') || '{}');
-  
   useEffect(() => {
+    // Get current user
+    const authUser = localStorage.getItem('authUser');
+    if (authUser) {
+      const user = JSON.parse(authUser);
+      setCurrentUser(user);
+      setActingMode(user.role);
+    }
+    
     // Load requests from localStorage
     const savedRequests = localStorage.getItem('resourceRequests');
     if (savedRequests) {
@@ -71,12 +78,29 @@ const Connect = () => {
   }, []);
   
   const handleAddRequest = (newRequest: Omit<ResourceRequest, 'id' | 'userId' | 'username' | 'createdAt'>) => {
-    if (!currentUser.id) {
+    if (!currentUser) {
       toast({
         title: "Authentication Required",
         description: "Please sign in to submit requests",
       });
       navigate('/login');
+      return;
+    }
+    
+    // Check if the user can make this type of request based on their role
+    if (newRequest.type === 'need' && currentUser.role !== 'victim') {
+      toast({
+        title: "Action Not Available",
+        description: "Only those affected by disaster can request resources",
+      });
+      return;
+    }
+    
+    if (newRequest.type === 'offer' && currentUser.role === 'victim' && !currentUser.canVolunteer) {
+      toast({
+        title: "Action Not Available",
+        description: "You cannot offer resources with your current role",
+      });
       return;
     }
     
@@ -100,10 +124,27 @@ const Connect = () => {
     setShowForm(false);
   };
   
+  const handleToggleMode = () => {
+    if (!currentUser || !currentUser.canVolunteer) return;
+    
+    const newMode = actingMode === 'victim' ? 'volunteer' : 'victim';
+    setActingMode(newMode);
+    
+    // Update localStorage
+    const updatedUser = { ...currentUser, role: newMode };
+    localStorage.setItem('authUser', JSON.stringify(updatedUser));
+    setCurrentUser(updatedUser);
+    
+    toast({
+      title: "Mode Switched",
+      description: `You are now acting as a ${newMode}`,
+    });
+  };
+  
   const filteredRequests = filter === 'all' 
     ? requests 
     : filter === 'my' 
-      ? requests.filter(req => req.userId === currentUser.id)
+      ? requests.filter(req => req.userId === currentUser?.id)
       : requests.filter(req => req.type === filter);
   
   return (
@@ -118,17 +159,38 @@ const Connect = () => {
               <p className="text-gray-400 mt-1">Request or offer resources</p>
             </div>
             
-            <button 
-              onClick={() => setShowForm(!showForm)}
-              className="flex items-center px-4 py-2 rounded-full bg-white text-black hover:bg-white/90 transition-colors"
-            >
-              {showForm ? 'Cancel' : (
-                <>
-                  <Plus size={18} className="mr-1" />
-                  <span>New Request</span>
-                </>
+            <div className="flex items-center space-x-4">
+              {currentUser?.canVolunteer && (
+                <button 
+                  onClick={handleToggleMode}
+                  className="flex items-center text-sm bg-white/5 hover:bg-white/10 px-3 py-2 rounded-lg border border-white/10 transition-colors"
+                >
+                  {actingMode === 'victim' ? (
+                    <>
+                      <UserCheck size={16} className="mr-1.5" />
+                      <span>Switch to Volunteer</span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertTriangle size={16} className="mr-1.5" />
+                      <span>Switch to Victim</span>
+                    </>
+                  )}
+                </button>
               )}
-            </button>
+              
+              <button 
+                onClick={() => setShowForm(!showForm)}
+                className="flex items-center px-4 py-2 rounded-full bg-white text-black hover:bg-white/90 transition-colors"
+              >
+                {showForm ? 'Cancel' : (
+                  <>
+                    <Plus size={18} className="mr-1" />
+                    <span>New Request</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
           
           {showForm && (
@@ -163,7 +225,7 @@ const Connect = () => {
               >
                 Offers
               </button>
-              {currentUser.id && (
+              {currentUser && (
                 <button 
                   onClick={() => setFilter('my')}
                   className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors ${
@@ -195,6 +257,7 @@ const Connect = () => {
                     location={request.location}
                     contact={request.contact}
                     urgent={request.urgent}
+                    requestId={request.id}
                   />
                 ))
               ) : (

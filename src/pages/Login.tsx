@@ -9,22 +9,36 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
     
-    // Simulate authentication
-    setTimeout(() => {
-      // For demo purposes, any login succeeds
+    // Get users from localStorage
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const user = users.find(
+      (u: any) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
+    );
+    
+    if (user) {
+      if (!user.isActive) {
+        setError('Your account has been deactivated. Please contact support.');
+        setIsLoading(false);
+        return;
+      }
+      
+      // Store authenticated user in localStorage (without password)
       localStorage.setItem('authUser', JSON.stringify({
-        id: '1',
-        email,
-        name: email.split('@')[0],
-        role: 'victim', // Default role
-        profileImg: null
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        profileImg: user.profileImg,
+        canVolunteer: user.canVolunteer
       }));
       
       toast({
@@ -34,7 +48,10 @@ const Login = () => {
       
       setIsLoading(false);
       navigate('/');
-    }, 1000);
+    } else {
+      setError('Invalid email or password');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -46,6 +63,12 @@ const Login = () => {
               <h1 className="text-2xl font-bold mb-2">Welcome Back</h1>
               <p className="text-gray-400">Sign in to access your Relief Connect account</p>
             </div>
+            
+            {error && (
+              <div className="mb-4 p-3 bg-white/5 border border-white/10 rounded-lg text-sm text-red-400">
+                {error}
+              </div>
+            )}
             
             <form onSubmit={handleLogin} className="space-y-5">
               <div className="space-y-1">

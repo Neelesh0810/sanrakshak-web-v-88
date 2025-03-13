@@ -1,8 +1,9 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { ArrowRight, Droplet, Home, ShoppingBag, Utensils, Heart, Shield, CheckCircle } from 'lucide-react';
+import { ArrowRight, Droplet, Home, ShoppingBag, Utensils, Heart, Shield, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from 'react-router-dom';
 
 interface ResourceCardProps {
   type: 'need' | 'offer';
@@ -13,6 +14,7 @@ interface ResourceCardProps {
   contact?: string;
   urgent?: boolean;
   className?: string;
+  requestId?: string;
 }
 
 const ResourceCard: React.FC<ResourceCardProps> = ({
@@ -24,10 +26,30 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   contact,
   urgent = false,
   className,
+  requestId = '',
 }) => {
   const [isRequesting, setIsRequesting] = useState(false);
   const [isRequested, setIsRequested] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    // Check if this request has already been responded to by the current user
+    const authUser = localStorage.getItem('authUser');
+    if (authUser) {
+      const user = JSON.parse(authUser);
+      setCurrentUser(user);
+      
+      // Check if user has already responded to this request
+      const userResponses = JSON.parse(localStorage.getItem(`responses_${user.id}`) || '[]');
+      const hasResponded = userResponses.some((response: any) => response.requestId === requestId);
+      
+      if (hasResponded) {
+        setIsRequested(true);
+      }
+    }
+  }, [requestId]);
   
   const getCategoryIcon = () => {
     switch (category) {
@@ -48,14 +70,43 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
     }
   };
 
+  const canInteract = () => {
+    if (!currentUser) return false;
+    
+    // Victims can only request resources, not offer help
+    if (currentUser.role === 'victim' && type === 'need') return false;
+    
+    // Volunteers, NGOs, and government can help victims, but not request help 
+    // unless they're also victims with canVolunteer flag
+    if (currentUser.role !== 'victim' && type === 'offer') return false;
+    
+    return true;
+  };
+
   const handleRequestClick = () => {
     // Check if user is logged in
-    const user = localStorage.getItem('authUser');
-    if (!user) {
+    if (!currentUser) {
       toast({
         title: "Authentication Required",
         description: "Please sign in to request or respond",
       });
+      navigate('/login');
+      return;
+    }
+    
+    // Check role-based permissions
+    if (!canInteract()) {
+      if (currentUser.role === 'victim' && type === 'need') {
+        toast({
+          title: "Action Not Available",
+          description: "As someone affected, you can only request resources, not respond to needs",
+        });
+      } else if (currentUser.role !== 'victim' && type === 'offer') {
+        toast({
+          title: "Action Not Available",
+          description: "As a helper, you can only respond to needs, not request resources",
+        });
+      }
       return;
     }
     
@@ -66,8 +117,23 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
       setIsRequesting(false);
       setIsRequested(true);
       
+      // Save response to localStorage
+      const responseId = Date.now().toString();
+      const userResponses = JSON.parse(localStorage.getItem(`responses_${currentUser.id}`) || '[]');
+      
+      const newResponse = {
+        id: responseId,
+        requestId,
+        type: type === 'need' ? 'offer' : 'request',
+        category,
+        title,
+        time: Date.now(),
+        status: 'pending'
+      };
+      
+      localStorage.setItem(`responses_${currentUser.id}`, JSON.stringify([newResponse, ...userResponses]));
+      
       // Add to notifications
-      const currentUser = JSON.parse(user);
       const notifications = JSON.parse(localStorage.getItem(`notifications_${currentUser.id}`) || '[]');
       
       const newNotification = {
@@ -140,6 +206,15 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
               <CheckCircle size={14} className="mr-1.5" />
               <span>{type === 'need' ? 'Response Sent' : 'Requested'}</span>
             </button>
+          ) : !canInteract() && currentUser ? (
+            <div className="flex items-center text-xs text-gray-400">
+              <AlertTriangle size={12} className="mr-1" />
+              <span>
+                {currentUser.role === 'victim' && type === 'need' 
+                  ? 'Switch to volunteer mode to help' 
+                  : 'Not available for your role'}
+              </span>
+            </div>
           ) : (
             <button 
               onClick={handleRequestClick}
