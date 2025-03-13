@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import { Bell, Moon, Volume2, MapPin, Shield, AlertTriangle, Save, User } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { useTheme } from '../context/ThemeProvider';
 
 interface SettingsState {
   notifications: boolean;
@@ -32,6 +32,7 @@ const Settings = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
   
   useEffect(() => {
     // Check if user is logged in
@@ -58,6 +59,13 @@ const Settings = () => {
       setIsLoading(false);
     }, 800);
   }, [toast, navigate]);
+  
+  // Update theme when settings darkMode changes
+  useEffect(() => {
+    if (!isLoading) {
+      setTheme(settings.darkMode ? 'dark' : 'light');
+    }
+  }, [settings.darkMode, setTheme, isLoading]);
   
   const handleSettingToggle = (setting: keyof SettingsState) => {
     if (typeof settings[setting] === 'boolean') {
@@ -86,6 +94,9 @@ const Settings = () => {
     if (user) {
       localStorage.setItem(`settings_${user.id}`, JSON.stringify(settings));
       
+      // Apply theme based on darkMode setting
+      setTheme(settings.darkMode ? 'dark' : 'light');
+      
       toast({
         title: "Settings Saved",
         description: "Your preferences have been updated",
@@ -95,7 +106,7 @@ const Settings = () => {
   
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black text-white">
+      <div className="min-h-screen bg-background text-foreground">
         <Header />
         <div className="pt-20 flex items-center justify-center min-h-screen">
           <div className="animate-pulse flex flex-col items-center">
@@ -109,7 +120,7 @@ const Settings = () => {
   }
   
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       <Header title="Settings" />
       
       <AnimatedTransition>
@@ -118,10 +129,10 @@ const Settings = () => {
             <div className="max-w-3xl mx-auto">
               <div className="mb-6">
                 <h1 className="text-2xl font-bold mb-2">Settings</h1>
-                <p className="text-gray-400">Customize your experience and preferences</p>
+                <p className="text-muted-foreground">Customize your experience and preferences</p>
               </div>
               
-              <div className="glass-dark border border-white/10 rounded-xl p-6 mb-6">
+              <div className="glass-dark border border-border rounded-xl p-6 mb-6">
                 <h2 className="text-lg font-semibold mb-4 flex items-center">
                   <User size={18} className="mr-2" />
                   Account Settings
@@ -185,16 +196,16 @@ const Settings = () => {
                 </div>
               </div>
               
-              <div className="glass-dark border border-white/10 rounded-xl p-6 mb-6">
+              <div className="glass-dark border border-border rounded-xl p-6 mb-6">
                 <h2 className="text-lg font-semibold mb-4">Notification Preferences</h2>
                 
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <div className="flex items-center">
-                      <Bell size={18} className="mr-3 text-gray-400" />
+                      <Bell size={18} className="mr-3 text-muted-foreground" />
                       <div>
                         <p className="font-medium">Push Notifications</p>
-                        <p className="text-sm text-gray-400">Receive alerts even when app is closed</p>
+                        <p className="text-sm text-muted-foreground">Receive alerts even when app is closed</p>
                       </div>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
@@ -204,16 +215,16 @@ const Settings = () => {
                         checked={settings.notifications}
                         onChange={() => handleSettingToggle('notifications')}
                       />
-                      <div className="w-11 h-6 bg-white/10 rounded-full peer peer-checked:bg-white peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:bg-black"></div>
+                      <div className="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:bg-background"></div>
                     </label>
                   </div>
                   
                   <div className="flex justify-between items-center">
                     <div className="flex items-center">
-                      <AlertTriangle size={18} className="mr-3 text-gray-400" />
+                      <AlertTriangle size={18} className="mr-3 text-muted-foreground" />
                       <div>
                         <p className="font-medium">Emergency Alerts</p>
-                        <p className="text-sm text-gray-400">Critical safety and emergency information</p>
+                        <p className="text-sm text-muted-foreground">Critical safety and emergency information</p>
                       </div>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
@@ -223,16 +234,16 @@ const Settings = () => {
                         checked={settings.emergencyAlerts}
                         onChange={() => handleSettingToggle('emergencyAlerts')}
                       />
-                      <div className="w-11 h-6 bg-white/10 rounded-full peer peer-checked:bg-white peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:bg-black"></div>
+                      <div className="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:bg-background"></div>
                     </label>
                   </div>
                   
                   <div className="flex justify-between items-center">
                     <div className="flex items-center">
-                      <Volume2 size={18} className="mr-3 text-gray-400" />
+                      <Volume2 size={18} className="mr-3 text-muted-foreground" />
                       <div>
                         <p className="font-medium">Sound Alerts</p>
-                        <p className="text-sm text-gray-400">Play sound for notifications and alerts</p>
+                        <p className="text-sm text-muted-foreground">Play sound for notifications and alerts</p>
                       </div>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
@@ -242,22 +253,22 @@ const Settings = () => {
                         checked={settings.sound}
                         onChange={() => handleSettingToggle('sound')}
                       />
-                      <div className="w-11 h-6 bg-white/10 rounded-full peer peer-checked:bg-white peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:bg-black"></div>
+                      <div className="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:bg-background"></div>
                     </label>
                   </div>
                 </div>
               </div>
               
-              <div className="glass-dark border border-white/10 rounded-xl p-6 mb-6">
+              <div className="glass-dark border border-border rounded-xl p-6 mb-6">
                 <h2 className="text-lg font-semibold mb-4">Privacy & Location</h2>
                 
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <div className="flex items-center">
-                      <MapPin size={18} className="mr-3 text-gray-400" />
+                      <MapPin size={18} className="mr-3 text-muted-foreground" />
                       <div>
                         <p className="font-medium">Location Services</p>
-                        <p className="text-sm text-gray-400">Allow app to access your location</p>
+                        <p className="text-sm text-muted-foreground">Allow app to access your location</p>
                       </div>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
@@ -267,16 +278,16 @@ const Settings = () => {
                         checked={settings.location}
                         onChange={() => handleSettingToggle('location')}
                       />
-                      <div className="w-11 h-6 bg-white/10 rounded-full peer peer-checked:bg-white peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:bg-black"></div>
+                      <div className="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:bg-background"></div>
                     </label>
                   </div>
                   
                   <div className="flex justify-between items-center">
                     <div className="flex items-center">
-                      <Shield size={18} className="mr-3 text-gray-400" />
+                      <Shield size={18} className="mr-3 text-muted-foreground" />
                       <div>
                         <p className="font-medium">Data Protection</p>
-                        <p className="text-sm text-gray-400">Encrypt personal data and communications</p>
+                        <p className="text-sm text-muted-foreground">Encrypt personal data and communications</p>
                       </div>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
@@ -286,16 +297,16 @@ const Settings = () => {
                         checked={settings.dataProtection}
                         onChange={() => handleSettingToggle('dataProtection')}
                       />
-                      <div className="w-11 h-6 bg-white/10 rounded-full peer peer-checked:bg-white peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:bg-black"></div>
+                      <div className="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:bg-background"></div>
                     </label>
                   </div>
                   
                   <div className="flex justify-between items-center">
                     <div className="flex items-center">
-                      <Moon size={18} className="mr-3 text-gray-400" />
+                      <Moon size={18} className="mr-3 text-muted-foreground" />
                       <div>
                         <p className="font-medium">Dark Mode</p>
-                        <p className="text-sm text-gray-400">Always use dark theme (battery saving)</p>
+                        <p className="text-sm text-muted-foreground">Toggle between light and dark theme</p>
                       </div>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
@@ -305,7 +316,7 @@ const Settings = () => {
                         checked={settings.darkMode}
                         onChange={() => handleSettingToggle('darkMode')}
                       />
-                      <div className="w-11 h-6 bg-white/10 rounded-full peer peer-checked:bg-white peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:bg-black"></div>
+                      <div className="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:bg-background"></div>
                     </label>
                   </div>
                 </div>
@@ -314,27 +325,27 @@ const Settings = () => {
               <div className="flex justify-end mb-8">
                 <button
                   onClick={saveSettings}
-                  className="flex items-center space-x-2 bg-white text-black px-6 py-2 rounded-lg hover:bg-white/90 transition-colors"
+                  className="flex items-center space-x-2 bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors"
                 >
                   <Save size={18} />
                   <span>Save Changes</span>
                 </button>
               </div>
               
-              <div className="glass-dark border border-red-500/10 bg-red-950/5 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-red-300 mb-3">Danger Zone</h3>
-                <p className="text-sm text-gray-400 mb-4">
+              <div className="glass-dark border border-destructive/10 bg-destructive/5 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-destructive mb-3">Danger Zone</h3>
+                <p className="text-sm text-muted-foreground mb-4">
                   These actions are permanent and cannot be undone
                 </p>
                 
                 <div className="flex flex-wrap gap-3">
-                  <button className="px-4 py-2 border border-red-500/30 text-red-300 rounded-lg hover:bg-red-950/20 transition-colors">
+                  <button className="px-4 py-2 border border-destructive/30 text-destructive rounded-lg hover:bg-destructive/10 transition-colors">
                     Delete All Data
                   </button>
-                  <button className="px-4 py-2 border border-red-500/30 text-red-300 rounded-lg hover:bg-red-950/20 transition-colors">
+                  <button className="px-4 py-2 border border-destructive/30 text-destructive rounded-lg hover:bg-destructive/10 transition-colors">
                     Reset Settings
                   </button>
-                  <button className="px-4 py-2 border border-red-500/30 text-red-300 rounded-lg hover:bg-red-950/20 transition-colors">
+                  <button className="px-4 py-2 border border-destructive/30 text-destructive rounded-lg hover:bg-destructive/10 transition-colors">
                     Delete Account
                   </button>
                 </div>
