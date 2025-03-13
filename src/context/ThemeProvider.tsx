@@ -23,15 +23,19 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Check if user has settings with darkMode preference
     const storedUser = localStorage.getItem('authUser');
     if (storedUser) {
-      const user = JSON.parse(storedUser);
-      const settingsKey = `settings_${user.id}`;
-      const storedSettings = localStorage.getItem(settingsKey);
-      
-      if (storedSettings) {
-        const settings = JSON.parse(storedSettings);
-        if (settings.darkMode !== undefined) {
-          setTheme(settings.darkMode ? 'dark' : 'light');
+      try {
+        const user = JSON.parse(storedUser);
+        const settingsKey = `settings_${user.id}`;
+        const storedSettings = localStorage.getItem(settingsKey);
+        
+        if (storedSettings) {
+          const settings = JSON.parse(storedSettings);
+          if (settings.darkMode !== undefined) {
+            setTheme(settings.darkMode ? 'dark' : 'light');
+          }
         }
+      } catch (error) {
+        console.error("Error parsing user data or settings:", error);
       }
     }
   }, []);
@@ -40,6 +44,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Update document with current theme class
     document.documentElement.classList.remove('light-mode', 'dark-mode');
     document.documentElement.classList.add(`${theme}-mode`);
+    document.body.classList.remove('light-mode', 'dark-mode');
+    document.body.classList.add(`${theme}-mode`);
     
     // Save theme preference to localStorage
     localStorage.setItem('theme', theme);

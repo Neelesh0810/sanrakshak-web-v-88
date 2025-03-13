@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
@@ -5,6 +6,7 @@ import AnimatedTransition from '@/components/AnimatedTransition';
 import { Bell, Moon, Volume2, MapPin, Shield, AlertTriangle, Save, User } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from '../context/ThemeProvider';
+import { Switch } from "@/components/ui/switch";
 
 interface SettingsState {
   notifications: boolean;
@@ -48,7 +50,8 @@ const Settings = () => {
           const storedSettings = localStorage.getItem(`settings_${parsedUser.id}`);
           if (storedSettings) {
             try {
-              setSettings(JSON.parse(storedSettings));
+              const parsedSettings = JSON.parse(storedSettings);
+              setSettings(parsedSettings);
             } catch (e) {
               console.error("Error parsing user settings:", e);
               // If settings are invalid, we'll use defaults
@@ -104,10 +107,19 @@ const Settings = () => {
   
   const handleSettingToggle = (setting: keyof SettingsState) => {
     if (typeof settings[setting] === 'boolean') {
-      setSettings(prev => ({
-        ...prev,
-        [setting]: !prev[setting]
-      }));
+      setSettings(prev => {
+        const newSettings = {
+          ...prev,
+          [setting]: !prev[setting]
+        };
+        
+        // If toggling dark mode, apply it immediately
+        if (setting === 'darkMode') {
+          setTheme(newSettings.darkMode ? 'dark' : 'light');
+        }
+        
+        return newSettings;
+      });
     }
   };
   
@@ -146,9 +158,9 @@ const Settings = () => {
         <Header />
         <div className="pt-20 flex items-center justify-center min-h-screen">
           <div className="animate-pulse flex flex-col items-center">
-            <div className="h-6 bg-white/10 rounded w-48 mb-4"></div>
-            <div className="h-4 bg-white/10 rounded w-64 mb-3"></div>
-            <div className="h-4 bg-white/10 rounded w-32"></div>
+            <div className="h-6 bg-gray-200 dark:bg-white/10 rounded w-48 mb-4"></div>
+            <div className="h-4 bg-gray-200 dark:bg-white/10 rounded w-64 mb-3"></div>
+            <div className="h-4 bg-gray-200 dark:bg-white/10 rounded w-32"></div>
           </div>
         </div>
       </div>
@@ -166,7 +178,7 @@ const Settings = () => {
             <p className="mb-4">Please sign in to access settings</p>
             <button 
               onClick={() => navigate('/login')}
-              className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg"
+              className="px-4 py-2 bg-gray-200 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 rounded-lg"
             >
               Go to Login
             </button>
@@ -189,7 +201,7 @@ const Settings = () => {
                 <p className="text-muted-foreground">Customize your experience and preferences</p>
               </div>
               
-              <div className="glass-dark border border-border rounded-xl p-6 mb-6">
+              <div className="rounded-xl border border-border p-6 mb-6 bg-card">
                 <h2 className="text-lg font-semibold mb-4 flex items-center">
                   <User size={18} className="mr-2" />
                   Account Settings
@@ -203,34 +215,34 @@ const Settings = () => {
                         onClick={() => handleProfileVisibilityChange('public')}
                         className={`p-3 rounded-lg border text-center ${
                           settings.profileVisibility === 'public'
-                            ? 'border-white bg-white/10'
-                            : 'border-white/10 hover:border-white/30'
+                            ? 'border-primary bg-secondary'
+                            : 'border-border hover:border-primary/50'
                         }`}
                       >
                         <span className="block font-medium">Public</span>
-                        <span className="text-xs text-gray-400 mt-1">Visible to everyone</span>
+                        <span className="text-xs text-muted-foreground mt-1">Visible to everyone</span>
                       </button>
                       <button
                         onClick={() => handleProfileVisibilityChange('contacts')}
                         className={`p-3 rounded-lg border text-center ${
                           settings.profileVisibility === 'contacts'
-                            ? 'border-white bg-white/10'
-                            : 'border-white/10 hover:border-white/30'
+                            ? 'border-primary bg-secondary'
+                            : 'border-border hover:border-primary/50'
                         }`}
                       >
                         <span className="block font-medium">Contacts</span>
-                        <span className="text-xs text-gray-400 mt-1">Visible to contacts</span>
+                        <span className="text-xs text-muted-foreground mt-1">Visible to contacts</span>
                       </button>
                       <button
                         onClick={() => handleProfileVisibilityChange('private')}
                         className={`p-3 rounded-lg border text-center ${
                           settings.profileVisibility === 'private'
-                            ? 'border-white bg-white/10'
-                            : 'border-white/10 hover:border-white/30'
+                            ? 'border-primary bg-secondary'
+                            : 'border-border hover:border-primary/50'
                         }`}
                       >
                         <span className="block font-medium">Private</span>
-                        <span className="text-xs text-gray-400 mt-1">Only visible to you</span>
+                        <span className="text-xs text-muted-foreground mt-1">Only visible to you</span>
                       </button>
                     </div>
                   </div>
@@ -241,7 +253,7 @@ const Settings = () => {
                       id="language"
                       value={settings.language}
                       onChange={handleLanguageChange}
-                      className="w-full bg-black/40 border border-white/10 rounded-lg p-3 focus:ring-1 focus:ring-white/30 focus:outline-none"
+                      className="w-full bg-background border border-border rounded-lg p-3 focus:ring-1 focus:ring-primary/30 focus:outline-none"
                     >
                       <option value="en">English</option>
                       <option value="es">Español</option>
@@ -253,7 +265,7 @@ const Settings = () => {
                 </div>
               </div>
               
-              <div className="glass-dark border border-border rounded-xl p-6 mb-6">
+              <div className="rounded-xl border border-border p-6 mb-6 bg-card">
                 <h2 className="text-lg font-semibold mb-4">Notification Preferences</h2>
                 
                 <div className="space-y-4">
@@ -265,15 +277,10 @@ const Settings = () => {
                         <p className="text-sm text-muted-foreground">Receive alerts even when app is closed</p>
                       </div>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        className="sr-only peer" 
-                        checked={settings.notifications}
-                        onChange={() => handleSettingToggle('notifications')}
-                      />
-                      <div className="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:bg-background"></div>
-                    </label>
+                    <Switch
+                      checked={settings.notifications}
+                      onCheckedChange={() => handleSettingToggle('notifications')}
+                    />
                   </div>
                   
                   <div className="flex justify-between items-center">
@@ -284,15 +291,10 @@ const Settings = () => {
                         <p className="text-sm text-muted-foreground">Critical safety and emergency information</p>
                       </div>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        className="sr-only peer" 
-                        checked={settings.emergencyAlerts}
-                        onChange={() => handleSettingToggle('emergencyAlerts')}
-                      />
-                      <div className="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:bg-background"></div>
-                    </label>
+                    <Switch
+                      checked={settings.emergencyAlerts}
+                      onCheckedChange={() => handleSettingToggle('emergencyAlerts')}
+                    />
                   </div>
                   
                   <div className="flex justify-between items-center">
@@ -303,20 +305,15 @@ const Settings = () => {
                         <p className="text-sm text-muted-foreground">Play sound for notifications and alerts</p>
                       </div>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        className="sr-only peer" 
-                        checked={settings.sound}
-                        onChange={() => handleSettingToggle('sound')}
-                      />
-                      <div className="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:bg-background"></div>
-                    </label>
+                    <Switch
+                      checked={settings.sound}
+                      onCheckedChange={() => handleSettingToggle('sound')}
+                    />
                   </div>
                 </div>
               </div>
               
-              <div className="glass-dark border border-border rounded-xl p-6 mb-6">
+              <div className="rounded-xl border border-border p-6 mb-6 bg-card">
                 <h2 className="text-lg font-semibold mb-4">Privacy & Location</h2>
                 
                 <div className="space-y-4">
@@ -328,15 +325,10 @@ const Settings = () => {
                         <p className="text-sm text-muted-foreground">Allow app to access your location</p>
                       </div>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        className="sr-only peer" 
-                        checked={settings.location}
-                        onChange={() => handleSettingToggle('location')}
-                      />
-                      <div className="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:bg-background"></div>
-                    </label>
+                    <Switch
+                      checked={settings.location}
+                      onCheckedChange={() => handleSettingToggle('location')}
+                    />
                   </div>
                   
                   <div className="flex justify-between items-center">
@@ -347,15 +339,10 @@ const Settings = () => {
                         <p className="text-sm text-muted-foreground">Encrypt personal data and communications</p>
                       </div>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        className="sr-only peer" 
-                        checked={settings.dataProtection}
-                        onChange={() => handleSettingToggle('dataProtection')}
-                      />
-                      <div className="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:bg-background"></div>
-                    </label>
+                    <Switch
+                      checked={settings.dataProtection}
+                      onCheckedChange={() => handleSettingToggle('dataProtection')}
+                    />
                   </div>
                   
                   <div className="flex justify-between items-center">
@@ -366,15 +353,10 @@ const Settings = () => {
                         <p className="text-sm text-muted-foreground">Toggle between light and dark theme</p>
                       </div>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        className="sr-only peer" 
-                        checked={settings.darkMode}
-                        onChange={() => handleSettingToggle('darkMode')}
-                      />
-                      <div className="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:bg-background"></div>
-                    </label>
+                    <Switch
+                      checked={settings.darkMode}
+                      onCheckedChange={() => handleSettingToggle('darkMode')}
+                    />
                   </div>
                 </div>
               </div>
@@ -389,7 +371,7 @@ const Settings = () => {
                 </button>
               </div>
               
-              <div className="glass-dark border border-destructive/10 bg-destructive/5 rounded-xl p-6">
+              <div className="rounded-xl border border-destructive/10 bg-destructive/5 p-6">
                 <h3 className="text-lg font-semibold text-destructive mb-3">Danger Zone</h3>
                 <p className="text-sm text-muted-foreground mb-4">
                   These actions are permanent and cannot be undone

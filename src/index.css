@@ -39,7 +39,7 @@
     --radius: 0.75rem;
   }
 
-  /* Light mode - Updated to be white */
+  /* Light mode - Updated to be white with proper contrast */
   :root, .light-mode {
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
@@ -56,17 +56,17 @@
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 3.9%;
     
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 54.9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
     
-    --accent: 240 4.8% 95.9%;
+    --accent: 0 0% 96.1%;
     --accent-foreground: 0 0% 3.9%;
     
     --destructive: 0 72.2% 50.6%;
     --destructive-foreground: 0 0% 98%;
     
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
     --ring: 0 0% 3.9%;
   }
 }
@@ -109,7 +109,7 @@
   }
   
   .dark-mode .card, .dark-mode .neo-element {
-    @apply border border-white/10 bg-secondary;
+    @apply border border-white/10 bg-black;
   }
   
   .neo-element {
@@ -144,6 +144,15 @@
   /* Add shadow for light mode */
   .shadow-soft {
     @apply shadow-[0_4px_20px_rgba(0,0,0,0.08)];
+  }
+  
+  /* Dark mode specific styles */
+  .dark-mode {
+    @apply bg-black text-white;
+  }
+  
+  .light-mode {
+    @apply bg-white text-black;
   }
 }
 

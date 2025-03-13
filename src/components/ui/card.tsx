@@ -9,14 +9,14 @@ const Card = React.forwardRef<
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => {
   const { theme } = useTheme();
-  const isLight = theme === 'light';
+  const isDark = theme === 'dark';
   
   return (
     <div
       ref={ref}
       className={cn(
         "rounded-lg border bg-card text-card-foreground",
-        isLight ? "border-gray-300 shadow-soft" : "border-white/10 shadow-sm",
+        isDark ? "border-white/10 shadow-sm" : "border-gray-200 shadow-soft",
         className
       )}
       {...props}
