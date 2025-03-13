@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -51,6 +50,9 @@ const App = () => {
           console.error("Invalid authUser data:", e);
           localStorage.removeItem('authUser');
         }
+      } else {
+        // Make sure user is set to null if no auth data
+        setUser(null);
       }
       setLoading(false);
     };
@@ -58,14 +60,12 @@ const App = () => {
     checkAuth();
     
     // Listen for storage events to update auth state
-    const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === 'authUser') {
-        checkAuth();
-      }
+    const handleStorageChange = () => {
+      checkAuth();
     };
     
     window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('auth-state-changed', checkAuth);
+    window.addEventListener('auth-state-changed', handleStorageChange);
     
     // Check if routes exist on load
     const checkRoutes = () => {
@@ -90,21 +90,21 @@ const App = () => {
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('auth-state-changed', checkAuth);
+      window.removeEventListener('auth-state-changed', handleStorageChange);
     };
   }, []);
   
   // Function to protect routes
   const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
     if (loading) return <div className="min-h-screen bg-black flex items-center justify-center">Loading...</div>;
-    if (!user) return <Navigate to="/login" />;
+    if (!user) return <Navigate to="/login" replace />;
     return children;
   };
 
   // Redirect authenticated users away from auth pages
   const AuthRoute = ({ children }: { children: JSX.Element }) => {
     if (loading) return <div className="min-h-screen bg-black flex items-center justify-center">Loading...</div>;
-    if (user) return <Navigate to="/dashboard" />;
+    if (user) return <Navigate to="/dashboard" replace />;
     return children;
   };
 
