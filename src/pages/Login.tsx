@@ -87,17 +87,17 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white flex flex-col">
       <div className="flex-1 flex items-center justify-center p-4">
         <AnimatedTransition className="w-full max-w-md">
-          <div className="glass-dark border border-white/10 rounded-xl p-6 sm:p-8">
+          <div className="glass-dark rounded-xl p-6 sm:p-8">
             <div className="text-center mb-8">
               <h1 className="text-2xl font-bold mb-2">Welcome Back</h1>
-              <p className="text-gray-400">Sign in to access your Relief Connect account</p>
+              <p className="text-gray-600 dark:text-gray-400">Sign in to access your Relief Connect account</p>
             </div>
             
             {error && (
-              <div className="mb-4 p-3 bg-white/5 border border-white/10 rounded-lg text-sm text-red-400">
+              <div className="mb-4 p-3 bg-red-50 dark:bg-white/5 border border-red-200 dark:border-white/10 rounded-lg text-sm text-red-600 dark:text-red-400">
                 {error}
               </div>
             )}
@@ -118,7 +118,7 @@ const Login = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="w-full bg-black/40 border border-white/10 rounded-lg py-3 pl-10 pr-4 placeholder:text-gray-500 focus:ring-1 focus:ring-white/30 focus:outline-none"
+                    className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg py-3 pl-10 pr-4 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-1 focus:ring-black/20 dark:focus:ring-white/30 focus:outline-none"
                   />
                 </div>
               </div>
@@ -128,7 +128,7 @@ const Login = () => {
                   <label htmlFor="password" className="text-sm font-medium">
                     Password
                   </label>
-                  <Link to="/forgot-password" className="text-sm text-gray-400 hover:text-white">
+                  <Link to="/forgot-password" className="text-sm text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white">
                     Forgot?
                   </Link>
                 </div>
@@ -143,7 +143,7 @@ const Login = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="w-full bg-black/40 border border-white/10 rounded-lg py-3 pl-10 pr-4 placeholder:text-gray-500 focus:ring-1 focus:ring-white/30 focus:outline-none"
+                    className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg py-3 pl-10 pr-4 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-1 focus:ring-black/20 dark:focus:ring-white/30 focus:outline-none"
                   />
                 </div>
               </div>
@@ -151,7 +151,7 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full rounded-lg bg-white text-black font-medium py-3 flex items-center justify-center hover:bg-white/90 transition-colors disabled:opacity-50"
+                className="w-full rounded-lg bg-black dark:bg-white text-white dark:text-black font-medium py-3 flex items-center justify-center hover:bg-black/90 dark:hover:bg-white/90 transition-colors disabled:opacity-50"
               >
                 {isLoading ? (
                   <span className="flex items-center">
@@ -166,9 +166,9 @@ const Login = () => {
                 )}
               </button>
               
-              <div className="text-center text-sm text-gray-400">
+              <div className="text-center text-sm text-gray-600 dark:text-gray-400">
                 <span>Don't have an account? </span>
-                <Link to="/signup" className="text-white hover:underline">
+                <Link to="/signup" className="text-black dark:text-white hover:underline">
                   Create one
                 </Link>
               </div>
