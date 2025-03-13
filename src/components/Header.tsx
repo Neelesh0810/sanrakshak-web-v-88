@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Menu, X, AlertTriangle, Bell, Settings, User, LogOut, Shield, UserCheck, Building, ArrowRightLeft } from 'lucide-react';
+
+import React, { useState, useEffect, useRef } from 'react';
+import { Menu, X, AlertTriangle, Bell, Settings, User, LogOut, UserCheck, Building, ArrowRightLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import Notifications from './Notifications';
@@ -26,6 +27,11 @@ const Header: React.FC<HeaderProps> = ({
   
   const [user, setUser] = useState<any>(null);
   
+  // Refs for click outside detection
+  const profileRef = useRef<HTMLDivElement>(null);
+  const roleSwitcherRef = useRef<HTMLDivElement>(null);
+  const notificationsRef = useRef<HTMLDivElement>(null);
+  
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -39,7 +45,27 @@ const Header: React.FC<HeaderProps> = ({
     const storedUser = localStorage.getItem('authUser');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
+    } else {
+      setUser(null);
     }
+  }, []);
+  
+  // Handle clicks outside dropdowns
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // Close profile dropdown if click is outside
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setProfileOpen(false);
+      }
+      
+      // Close role switcher dropdown if click is outside
+      if (roleSwitcherRef.current && !roleSwitcherRef.current.contains(event.target as Node)) {
+        setRoleSwitcherOpen(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
   
   const toggleMenu = () => setMenuOpen(!menuOpen);
@@ -117,13 +143,7 @@ const Header: React.FC<HeaderProps> = ({
               </div>
             )}
             <div className="flex items-center">
-              <div 
-                className="flex items-center justify-center transform rotate-15"
-                style={{ transform: 'rotate(15deg)' }}
-              >
-                <Shield size={24} className="text-primary font-bold" />
-                <span className="font-bold text-xl">S.</span>
-              </div>
+              <span className="font-bold text-xl">Sanrakshak</span>
             </div>
           </Link>
           
@@ -146,7 +166,7 @@ const Header: React.FC<HeaderProps> = ({
             {user ? (
               <>
                 {user.role && (
-                  <div className="relative">
+                  <div className="relative" ref={roleSwitcherRef}>
                     <button 
                       onClick={toggleRoleSwitcher}
                       className="flex items-center space-x-2 rounded-full hover:bg-white/5 p-1 transition-colors"
@@ -159,9 +179,14 @@ const Header: React.FC<HeaderProps> = ({
                     
                     {roleSwitcherOpen && (
                       <div className={`absolute right-0 mt-2 w-48 ${isLight ? "bg-white border border-gray-200" : "bg-black border border-white/10"} shadow-xl rounded-xl z-50 overflow-hidden`}>
-                        <div className={`p-3 ${isLight ? "border-b border-gray-200" : "border-b border-white/10"} text-sm`}>
+                        <div className="flex justify-between items-center p-3 border-b border-white/10">
                           <p className="font-medium">Switch Role</p>
-                          <p className={`${isLight ? "text-gray-600" : "text-gray-400"} text-xs mt-0.5`}>View as different user type</p>
+                          <button 
+                            onClick={() => setRoleSwitcherOpen(false)}
+                            className="p-1 rounded-full hover:bg-white/10"
+                          >
+                            <X size={16} />
+                          </button>
                         </div>
                         <div>
                           <button
@@ -201,9 +226,11 @@ const Header: React.FC<HeaderProps> = ({
                   </div>
                 )}
                 
-                <Notifications />
+                <div ref={notificationsRef}>
+                  <Notifications />
+                </div>
                 
-                <div className="relative">
+                <div className="relative" ref={profileRef}>
                   <button 
                     onClick={toggleProfile}
                     className="flex items-center space-x-2 rounded-full hover:bg-white/5 p-1 transition-colors"
@@ -216,9 +243,17 @@ const Header: React.FC<HeaderProps> = ({
                   
                   {profileOpen && (
                     <div className={`absolute right-0 mt-2 w-48 ${isLight ? "bg-white border border-gray-200" : "bg-black border border-white/10"} shadow-xl rounded-xl z-50 overflow-hidden`}>
-                      <div className={`p-3 ${isLight ? "border-b border-gray-200" : "border-b border-white/10"} text-sm`}>
-                        <p className="font-medium">{user.name}</p>
-                        <p className={`${isLight ? "text-gray-600" : "text-gray-400"} text-xs mt-0.5`}>{user.email}</p>
+                      <div className="flex justify-between items-center p-3 border-b border-white/10">
+                        <div>
+                          <p className="font-medium">{user.name}</p>
+                          <p className={`${isLight ? "text-gray-600" : "text-gray-400"} text-xs mt-0.5`}>{user.email}</p>
+                        </div>
+                        <button 
+                          onClick={() => setProfileOpen(false)}
+                          className="p-1 rounded-full hover:bg-white/10"
+                        >
+                          <X size={16} />
+                        </button>
                       </div>
                       <div>
                         <button 

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Bell, X, CheckCheck, AlertTriangle, Info, MessageSquare, Package } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -35,6 +35,7 @@ const Notifications: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const navigate = useNavigate();
+  const notificationRef = useRef<HTMLDivElement>(null);
   
   const user = JSON.parse(localStorage.getItem('authUser') || '{}');
   
@@ -80,6 +81,18 @@ const Notifications: React.FC = () => {
     }
   }, [user.id]);
   
+  // Handle clicks outside notification panel
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+  
   const toggleNotifications = () => {
     setIsOpen(!isOpen);
   };
@@ -124,7 +137,7 @@ const Notifications: React.FC = () => {
   };
   
   return (
-    <div className="relative">
+    <div className="relative" ref={notificationRef}>
       <button 
         className="p-2 rounded-full hover:bg-white/5 transition-colors focus-ring relative"
         onClick={toggleNotifications}

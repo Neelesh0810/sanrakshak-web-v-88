@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import AnimatedTransition from '@/components/AnimatedTransition';
 import { Lock, Mail, ArrowRight } from 'lucide-react';
+import BackButton from '@/components/BackButton';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -62,7 +63,7 @@ const Login = () => {
           id: user.id,
           email: user.email,
           name: user.name,
-          role: user.role,
+          role: user.role || 'victim', // Default to victim if no role
           profileImg: user.profileImg,
           canVolunteer: user.canVolunteer
         };
@@ -70,15 +71,15 @@ const Login = () => {
         // Set the user in localStorage
         localStorage.setItem('authUser', JSON.stringify(authUser));
         
+        // Dispatch events only after setting localStorage
+        window.dispatchEvent(new Event('auth-state-changed')); 
+        window.dispatchEvent(new Event('storage'));
+        
         // Display success toast
         toast({
           title: "Login Successful",
           description: "Welcome back to Relief Connect",
         });
-        
-        // Force update other components via storage event
-        window.dispatchEvent(new Event('auth-state-changed')); 
-        window.dispatchEvent(new Event('storage'));
         
         // Clear form
         setEmail('');
@@ -99,6 +100,9 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-black dark:bg-black text-white dark:text-white flex flex-col">
+      <div className="p-4">
+        <BackButton />
+      </div>
       <div className="flex-1 flex items-center justify-center p-4">
         <AnimatedTransition className="w-full max-w-md">
           <div className="glass-dark rounded-xl p-6 sm:p-8">

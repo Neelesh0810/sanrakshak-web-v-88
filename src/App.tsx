@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -114,14 +113,14 @@ const App = () => {
   
   // Function to protect routes
   const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-    if (loading) return <div className="min-h-screen bg-black flex items-center justify-center">Loading...</div>;
+    if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
     if (!user) return <Navigate to="/login" replace />;
     return children;
   };
 
   // Redirect authenticated users away from auth pages
   const AuthRoute = ({ children }: { children: JSX.Element }) => {
-    if (loading) return <div className="min-h-screen bg-black flex items-center justify-center">Loading...</div>;
+    if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
     if (user) return <Navigate to="/dashboard" replace />;
     return children;
   };

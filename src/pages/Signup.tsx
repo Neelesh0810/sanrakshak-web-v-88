@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import AnimatedTransition from '@/components/AnimatedTransition';
 import { Lock, Mail, User, ArrowRight, UserCheck, Building, UserCog } from 'lucide-react';
 import { useTheme } from '../context/ThemeProvider';
+import BackButton from '@/components/BackButton';
 
 const Signup = () => {
   const [email, setEmail] = useState('');
@@ -24,7 +25,7 @@ const Signup = () => {
       try {
         const parsedUser = JSON.parse(authUser);
         if (parsedUser && parsedUser.id) {
-          navigate('/dashboard');
+          navigate('/dashboard', { replace: true });
         }
       } catch (e) {
         console.error("Invalid authUser data:", e);
@@ -84,6 +85,7 @@ const Signup = () => {
     users.push(newUser);
     localStorage.setItem('users', JSON.stringify(users));
     
+    // Store auth data first
     localStorage.setItem('authUser', JSON.stringify({
       id: newUser.id,
       email: newUser.email,
@@ -93,13 +95,17 @@ const Signup = () => {
       canVolunteer: newUser.canVolunteer
     }));
     
+    // Then dispatch events
+    window.dispatchEvent(new Event('auth-state-changed'));
+    window.dispatchEvent(new Event('storage'));
+    
     toast({
       title: "Account Created",
       description: "Welcome to Relief Connect!",
     });
     
     setIsLoading(false);
-    navigate('/dashboard');
+    navigate('/dashboard', { replace: true });
   };
 
   const getRoleIcon = (roleType: string) => {
@@ -119,6 +125,9 @@ const Signup = () => {
 
   return (
     <div className={`min-h-screen ${isLight ? "bg-white" : "bg-black"} text-foreground flex flex-col`}>
+      <div className="p-4">
+        <BackButton />
+      </div>
       <div className="flex-1 flex items-center justify-center p-4">
         <AnimatedTransition className="w-full max-w-md">
           <div className={`${isLight ? "border border-gray-300 shadow-soft bg-white" : "glass-dark border border-white/10"} rounded-xl p-6 sm:p-8`}>
