@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Menu, X, AlertTriangle, Bell, Settings, User, LogOut, Shield, UserCheck, Building, ArrowRightLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -50,11 +49,19 @@ const Header: React.FC<HeaderProps> = ({
   const handleLogout = () => {
     localStorage.removeItem('authUser');
     setUser(null);
+    
+    setMenuOpen(false);
+    setProfileOpen(false);
+    
+    window.dispatchEvent(new Event('auth-state-changed'));
+    window.dispatchEvent(new Event('storage'));
+    
     toast({
       title: "Logged Out",
       description: "You have been signed out successfully",
     });
-    navigate('/');
+    
+    navigate('/', { replace: true });
   };
   
   const handleNavigate = (path: string) => {
@@ -77,7 +84,6 @@ const Header: React.FC<HeaderProps> = ({
     
     setRoleSwitcherOpen(false);
     
-    // Reload the page to reflect changes
     window.location.reload();
   };
   

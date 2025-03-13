@@ -47,6 +47,7 @@ const App = () => {
   useEffect(() => {
     // Check if user is authenticated
     const checkAuth = () => {
+      setLoading(true);
       try {
         const storedUser = localStorage.getItem('authUser');
         if (storedUser) {
@@ -55,10 +56,12 @@ const App = () => {
           if (parsedUser && parsedUser.id) {
             setUser(parsedUser);
           } else {
+            localStorage.removeItem('authUser'); // Clear invalid data
             setUser(null);
           }
         } else {
           // Make sure user is set to null if no auth data
+          localStorage.removeItem('authUser'); // Ensure it's removed
           setUser(null);
         }
       } catch (e) {
@@ -71,15 +74,16 @@ const App = () => {
       }
     };
     
+    // Call immediately on mount
     checkAuth();
     
-    // Listen for storage events to update auth state
-    const handleStorageChange = () => {
+    // Listen for storage and custom auth events
+    const handleAuthChange = () => {
       checkAuth();
     };
     
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('auth-state-changed', handleStorageChange);
+    window.addEventListener('storage', handleAuthChange);
+    window.addEventListener('auth-state-changed', handleAuthChange);
     
     // Check if routes exist on load
     const checkRoutes = () => {
@@ -103,8 +107,8 @@ const App = () => {
     checkRoutes();
     
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('auth-state-changed', handleStorageChange);
+      window.removeEventListener('storage', handleAuthChange);
+      window.removeEventListener('auth-state-changed', handleAuthChange);
     };
   }, []);
   

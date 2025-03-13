@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, AlertTriangle, Shield, CheckCircle, MapPin, Menu, X } from 'lucide-react';
@@ -24,9 +25,11 @@ const LandingPage = () => {
           if (parsedUser && parsedUser.id) {
             setUser(parsedUser);
           } else {
+            localStorage.removeItem('authUser');
             setUser(null);
           }
         } else {
+          localStorage.removeItem('authUser'); // Ensure it's removed
           setUser(null);
         }
       } catch (e) {
@@ -61,11 +64,14 @@ const LandingPage = () => {
     localStorage.removeItem('authUser');
     setUser(null);
     
-    // Dispatch auth change event
+    // Close any open menus
+    setMenuOpen(false);
+    
+    // Dispatch auth change events
     window.dispatchEvent(new Event('auth-state-changed'));
     window.dispatchEvent(new Event('storage'));
     
-    // Toast for logout confirmation
+    // Navigate to landing page with replace
     navigate('/', { replace: true });
   };
 
