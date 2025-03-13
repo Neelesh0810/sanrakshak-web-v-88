@@ -182,7 +182,7 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className }) => {
                           ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
                           : 'bg-black/30 text-gray-500 cursor-not-allowed')
                   )}
-                  disabled={!available}
+                  disabled={!location.available}
                 >
                   Navigate
                 </button>
