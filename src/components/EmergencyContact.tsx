@@ -3,6 +3,7 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { Phone, MessageCircle, Copy } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTheme } from '../context/ThemeProvider';
 
 interface EmergencyContactProps {
   name: string;
@@ -21,6 +22,9 @@ const EmergencyContact: React.FC<EmergencyContactProps> = ({
   available = true,
   className,
 }) => {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+  
   const handleCopyPhone = () => {
     navigator.clipboard.writeText(phone);
     // You would usually show a toast notification here
@@ -30,8 +34,10 @@ const EmergencyContact: React.FC<EmergencyContactProps> = ({
   return (
     <div 
       className={cn(
-        'rounded-xl border border-white/10 backdrop-blur-sm transition-all',
-        available ? 'bg-black/30' : 'bg-black/20',
+        'rounded-xl border transition-all',
+        isLight 
+          ? (available ? 'bg-white border-gray-200' : 'bg-gray-50 border-gray-200') 
+          : (available ? 'bg-black/30 border-white/10' : 'bg-black/20 border-white/5'),
         className
       )}
     >
@@ -39,11 +45,13 @@ const EmergencyContact: React.FC<EmergencyContactProps> = ({
         <div className="flex justify-between">
           <div>
             <h3 className="font-semibold">{name}</h3>
-            <p className="text-xs text-gray-400 mt-1">{role}</p>
+            <p className={cn("text-xs mt-1", isLight ? "text-gray-500" : "text-gray-400")}>{role}</p>
           </div>
           <div className={cn(
             'h-3 w-3 rounded-full mt-1',
-            available ? 'bg-white' : 'bg-gray-600'
+            available 
+              ? (isLight ? 'bg-black' : 'bg-white') 
+              : (isLight ? 'bg-gray-400' : 'bg-gray-600')
           )} />
         </div>
         
@@ -51,7 +59,10 @@ const EmergencyContact: React.FC<EmergencyContactProps> = ({
           <div className="font-mono text-sm">{phone}</div>
           <button 
             onClick={handleCopyPhone}
-            className="ml-2 p-1.5 rounded-full hover:bg-white/10 transition-colors"
+            className={cn(
+              "ml-2 p-1.5 rounded-full transition-colors",
+              isLight ? "hover:bg-gray-200" : "hover:bg-white/10"
+            )}
             aria-label="Copy phone number"
           >
             <Copy size={14} />
@@ -63,8 +74,12 @@ const EmergencyContact: React.FC<EmergencyContactProps> = ({
             className={cn(
               'flex items-center justify-center rounded-full py-1.5 px-4 text-sm transition-colors flex-1',
               available 
-                ? 'bg-white text-black hover:bg-white/90' 
-                : 'bg-white/10 text-gray-400 cursor-not-allowed'
+                ? (isLight 
+                    ? 'bg-black text-white hover:bg-black/90' 
+                    : 'bg-white text-black hover:bg-white/90')
+                : (isLight 
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                    : 'bg-white/10 text-gray-400 cursor-not-allowed')
             )}
             disabled={!available}
           >
@@ -74,7 +89,12 @@ const EmergencyContact: React.FC<EmergencyContactProps> = ({
           
           <Link 
             to={`/chat/${contactId}`}
-            className="flex items-center justify-center rounded-full py-1.5 px-4 text-sm bg-white/10 hover:bg-white/15 transition-colors flex-1"
+            className={cn(
+              "flex items-center justify-center rounded-full py-1.5 px-4 text-sm transition-colors flex-1",
+              isLight 
+                ? "bg-gray-100 hover:bg-gray-200" 
+                : "bg-white/10 hover:bg-white/15"
+            )}
           >
             <MessageCircle size={14} className="mr-1.5" />
             <span>Message</span>

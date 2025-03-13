@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { MapPin, Compass, Search } from 'lucide-react';
+import { useTheme } from '../context/ThemeProvider';
 
 interface LocationPoint {
   id: string;
@@ -54,6 +55,8 @@ const SAMPLE_LOCATIONS: LocationPoint[] = [
 const LocationFinder: React.FC<LocationFinderProps> = ({ className }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentLocation, setCurrentLocation] = useState<GeolocationPosition | null>(null);
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
 
   const handleGetLocation = () => {
     if (navigator.geolocation) {
@@ -78,7 +81,11 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className }) => {
   );
 
   return (
-    <div className={cn('glass-dark rounded-xl overflow-hidden', className)}>
+    <div className={cn(
+      'rounded-xl overflow-hidden border',
+      isLight ? 'bg-white border-gray-200 shadow-soft' : 'glass-dark',
+      className
+    )}>
       <div className="p-4">
         <h2 className="text-lg font-semibold mb-4">Find Nearby Assistance</h2>
         
@@ -90,12 +97,22 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className }) => {
               placeholder="Search by name or type..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-l-lg py-2 pl-9 pr-3 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-white/20"
+              className={cn(
+                "w-full rounded-l-lg py-2 pl-9 pr-3 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-1",
+                isLight 
+                  ? "bg-gray-100 border border-gray-200 focus:ring-gray-300" 
+                  : "bg-white/5 border border-white/10 focus:ring-white/20"
+              )}
             />
           </div>
           <button 
             onClick={handleGetLocation}
-            className="flex items-center justify-center bg-white/10 hover:bg-white/15 transition-colors rounded-r-lg px-4"
+            className={cn(
+              "flex items-center justify-center transition-colors rounded-r-lg px-4",
+              isLight 
+                ? "bg-gray-100 hover:bg-gray-200 border border-gray-200 border-l-0" 
+                : "bg-white/10 hover:bg-white/15"
+            )}
             aria-label="Get current location"
           >
             <Compass size={18} />
@@ -103,7 +120,10 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className }) => {
         </div>
         
         {currentLocation && (
-          <div className="bg-white/5 rounded-lg p-2 mb-4 text-xs">
+          <div className={cn(
+            "rounded-lg p-2 mb-4 text-xs",
+            isLight ? "bg-gray-100" : "bg-white/5"
+          )}>
             <div className="flex items-center">
               <MapPin size={14} className="text-gray-400 mr-1" />
               <span>
@@ -118,32 +138,51 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className }) => {
             <div 
               key={location.id}
               className={cn(
-                'rounded-lg p-3 transition-all',
-                location.available ? 'bg-white/5 hover:bg-white/10' : 'bg-black/20 opacity-70'
+                'rounded-lg p-3 transition-all border',
+                isLight
+                  ? (location.available 
+                      ? 'bg-white border-gray-200 hover:bg-gray-50' 
+                      : 'bg-gray-50 border-gray-200 opacity-70')
+                  : (location.available 
+                      ? 'bg-white/5 border-white/10 hover:bg-white/10' 
+                      : 'bg-black/20 border-white/5 opacity-70')
               )}
             >
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="font-medium text-sm">{location.name}</h3>
-                  <p className="text-xs text-gray-400 mt-0.5">{location.address}</p>
+                  <p className={cn(
+                    "text-xs mt-0.5",
+                    isLight ? "text-gray-500" : "text-gray-400"
+                  )}>{location.address}</p>
                 </div>
-                <div className="bg-white/10 text-xs rounded-full px-2 py-0.5">
+                <div className={cn(
+                  "text-xs rounded-full px-2 py-0.5",
+                  isLight ? "bg-gray-100" : "bg-white/10"
+                )}>
                   {location.distance}
                 </div>
               </div>
               
               <div className="flex justify-between items-center mt-3">
-                <span className="capitalize text-xs px-2 py-0.5 bg-white/5 rounded-full">
+                <span className={cn(
+                  "capitalize text-xs px-2 py-0.5 rounded-full",
+                  isLight ? "bg-gray-100" : "bg-white/5"
+                )}>
                   {location.type}
                 </span>
                 <button 
                   className={cn(
                     'text-xs rounded-full px-3 py-1',
                     location.available
-                      ? 'bg-white/10 hover:bg-white/15 transition-colors'
-                      : 'bg-black/30 text-gray-500 cursor-not-allowed'
+                      ? (isLight 
+                          ? 'bg-black text-white hover:bg-black/90' 
+                          : 'bg-white/10 hover:bg-white/15')
+                      : (isLight 
+                          ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
+                          : 'bg-black/30 text-gray-500 cursor-not-allowed')
                   )}
-                  disabled={!location.available}
+                  disabled={!available}
                 >
                   Navigate
                 </button>
@@ -152,7 +191,10 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className }) => {
           ))}
           
           {filteredLocations.length === 0 && (
-            <div className="text-center py-6 text-gray-400 text-sm">
+            <div className={cn(
+              "text-center py-6 text-sm",
+              isLight ? "text-gray-500" : "text-gray-400"
+            )}>
               No locations found matching your search.
             </div>
           )}
