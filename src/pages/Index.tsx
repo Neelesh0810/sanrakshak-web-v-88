@@ -15,7 +15,7 @@ const Index = () => {
     // Welcome toast on initial load
     toast({
       title: "System Online",
-      description: "Disaster response platform activated",
+      description: "Sanrakshak emergency response platform activated",
       duration: 3000,
     });
   }, [toast]);
@@ -33,7 +33,7 @@ const Index = () => {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-center md:text-left mb-4 md:mb-0">
               <span className="text-sm text-muted-foreground">
-                Relief Connect • Emergency Response System
+                Sanrakshak • Emergency Response System
               </span>
             </div>
             

@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { Menu, X, AlertTriangle, Bell, Settings, User, LogOut } from 'lucide-react';
+import { Menu, X, AlertTriangle, Bell, Settings, User, LogOut, Shield } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import Notifications from './Notifications';
@@ -13,7 +12,7 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ 
-  title = "Relief Connect", 
+  title = "Sanrakshak", 
   emergency = false 
 }) => {
   const [scrolled, setScrolled] = useState(false);
@@ -74,7 +73,16 @@ const Header: React.FC<HeaderProps> = ({
                 <AlertTriangle size={20} className={isLight ? "text-black" : "text-white"} />
               </div>
             )}
-            <span className="font-semibold text-xl tracking-tight">{title}</span>
+            <div className="flex items-center">
+              <div 
+                className="flex items-center justify-center mr-1 transform rotate-15"
+                style={{ transform: 'rotate(15deg)' }}
+              >
+                <Shield size={24} className="text-primary font-bold" />
+                <span className="font-bold text-xl">S.</span>
+              </div>
+              <span className="font-semibold text-xl tracking-tight">{title}</span>
+            </div>
           </Link>
           
           <nav className="hidden md:flex items-center space-x-6">
