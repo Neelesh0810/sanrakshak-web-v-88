@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import Header from '../components/Header';
 import Dashboard from '../components/Dashboard';
 import { useToast } from "@/hooks/use-toast";
+import RoleSwitcher from '../components/RoleSwitcher';
 
 const Index = () => {
   const { toast } = useToast();
@@ -41,6 +42,8 @@ const Index = () => {
           </div>
         </div>
       </footer>
+      
+      <RoleSwitcher />
     </div>
   );
 };
