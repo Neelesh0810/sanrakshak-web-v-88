@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, X, AlertTriangle, Bell, Settings, User, LogOut, UserCheck, Building, ArrowRightLeft, Shield } from 'lucide-react';
+import { Menu, X, Bell, Settings, User, LogOut, UserCheck, Building, ArrowRightLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import Notifications from './Notifications';
@@ -139,7 +138,6 @@ const Header: React.FC<HeaderProps> = ({
           <Link to="/" className="flex items-center space-x-2">
             {emergency && (
               <div className="animate-pulse-subtle mr-2">
-                <AlertTriangle size={20} className={isLight ? "text-black" : "text-white"} />
               </div>
             )}
             <div className="flex items-center">
@@ -217,7 +215,6 @@ const Header: React.FC<HeaderProps> = ({
                             className={`flex items-center w-full px-3 py-2 text-sm hover:bg-white/10 ${user.role === 'government' ? 'bg-white/5' : ''}`}
                             onClick={() => switchRole('government')}
                           >
-                            <Shield size={16} className="mr-2" />
                             <span>Government</span>
                           </button>
                         </div>

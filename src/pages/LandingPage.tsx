@@ -1,7 +1,6 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, AlertTriangle, Shield, CheckCircle, MapPin, Menu, X } from 'lucide-react';
+import { ArrowRight, AlertTriangle, CheckCircle, MapPin, Menu, X } from 'lucide-react';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import { useTheme } from '../context/ThemeProvider';
 
@@ -89,13 +88,7 @@ const LandingPage = () => {
         <div className="container mx-auto">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <div 
-                className="flex items-center justify-center transform rotate-15"
-                style={{ transform: 'rotate(15deg)' }}
-              >
-                <Shield size={28} className="text-primary font-bold" />
-                <span className="font-bold text-2xl">S.</span>
-              </div>
+              <div className="font-bold text-2xl">Sanrakshak</div>
             </div>
             
             <div className="hidden md:flex items-center space-x-6">
@@ -239,7 +232,6 @@ const LandingPage = () => {
             <AnimatedTransition>
               <div className="max-w-4xl mx-auto text-center">
                 <div className="inline-flex items-center px-3 py-1 mb-6 rounded-full bg-primary/10 text-primary-foreground text-sm">
-                  <AlertTriangle size={14} className="mr-2" />
                   <span>Emergency Response Platform</span>
                 </div>
                 
@@ -334,16 +326,8 @@ const LandingPage = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
-              <div className="flex items-center">
-                <div 
-                  className="flex items-center justify-center transform rotate-15"
-                  style={{ transform: 'rotate(15deg)' }}
-                >
-                  <Shield size={20} className="text-primary font-bold" />
-                  <span className="ml-2 text-sm text-muted-foreground">
-                    Emergency Response Platform
-                  </span>
-                </div>
+              <div className="text-sm text-muted-foreground">
+                Sanrakshak
               </div>
             </div>
             
