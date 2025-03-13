@@ -3,6 +3,7 @@ import React from 'react';
 import Header from '../components/Header';
 import { AlertTriangle, FileText, MapPin, Shield, User, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import BackButton from '../components/BackButton';
 
 const EmergencyPlan = () => {
   return (
@@ -11,9 +12,11 @@ const EmergencyPlan = () => {
       
       <main className="pt-20 pb-16">
         <div className="container mx-auto px-4">
+          <BackButton className="mb-4" />
+          
           <div className="mb-8">
             <div className="flex items-center space-x-2 mb-2">
-              <AlertTriangle size={24} className="text-black dark:text-white" />
+              <AlertTriangle size={24} />
               <h1 className="text-3xl font-bold">Emergency Plan</h1>
             </div>
             <p className="text-gray-600 dark:text-gray-400">Hurricane Category 3 Response Plan</p>
