@@ -3,6 +3,7 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTheme } from '../context/ThemeProvider';
 
 interface StatusUpdateProps {
   id?: string;
@@ -23,23 +24,29 @@ const StatusUpdate: React.FC<StatusUpdateProps> = ({
   priority = 'medium',
   className,
 }) => {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+
   const getPriorityStyles = () => {
     switch (priority) {
       case 'high':
-        return 'border-l-4 border-white';
+        return isLight ? 'border-l-4 border-red-500' : 'border-l-4 border-white';
       case 'medium':
-        return 'border-l-4 border-gray-400';
+        return isLight ? 'border-l-4 border-gray-800' : 'border-l-4 border-gray-400';
       case 'low':
-        return 'border-l-4 border-gray-700';
+        return isLight ? 'border-l-4 border-gray-500' : 'border-l-4 border-gray-700';
       default:
-        return 'border-l-4 border-gray-400';
+        return isLight ? 'border-l-4 border-gray-800' : 'border-l-4 border-gray-400';
     }
   };
 
   return (
     <div 
       className={cn(
-        'bg-black/30 backdrop-blur-sm rounded-lg overflow-hidden transition-all hover:bg-black/40',
+        'rounded-lg overflow-hidden transition-all',
+        isLight 
+          ? 'bg-white border border-gray-300 shadow-soft' 
+          : 'bg-black/30 backdrop-blur-sm',
         getPriorityStyles(),
         className
       )}
@@ -53,13 +60,18 @@ const StatusUpdate: React.FC<StatusUpdateProps> = ({
           </div>
         </div>
         
-        <p className="text-sm text-gray-300 mb-3">{message}</p>
+        <p className={cn("text-sm mb-3", isLight ? "text-gray-700" : "text-gray-300")}>{message}</p>
         
         <div className="flex justify-between items-center">
-          <span className="text-xs text-gray-500">Source: {source}</span>
+          <span className={cn("text-xs", isLight ? "text-gray-600" : "text-gray-500")}>Source: {source}</span>
           <Link 
             to={`/status/${id}`} 
-            className="text-xs bg-white/10 hover:bg-white/15 px-3 py-1 rounded-full transition-colors"
+            className={cn(
+              "text-xs px-3 py-1 rounded-full transition-colors",
+              isLight 
+                ? "bg-gray-200 hover:bg-gray-300" 
+                : "bg-white/10 hover:bg-white/15"
+            )}
           >
             Details
           </Link>

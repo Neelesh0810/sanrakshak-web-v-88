@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { ArrowRight, Droplet, Home, ShoppingBag, Utensils, Heart, Shield, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../context/ThemeProvider';
 
 interface ResourceCardProps {
   type: 'need' | 'offer';
@@ -33,15 +33,15 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   const [currentUser, setCurrentUser] = useState<any>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   
   useEffect(() => {
-    // Check if this request has already been responded to by the current user
     const authUser = localStorage.getItem('authUser');
     if (authUser) {
       const user = JSON.parse(authUser);
       setCurrentUser(user);
       
-      // Check if user has already responded to this request
       const userResponses = JSON.parse(localStorage.getItem(`responses_${user.id}`) || '[]');
       const hasResponded = userResponses.some((response: any) => response.requestId === requestId);
       
@@ -73,18 +73,14 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   const canInteract = () => {
     if (!currentUser) return false;
     
-    // Victims can only request resources, not offer help
     if (currentUser.role === 'victim' && type === 'need') return false;
     
-    // Volunteers, NGOs, and government can help victims, but not request help 
-    // unless they're also victims with canVolunteer flag
     if (currentUser.role !== 'victim' && type === 'offer') return false;
     
     return true;
   };
 
   const handleRequestClick = () => {
-    // Check if user is logged in
     if (!currentUser) {
       toast({
         title: "Authentication Required",
@@ -94,7 +90,6 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
       return;
     }
     
-    // Check role-based permissions
     if (!canInteract()) {
       if (currentUser.role === 'victim' && type === 'need') {
         toast({
@@ -112,12 +107,10 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
     
     setIsRequesting(true);
     
-    // Simulate request processing
     setTimeout(() => {
       setIsRequesting(false);
       setIsRequested(true);
       
-      // Save response to localStorage
       const responseId = Date.now().toString();
       const userResponses = JSON.parse(localStorage.getItem(`responses_${currentUser.id}`) || '[]');
       
@@ -133,7 +126,6 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
       
       localStorage.setItem(`responses_${currentUser.id}`, JSON.stringify([newResponse, ...userResponses]));
       
-      // Add to notifications
       const notifications = JSON.parse(localStorage.getItem(`notifications_${currentUser.id}`) || '[]');
       
       const newNotification = {
@@ -160,16 +152,23 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   return (
     <div 
       className={cn(
-        'relative overflow-hidden rounded-xl backdrop-blur-sm border transition-all duration-300 hover:shadow-lg',
-        type === 'need' 
-          ? 'border-white/10 bg-black/40' 
-          : 'border-white/5 bg-white/5',
-        urgent && 'ring-1 ring-white/20',
+        'relative overflow-hidden rounded-xl backdrop-blur-sm transition-all duration-300 hover:shadow-lg',
+        isLight
+          ? (type === 'need' 
+              ? 'border border-gray-300 bg-white shadow-soft' 
+              : 'border border-gray-300 bg-gray-100')
+          : (type === 'need' 
+              ? 'border-white/10 bg-black/40' 
+              : 'border-white/5 bg-white/5'),
+        urgent && (isLight ? 'ring-1 ring-gray-800' : 'ring-1 ring-white/20'),
         className
       )}
     >
       {urgent && (
-        <div className="absolute top-0 right-0 px-2 py-1 text-xs bg-white text-black font-semibold rounded-bl-lg">
+        <div className={cn(
+          "absolute top-0 right-0 px-2 py-1 text-xs font-semibold rounded-bl-lg",
+          isLight ? "bg-black text-white" : "bg-white text-black"
+        )}>
           Urgent
         </div>
       )}
@@ -178,21 +177,32 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
         <div className="flex items-center mb-4">
           <div className={cn(
             'p-2 rounded-full mr-3',
-            type === 'need' ? 'bg-black/60' : 'bg-white/10'
+            isLight
+              ? (type === 'need' ? 'bg-gray-200' : 'bg-gray-300')
+              : (type === 'need' ? 'bg-black/60' : 'bg-white/10')
           )}>
             {getCategoryIcon()}
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wider text-gray-400">
+            <p className={cn(
+              "text-xs uppercase tracking-wider",
+              isLight ? "text-gray-600" : "text-gray-400"
+            )}>
               {type === 'need' ? 'Needed' : 'Offered'}
             </p>
             <h3 className="font-semibold text-lg mt-0.5">{title}</h3>
           </div>
         </div>
         
-        <p className="text-sm text-gray-300 mb-4 line-clamp-2">{description}</p>
+        <p className={cn(
+          "text-sm mb-4 line-clamp-2",
+          isLight ? "text-gray-700" : "text-gray-300"
+        )}>{description}</p>
         
-        <div className="text-xs text-gray-400 mb-4">
+        <div className={cn(
+          "text-xs mb-4",
+          isLight ? "text-gray-600" : "text-gray-400"
+        )}>
           <p>Location: {location}</p>
           {contact && <p className="mt-1">Contact: {contact}</p>}
         </div>
@@ -201,13 +211,19 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
           {isRequested ? (
             <button 
               disabled
-              className="flex items-center text-sm font-medium py-1.5 px-3 rounded-full bg-white/10 opacity-70 transition-colors"
+              className={cn(
+                "flex items-center text-sm font-medium py-1.5 px-3 rounded-full opacity-70 transition-colors",
+                isLight ? "bg-gray-200 text-gray-600" : "bg-white/10"
+              )}
             >
               <CheckCircle size={14} className="mr-1.5" />
               <span>{type === 'need' ? 'Response Sent' : 'Requested'}</span>
             </button>
           ) : !canInteract() && currentUser ? (
-            <div className="flex items-center text-xs text-gray-400">
+            <div className={cn(
+              "flex items-center text-xs",
+              isLight ? "text-gray-600" : "text-gray-400"
+            )}>
               <AlertTriangle size={12} className="mr-1" />
               <span>
                 {currentUser.role === 'victim' && type === 'need' 
@@ -219,7 +235,12 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
             <button 
               onClick={handleRequestClick}
               disabled={isRequesting}
-              className="flex items-center text-sm font-medium py-1.5 px-3 rounded-full bg-white/10 hover:bg-white/15 transition-colors focus-ring disabled:opacity-50"
+              className={cn(
+                "flex items-center text-sm font-medium py-1.5 px-3 rounded-full transition-colors focus-ring disabled:opacity-50",
+                isLight
+                  ? "bg-black text-white hover:bg-black/90"
+                  : "bg-white/10 hover:bg-white/15"
+              )}
               aria-label={type === 'need' ? 'I can help' : 'I need this'}
             >
               {isRequesting ? (

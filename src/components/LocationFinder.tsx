@@ -83,7 +83,7 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className }) => {
   return (
     <div className={cn(
       'rounded-xl overflow-hidden border',
-      isLight ? 'bg-white border-gray-200 shadow-soft' : 'glass-dark',
+      isLight ? 'bg-white border-gray-300 shadow-soft' : 'glass-dark',
       className
     )}>
       <div className="p-4">
@@ -100,7 +100,7 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className }) => {
               className={cn(
                 "w-full rounded-l-lg py-2 pl-9 pr-3 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-1",
                 isLight 
-                  ? "bg-gray-100 border border-gray-200 focus:ring-gray-300" 
+                  ? "bg-gray-100 border border-gray-300 focus:ring-gray-400" 
                   : "bg-white/5 border border-white/10 focus:ring-white/20"
               )}
             />
@@ -110,7 +110,7 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className }) => {
             className={cn(
               "flex items-center justify-center transition-colors rounded-r-lg px-4",
               isLight 
-                ? "bg-gray-100 hover:bg-gray-200 border border-gray-200 border-l-0" 
+                ? "bg-gray-200 hover:bg-gray-300 border border-gray-300 border-l-0" 
                 : "bg-white/10 hover:bg-white/15"
             )}
             aria-label="Get current location"
@@ -121,8 +121,8 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className }) => {
         
         {currentLocation && (
           <div className={cn(
-            "rounded-lg p-2 mb-4 text-xs",
-            isLight ? "bg-gray-100" : "bg-white/5"
+            "rounded-lg p-2 mb-4 text-xs border",
+            isLight ? "bg-gray-100 border-gray-300" : "bg-white/5 border-white/10"
           )}>
             <div className="flex items-center">
               <MapPin size={14} className="text-gray-400 mr-1" />
@@ -141,8 +141,8 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className }) => {
                 'rounded-lg p-3 transition-all border',
                 isLight
                   ? (location.available 
-                      ? 'bg-white border-gray-200 hover:bg-gray-50' 
-                      : 'bg-gray-50 border-gray-200 opacity-70')
+                      ? 'bg-white border-gray-300 hover:bg-gray-50' 
+                      : 'bg-gray-50 border-gray-300 opacity-70')
                   : (location.available 
                       ? 'bg-white/5 border-white/10 hover:bg-white/10' 
                       : 'bg-black/20 border-white/5 opacity-70')
@@ -153,12 +153,12 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className }) => {
                   <h3 className="font-medium text-sm">{location.name}</h3>
                   <p className={cn(
                     "text-xs mt-0.5",
-                    isLight ? "text-gray-500" : "text-gray-400"
+                    isLight ? "text-gray-600" : "text-gray-400"
                   )}>{location.address}</p>
                 </div>
                 <div className={cn(
-                  "text-xs rounded-full px-2 py-0.5",
-                  isLight ? "bg-gray-100" : "bg-white/10"
+                  "text-xs rounded-full px-2 py-0.5 border",
+                  isLight ? "bg-gray-100 border-gray-300" : "bg-white/10 border-white/5"
                 )}>
                   {location.distance}
                 </div>
@@ -166,8 +166,8 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className }) => {
               
               <div className="flex justify-between items-center mt-3">
                 <span className={cn(
-                  "capitalize text-xs px-2 py-0.5 rounded-full",
-                  isLight ? "bg-gray-100" : "bg-white/5"
+                  "capitalize text-xs px-2 py-0.5 rounded-full border",
+                  isLight ? "bg-gray-100 border-gray-300" : "bg-white/5 border-white/5"
                 )}>
                   {location.type}
                 </span>
@@ -192,8 +192,8 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className }) => {
           
           {filteredLocations.length === 0 && (
             <div className={cn(
-              "text-center py-6 text-sm",
-              isLight ? "text-gray-500" : "text-gray-400"
+              "text-center py-6 text-sm border rounded-lg",
+              isLight ? "text-gray-600 border-gray-300 bg-gray-50" : "text-gray-400 border-white/5 bg-black/20"
             )}>
               No locations found matching your search.
             </div>
