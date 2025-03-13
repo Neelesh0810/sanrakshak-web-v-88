@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
@@ -21,7 +20,7 @@ const Login = () => {
         // Verify that the stored data is valid JSON
         const parsedUser = JSON.parse(authUser);
         if (parsedUser && parsedUser.id) {
-          navigate('/');
+          navigate('/dashboard');
         }
       } catch (e) {
         // Clear invalid data
@@ -73,7 +72,7 @@ const Login = () => {
         setTimeout(() => {
           // Trigger storage event for other tabs/components
           window.dispatchEvent(new Event('storage'));
-          navigate('/');
+          navigate('/dashboard');
         }, 300);
       } else {
         setError('Invalid email or password');

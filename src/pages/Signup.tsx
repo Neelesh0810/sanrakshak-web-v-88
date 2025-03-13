@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import AnimatedTransition from '@/components/AnimatedTransition';
@@ -19,52 +18,72 @@ const Signup = () => {
   const { theme } = useTheme();
   const isLight = theme === 'light';
 
+  useEffect(() => {
+    const authUser = localStorage.getItem('authUser');
+    if (authUser) {
+      try {
+        const parsedUser = JSON.parse(authUser);
+        if (parsedUser && parsedUser.id) {
+          navigate('/dashboard');
+        }
+      } catch (e) {
+        console.error("Invalid authUser data:", e);
+        localStorage.removeItem('authUser');
+      }
+    }
+  }, [navigate]);
+
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
     
-    // Validate passwords match
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       setIsLoading(false);
       return;
     }
     
-    // Validate password strength
     if (password.length < 8) {
       setError('Password must be at least 8 characters long');
       setIsLoading(false);
       return;
     }
     
-    // Check if email is already registered
     const users = JSON.parse(localStorage.getItem('users') || '[]');
     const existingUser = users.find((user: any) => user.email === email.toLowerCase());
     
     if (existingUser) {
       setError('Email is already registered');
       setIsLoading(false);
+      
+      toast({
+        title: "Account Already Exists",
+        description: "Redirecting you to the login page...",
+      });
+      
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+      
       return;
     }
     
-    // Store user data in localStorage
     const newUser = {
       id: Date.now().toString(),
       email: email.toLowerCase(),
-      password, // In a real app, this would be hashed
+      password,
       name,
       role,
       profileImg: null,
       createdAt: Date.now(),
-      canVolunteer: role === 'victim' ? true : false, // Victims can also volunteer
+      canVolunteer: role === 'victim' ? true : false,
       isActive: true
     };
     
     users.push(newUser);
     localStorage.setItem('users', JSON.stringify(users));
     
-    // Log the user in
     localStorage.setItem('authUser', JSON.stringify({
       id: newUser.id,
       email: newUser.email,
@@ -80,7 +99,7 @@ const Signup = () => {
     });
     
     setIsLoading(false);
-    navigate('/');
+    navigate('/dashboard');
   };
 
   const getRoleIcon = (roleType: string) => {

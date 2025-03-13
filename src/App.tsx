@@ -72,6 +72,7 @@ const App = () => {
       if (currentPath !== "/" && ![
         "login", 
         "signup", 
+        "dashboard",
         "connect", 
         "resources", 
         "map", 
@@ -98,6 +99,13 @@ const App = () => {
     return children;
   };
 
+  // Redirect authenticated users away from auth pages
+  const AuthRoute = ({ children }: { children: JSX.Element }) => {
+    if (loading) return <div className="min-h-screen bg-black flex items-center justify-center">Loading...</div>;
+    if (user) return <Navigate to="/dashboard" />;
+    return children;
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
@@ -107,23 +115,81 @@ const App = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<LandingPage />} />
-              <Route path="/dashboard" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <Index />
+                </ProtectedRoute>
+              } />
+              
+              {/* Auth Routes */}
+              <Route path="/login" element={
+                <AuthRoute>
+                  <Login />
+                </AuthRoute>
+              } />
+              <Route path="/signup" element={
+                <AuthRoute>
+                  <Signup />
+                </AuthRoute>
+              } />
+              <Route path="/forgot-password" element={
+                <AuthRoute>
+                  <ForgotPassword />
+                </AuthRoute>
+              } />
               
               {/* Protected Routes */}
-              <Route path="/resources" element={<Resources />} />
-              <Route path="/resources/:id" element={<ResourceDetails />} />
-              <Route path="/map" element={<Map />} />
-              <Route path="/alerts" element={<Alerts />} />
-              <Route path="/status/:id" element={<StatusDetails />} />
+              <Route path="/resources" element={
+                <ProtectedRoute>
+                  <Resources />
+                </ProtectedRoute>
+              } />
+              <Route path="/resources/:id" element={
+                <ProtectedRoute>
+                  <ResourceDetails />
+                </ProtectedRoute>
+              } />
+              <Route path="/map" element={
+                <ProtectedRoute>
+                  <Map />
+                </ProtectedRoute>
+              } />
+              <Route path="/alerts" element={
+                <ProtectedRoute>
+                  <Alerts />
+                </ProtectedRoute>
+              } />
+              <Route path="/status/:id" element={
+                <ProtectedRoute>
+                  <StatusDetails />
+                </ProtectedRoute>
+              } />
               <Route path="/emergency-plan" element={<EmergencyPlan />} />
-              <Route path="/shelter-map" element={<ShelterMap />} />
-              <Route path="/chat/:contactId" element={<ChatSection />} />
-              <Route path="/volunteer-tasks" element={<VolunteerTasks />} />
-              <Route path="/volunteer-tasks/:id" element={<VolunteerTaskDetails />} />
-              <Route path="/volunteer-stats" element={<VolunteerStats />} />
+              <Route path="/shelter-map" element={
+                <ProtectedRoute>
+                  <ShelterMap />
+                </ProtectedRoute>
+              } />
+              <Route path="/chat/:contactId" element={
+                <ProtectedRoute>
+                  <ChatSection />
+                </ProtectedRoute>
+              } />
+              <Route path="/volunteer-tasks" element={
+                <ProtectedRoute>
+                  <VolunteerTasks />
+                </ProtectedRoute>
+              } />
+              <Route path="/volunteer-tasks/:id" element={
+                <ProtectedRoute>
+                  <VolunteerTaskDetails />
+                </ProtectedRoute>
+              } />
+              <Route path="/volunteer-stats" element={
+                <ProtectedRoute>
+                  <VolunteerStats />
+                </ProtectedRoute>
+              } />
               <Route path="/profile" element={
                 <ProtectedRoute>
                   <Profile />

@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, AlertTriangle, Shield, CheckCircle, MapPin } from 'lucide-react';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import { useTheme } from '../context/ThemeProvider';
@@ -8,6 +8,25 @@ import { useTheme } from '../context/ThemeProvider';
 const LandingPage = () => {
   const { theme } = useTheme();
   const isLight = theme === 'light';
+  const navigate = useNavigate();
+
+  // Check if user is already logged in and redirect to dashboard
+  useEffect(() => {
+    const authUser = localStorage.getItem('authUser');
+    if (authUser) {
+      try {
+        // Verify that the stored data is valid JSON
+        const parsedUser = JSON.parse(authUser);
+        if (parsedUser && parsedUser.id) {
+          navigate('/dashboard');
+        }
+      } catch (e) {
+        // Clear invalid data
+        console.error("Invalid authUser data:", e);
+        localStorage.removeItem('authUser');
+      }
+    }
+  }, [navigate]);
 
   return (
     <div className={`min-h-screen ${isLight ? 'bg-white' : 'bg-black'} text-foreground`}>
