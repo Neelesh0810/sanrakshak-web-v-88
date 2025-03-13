@@ -38,7 +38,7 @@ const VolunteerTaskDetails = () => {
         type: 'delivery',
         description: 'Delivering bottled water to Riverside District, Block 3. The family has been without clean water for 48 hours and includes an elderly person and two children.',
         location: 'Riverside District, Block 3',
-        locationDetails: 'Blue apartment building, Unit 204. There's flood damage to the entrance, use side door.',
+        locationDetails: 'Blue apartment building, Unit 204. There\'s flood damage to the entrance, use side door.',
         status: 'in-progress',
         priority: 'high',
         createdAt: Date.now() - 7200000, // 2 hours ago
