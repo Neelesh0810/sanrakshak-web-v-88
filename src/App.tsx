@@ -10,6 +10,12 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Connect from "./pages/Connect";
+import Resources from "./pages/Resources";
+import Map from "./pages/Map";
+import Alerts from "./pages/Alerts";
+import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
+import ForgotPassword from "./pages/ForgotPassword";
 
 const queryClient = new QueryClient();
 
@@ -18,7 +24,17 @@ const App = () => {
   useEffect(() => {
     const checkRoutes = () => {
       const currentPath = window.location.pathname;
-      if (currentPath !== "/" && !["login", "signup", "connect"].some(route => currentPath.includes(route))) {
+      if (currentPath !== "/" && ![
+        "login", 
+        "signup", 
+        "connect", 
+        "resources", 
+        "map", 
+        "alerts", 
+        "profile", 
+        "settings", 
+        "forgot-password"
+      ].some(route => currentPath.includes(route))) {
         console.error(`404 Error: User attempted to access non-existent route: ${currentPath}`);
       }
     };
@@ -37,6 +53,12 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/connect" element={<Connect />} />
+            <Route path="/resources" element={<Resources />} />
+            <Route path="/map" element={<Map />} />
+            <Route path="/alerts" element={<Alerts />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
