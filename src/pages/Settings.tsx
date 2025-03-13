@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
@@ -37,32 +36,54 @@ const Settings = () => {
   
   useEffect(() => {
     // Check if user is logged in
-    const storedUser = localStorage.getItem('authUser');
-    
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-        
-        // Load settings from localStorage if available
-        const storedSettings = localStorage.getItem(`settings_${parsedUser.id}`);
-        if (storedSettings) {
-          setSettings(JSON.parse(storedSettings));
+    const checkAuth = () => {
+      const storedUser = localStorage.getItem('authUser');
+      
+      if (storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          setUser(parsedUser);
+          
+          // Load settings from localStorage if available
+          const storedSettings = localStorage.getItem(`settings_${parsedUser.id}`);
+          if (storedSettings) {
+            try {
+              setSettings(JSON.parse(storedSettings));
+            } catch (e) {
+              console.error("Error parsing user settings:", e);
+              // If settings are invalid, we'll use defaults
+            }
+          }
+          
+          // Simulate loading
+          setTimeout(() => {
+            setIsLoading(false);
+          }, 800);
+        } catch (e) {
+          console.error("Error parsing user data:", e);
+          // Clear invalid data
+          localStorage.removeItem('authUser');
+          redirectToLogin();
         }
-        
-        // Simulate loading
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 800);
-      } catch (e) {
-        console.error("Error parsing user data:", e);
-        // Clear invalid data
-        localStorage.removeItem('authUser');
+      } else {
         redirectToLogin();
       }
-    } else {
-      redirectToLogin();
-    }
+    };
+    
+    checkAuth();
+    
+    // Add event listener for storage changes
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'authUser') {
+        checkAuth();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
   
   // Separate function to handle redirection to login
@@ -118,6 +139,7 @@ const Settings = () => {
     }
   };
   
+  // If still loading, show a loading indicator
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background text-foreground">
@@ -134,7 +156,25 @@ const Settings = () => {
   }
   
   // Return null if no user is found (will redirect in useEffect)
-  if (!user) return null;
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <Header />
+        <div className="pt-20 flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold mb-4">Authentication Required</h2>
+            <p className="mb-4">Please sign in to access settings</p>
+            <button 
+              onClick={() => navigate('/login')}
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg"
+            >
+              Go to Login
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="min-h-screen bg-background text-foreground">

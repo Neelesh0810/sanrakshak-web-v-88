@@ -38,12 +38,29 @@ const App = () => {
     const checkAuth = () => {
       const storedUser = localStorage.getItem('authUser');
       if (storedUser) {
-        setUser(JSON.parse(storedUser));
+        try {
+          // Validate the JSON format
+          const parsedUser = JSON.parse(storedUser);
+          setUser(parsedUser);
+        } catch (e) {
+          // Invalid JSON, clear it
+          console.error("Invalid authUser data:", e);
+          localStorage.removeItem('authUser');
+        }
       }
       setLoading(false);
     };
     
     checkAuth();
+    
+    // Listen for storage events to update auth state
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'authUser') {
+        checkAuth();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
     
     // Check if routes exist on load
     const checkRoutes = () => {
@@ -64,6 +81,10 @@ const App = () => {
     };
     
     checkRoutes();
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
   
   // Function to protect routes

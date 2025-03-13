@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -21,36 +20,60 @@ const Profile = () => {
 
   useEffect(() => {
     // Check authentication
-    const authUser = localStorage.getItem('authUser');
-    if (!authUser) {
-      redirectToLogin();
-      return;
-    }
+    const checkAuth = () => {
+      const authUser = localStorage.getItem('authUser');
+      if (!authUser) {
+        redirectToLogin();
+        return;
+      }
+      
+      try {
+        const userData = JSON.parse(authUser);
+        if (!userData || !userData.id) {
+          // Invalid user data
+          localStorage.removeItem('authUser');
+          redirectToLogin();
+          return;
+        }
+        
+        setUser(userData);
+        setActingAs(userData.role);
+        
+        // Get resource requests
+        const allRequests = JSON.parse(localStorage.getItem('resourceRequests') || '[]');
+        const userRequests = allRequests.filter((req: any) => req.userId === userData.id);
+        setRequests(userRequests);
+        
+        // Calculate stats
+        setStats({
+          requestsMade: userRequests.filter((req: any) => req.type === 'need').length,
+          requestsHelped: userRequests.filter((req: any) => req.type === 'offer').length,
+          responseReceived: 0 // Would need tracking for this in a real app
+        });
+        
+        setIsLoading(false);
+      } catch (e) {
+        console.error("Error parsing user data:", e);
+        // Clear invalid data
+        localStorage.removeItem('authUser');
+        redirectToLogin();
+      }
+    };
     
-    try {
-      const userData = JSON.parse(authUser);
-      setUser(userData);
-      setActingAs(userData.role);
-      
-      // Get resource requests
-      const allRequests = JSON.parse(localStorage.getItem('resourceRequests') || '[]');
-      const userRequests = allRequests.filter((req: any) => req.userId === userData.id);
-      setRequests(userRequests);
-      
-      // Calculate stats
-      setStats({
-        requestsMade: userRequests.filter((req: any) => req.type === 'need').length,
-        requestsHelped: userRequests.filter((req: any) => req.type === 'offer').length,
-        responseReceived: 0 // Would need tracking for this in a real app
-      });
-      
-      setIsLoading(false);
-    } catch (e) {
-      console.error("Error parsing user data:", e);
-      // Clear invalid data
-      localStorage.removeItem('authUser');
-      redirectToLogin();
-    }
+    checkAuth();
+    
+    // Listen for storage events to update auth state
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'authUser') {
+        checkAuth();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
   
   const redirectToLogin = () => {
@@ -71,6 +94,9 @@ const Profile = () => {
     const updatedUser = { ...user, role: newRole };
     localStorage.setItem('authUser', JSON.stringify(updatedUser));
     setUser(updatedUser);
+    
+    // Trigger storage event for other components
+    window.dispatchEvent(new Event('storage'));
     
     toast({
       title: "Role Switched",
@@ -93,7 +119,25 @@ const Profile = () => {
     );
   }
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <Header />
+        <div className="pt-20 flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold mb-4">Authentication Required</h2>
+            <p className="mb-4">Please sign in to view your profile</p>
+            <button 
+              onClick={() => navigate('/login')}
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg"
+            >
+              Go to Login
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black text-white">

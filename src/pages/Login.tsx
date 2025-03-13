@@ -19,58 +19,69 @@ const Login = () => {
     if (authUser) {
       try {
         // Verify that the stored data is valid JSON
-        JSON.parse(authUser);
-        navigate('/');
+        const parsedUser = JSON.parse(authUser);
+        if (parsedUser && parsedUser.id) {
+          navigate('/');
+        }
       } catch (e) {
         // Clear invalid data
+        console.error("Invalid authUser data:", e);
         localStorage.removeItem('authUser');
       }
     }
   }, [navigate]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
     
-    // Get users from localStorage
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const user = users.find(
-      (u: any) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
-    );
-    
-    if (user) {
-      if (!user.isActive) {
-        setError('Your account has been deactivated. Please contact support.');
-        setIsLoading(false);
-        return;
+    try {
+      // Get users from localStorage
+      const usersJson = localStorage.getItem('users') || '[]';
+      const users = JSON.parse(usersJson);
+      
+      const user = users.find(
+        (u: any) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
+      );
+      
+      if (user) {
+        if (!user.isActive) {
+          setError('Your account has been deactivated. Please contact support.');
+          setIsLoading(false);
+          return;
+        }
+        
+        // Store authenticated user in localStorage (without password)
+        const authUser = {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          profileImg: user.profileImg,
+          canVolunteer: user.canVolunteer
+        };
+        
+        localStorage.setItem('authUser', JSON.stringify(authUser));
+        
+        toast({
+          title: "Login Successful",
+          description: "Welcome back to Relief Connect",
+        });
+        
+        // Add a delay before navigation to ensure localStorage is updated
+        setTimeout(() => {
+          // Trigger storage event for other tabs/components
+          window.dispatchEvent(new Event('storage'));
+          navigate('/');
+        }, 300);
+      } else {
+        setError('Invalid email or password');
       }
-      
-      // Store authenticated user in localStorage (without password)
-      const authUser = {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        profileImg: user.profileImg,
-        canVolunteer: user.canVolunteer
-      };
-      
-      localStorage.setItem('authUser', JSON.stringify(authUser));
-      
-      toast({
-        title: "Login Successful",
-        description: "Welcome back to Relief Connect",
-      });
-      
-      setIsLoading(false);
-      
-      // Add a small delay before navigation to ensure localStorage is updated
-      setTimeout(() => {
-        navigate('/');
-      }, 100);
-    } else {
-      setError('Invalid email or password');
+    } catch (error) {
+      console.error("Login error:", error);
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
       setIsLoading(false);
     }
   };
