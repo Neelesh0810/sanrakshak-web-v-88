@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -25,7 +26,14 @@ import VolunteerTasks from "./pages/VolunteerTasks";
 import VolunteerTaskDetails from "./pages/VolunteerTaskDetails";
 import VolunteerStats from "./pages/VolunteerStats";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      staleTime: 30000,
+    },
+  },
+});
 
 // Ensure users array exists in localStorage
 if (!localStorage.getItem('users')) {
@@ -39,22 +47,28 @@ const App = () => {
   useEffect(() => {
     // Check if user is authenticated
     const checkAuth = () => {
-      const storedUser = localStorage.getItem('authUser');
-      if (storedUser) {
-        try {
+      try {
+        const storedUser = localStorage.getItem('authUser');
+        if (storedUser) {
           // Validate the JSON format
           const parsedUser = JSON.parse(storedUser);
-          setUser(parsedUser);
-        } catch (e) {
-          // Invalid JSON, clear it
-          console.error("Invalid authUser data:", e);
-          localStorage.removeItem('authUser');
+          if (parsedUser && parsedUser.id) {
+            setUser(parsedUser);
+          } else {
+            setUser(null);
+          }
+        } else {
+          // Make sure user is set to null if no auth data
+          setUser(null);
         }
-      } else {
-        // Make sure user is set to null if no auth data
+      } catch (e) {
+        // Invalid JSON, clear it
+        console.error("Invalid authUser data:", e);
+        localStorage.removeItem('authUser');
         setUser(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     
     checkAuth();

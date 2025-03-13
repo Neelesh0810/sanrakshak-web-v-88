@@ -13,7 +13,7 @@ const Login = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Check if user is already logged in - with fixed dependency array
+  // Check if user is already logged in
   useEffect(() => {
     const checkAuth = () => {
       const authUser = localStorage.getItem('authUser');
@@ -22,7 +22,7 @@ const Login = () => {
           // Verify that the stored data is valid JSON
           const parsedUser = JSON.parse(authUser);
           if (parsedUser && parsedUser.id) {
-            navigate('/dashboard');
+            navigate('/dashboard', { replace: true });
           }
         } catch (e) {
           // Clear invalid data
@@ -33,7 +33,6 @@ const Login = () => {
     };
     
     checkAuth();
-    // Adding navigate as a dependency
   }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -67,18 +66,20 @@ const Login = () => {
           canVolunteer: user.canVolunteer
         };
         
+        // Set the user in localStorage before navigation
         localStorage.setItem('authUser', JSON.stringify(authUser));
         
+        // Show success toast
         toast({
           title: "Login Successful",
           description: "Welcome back to Relief Connect",
         });
         
-        // Navigate immediately after setting localStorage
-        navigate('/dashboard');
-        
         // Dispatch storage event to notify other components
         window.dispatchEvent(new Event('storage'));
+        
+        // Navigate with replace to avoid navigation stack issues
+        navigate('/dashboard', { replace: true });
       } else {
         setError('Invalid email or password');
       }
