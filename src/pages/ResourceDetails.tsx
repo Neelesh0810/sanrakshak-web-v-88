@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Header from '../components/Header';
@@ -14,7 +13,7 @@ const ResourceDetails = () => {
       type: 'need',
       category: 'water',
       title: 'Clean Drinking Water',
-      description: 'Urgently need bottled water for family of 4, including infant. We have been without clean water for 2 days and have tried filtering but it's still not safe to drink. Any help would be greatly appreciated.',
+      description: "Urgently need bottled water for family of 4, including infant. We have been without clean water for 2 days and have tried filtering but it's still not safe to drink. Any help would be greatly appreciated.",
       location: 'Riverside District, Block 3',
       createdBy: 'Maria Rodriguez',
       contact: '555-123-4567',
