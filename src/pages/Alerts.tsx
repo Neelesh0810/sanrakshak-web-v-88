@@ -148,17 +148,17 @@ const Alerts = () => {
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'critical':
-        return 'bg-black text-white dark:bg-white dark:text-black';
+        return 'bg-white text-black';
       case 'warning':
-        return 'bg-black/80 text-white dark:bg-white/70 dark:text-black';
+        return 'bg-white/70 text-black';
       case 'info':
       default:
-        return 'bg-black/60 text-white dark:bg-white/30 dark:text-white';
+        return 'bg-white/30 text-white';
     }
   };
   
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white">
+    <div className="min-h-screen bg-black text-white">
       <Header title="Emergency Alerts" />
       
       <AnimatedTransition>
@@ -167,13 +167,13 @@ const Alerts = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
               <div>
                 <h1 className="text-2xl font-bold mb-2">Emergency Alerts</h1>
-                <p className="text-gray-600 dark:text-gray-400">Stay informed about critical situations and updates</p>
+                <p className="text-gray-400">Stay informed about critical situations and updates</p>
               </div>
               
               <button
                 onClick={markAllAsRead}
                 disabled={!user || alerts.every(alert => alert.read)}
-                className="flex items-center space-x-2 bg-gray-100 dark:bg-white/10 px-4 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-white/15 transition-colors disabled:opacity-50 border border-gray-200 dark:border-white/10"
+                className="flex items-center space-x-2 bg-white/10 px-4 py-2 rounded-lg hover:bg-white/15 transition-colors disabled:opacity-50 border border-white/10"
               >
                 <Bell size={18} />
                 <span>Mark All as Read</span>
@@ -182,7 +182,7 @@ const Alerts = () => {
             
             <div className="mb-6 flex flex-col sm:flex-row gap-3">
               <div className="flex items-center space-x-2">
-                <Filter size={16} className="text-gray-600 dark:text-gray-400" />
+                <Filter size={16} className="text-gray-400" />
                 <span className="text-sm">Filter:</span>
               </div>
               
@@ -191,8 +191,8 @@ const Alerts = () => {
                   onClick={() => setFilter('all')}
                   className={`px-3 py-1 rounded-full text-sm border ${
                     filter === 'all' 
-                      ? 'bg-black text-white dark:bg-white dark:text-black' 
-                      : 'bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/15 border-gray-200 dark:border-white/10'
+                      ? 'bg-white text-black' 
+                      : 'bg-white/10 hover:bg-white/15 border-white/10'
                   }`}
                 >
                   All
@@ -201,8 +201,8 @@ const Alerts = () => {
                   onClick={() => setFilter('critical')}
                   className={`px-3 py-1 rounded-full text-sm border ${
                     filter === 'critical' 
-                      ? 'bg-black text-white dark:bg-white dark:text-black' 
-                      : 'bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/15 border-gray-200 dark:border-white/10'
+                      ? 'bg-white text-black' 
+                      : 'bg-white/10 hover:bg-white/15 border-white/10'
                   }`}
                 >
                   Critical
@@ -211,8 +211,8 @@ const Alerts = () => {
                   onClick={() => setFilter('warning')}
                   className={`px-3 py-1 rounded-full text-sm border ${
                     filter === 'warning' 
-                      ? 'bg-black text-white dark:bg-white dark:text-black' 
-                      : 'bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/15 border-gray-200 dark:border-white/10'
+                      ? 'bg-white text-black' 
+                      : 'bg-white/10 hover:bg-white/15 border-white/10'
                   }`}
                 >
                   Warning
@@ -221,8 +221,8 @@ const Alerts = () => {
                   onClick={() => setFilter('info')}
                   className={`px-3 py-1 rounded-full text-sm border ${
                     filter === 'info' 
-                      ? 'bg-black text-white dark:bg-white dark:text-black' 
-                      : 'bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/15 border-gray-200 dark:border-white/10'
+                      ? 'bg-white text-black' 
+                      : 'bg-white/10 hover:bg-white/15 border-white/10'
                   }`}
                 >
                   Info
@@ -234,8 +234,8 @@ const Alerts = () => {
                   onClick={() => setReadFilter('all')}
                   className={`px-3 py-1 rounded-full text-sm border ${
                     readFilter === 'all' 
-                      ? 'bg-black text-white dark:bg-white dark:text-black' 
-                      : 'bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/15 border-gray-200 dark:border-white/10'
+                      ? 'bg-white text-black' 
+                      : 'bg-white/10 hover:bg-white/15 border-white/10'
                   }`}
                 >
                   All
@@ -244,8 +244,8 @@ const Alerts = () => {
                   onClick={() => setReadFilter('unread')}
                   className={`px-3 py-1 rounded-full text-sm border ${
                     readFilter === 'unread' 
-                      ? 'bg-black text-white dark:bg-white dark:text-black' 
-                      : 'bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/15 border-gray-200 dark:border-white/10'
+                      ? 'bg-white text-black' 
+                      : 'bg-white/10 hover:bg-white/15 border-white/10'
                   }`}
                 >
                   Unread Only
@@ -257,10 +257,10 @@ const Alerts = () => {
               {filteredAlerts.map(alert => (
                 <div 
                   key={alert.id}
-                  className={`glass-dark rounded-xl p-4 transition-all relative ${!alert.read ? 'bg-gray-50 dark:bg-white/5' : ''}`}
+                  className={`glass-dark rounded-xl p-4 transition-all relative ${!alert.read ? 'bg-white/5' : ''}`}
                 >
                   {!alert.read && (
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-black dark:bg-white rounded-full"></div>
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full"></div>
                   )}
                   
                   <div className="flex flex-col md:flex-row md:items-center gap-3">
@@ -270,9 +270,9 @@ const Alerts = () => {
                     
                     <div className="flex-1">
                       <h3 className="font-semibold text-lg">{alert.title}</h3>
-                      <p className="text-gray-700 dark:text-gray-300 mt-1">{alert.message}</p>
+                      <p className="text-gray-300 mt-1">{alert.message}</p>
                       
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 text-sm text-gray-600 dark:text-gray-400">
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 text-sm text-gray-400">
                         <span className="flex items-center">
                           <Bell size={14} className="mr-1" />
                           {alert.source}
@@ -287,7 +287,7 @@ const Alerts = () => {
                     {!alert.read && (
                       <button
                         onClick={() => markAsRead(alert.id)}
-                        className="self-end md:self-center bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/15 transition-colors rounded-lg px-3 py-1.5 text-sm flex items-center border border-gray-200 dark:border-white/10"
+                        className="self-end md:self-center bg-white/10 hover:bg-white/15 transition-colors rounded-lg px-3 py-1.5 text-sm flex items-center border border-white/10"
                       >
                         <BellOff size={14} className="mr-1" />
                         Mark as Read
@@ -298,16 +298,16 @@ const Alerts = () => {
               ))}
               
               {filteredAlerts.length === 0 && (
-                <div className="text-center py-12 border border-gray-200 dark:border-white/5 rounded-xl bg-white dark:bg-transparent shadow-soft dark:shadow-none">
-                  <Bell size={48} className="mx-auto mb-4 text-gray-300 dark:text-gray-500" />
+                <div className="text-center py-12 border border-white/5 rounded-xl bg-transparent shadow-none">
+                  <Bell size={48} className="mx-auto mb-4 text-gray-500" />
                   <h3 className="text-xl font-semibold mb-2">No Alerts</h3>
-                  <p className="text-gray-600 dark:text-gray-400 mb-4">There are no alerts matching your current filters.</p>
+                  <p className="text-gray-400 mb-4">There are no alerts matching your current filters.</p>
                   <button
                     onClick={() => {
                       setFilter('all');
                       setReadFilter('all');
                     }}
-                    className="px-4 py-2 bg-gray-100 dark:bg-white/10 rounded-lg text-sm hover:bg-gray-200 dark:hover:bg-white/15 transition-colors border border-gray-200 dark:border-white/10"
+                    className="px-4 py-2 bg-white/10 rounded-lg text-sm hover:bg-white/15 transition-colors border border-white/10"
                   >
                     Clear Filters
                   </button>
