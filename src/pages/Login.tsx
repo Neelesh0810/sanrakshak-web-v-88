@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import AnimatedTransition from '@/components/AnimatedTransition';
@@ -12,6 +12,21 @@ const Login = () => {
   const [error, setError] = useState('');
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const authUser = localStorage.getItem('authUser');
+    if (authUser) {
+      try {
+        // Verify that the stored data is valid JSON
+        JSON.parse(authUser);
+        navigate('/');
+      } catch (e) {
+        // Clear invalid data
+        localStorage.removeItem('authUser');
+      }
+    }
+  }, [navigate]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,14 +47,16 @@ const Login = () => {
       }
       
       // Store authenticated user in localStorage (without password)
-      localStorage.setItem('authUser', JSON.stringify({
+      const authUser = {
         id: user.id,
         email: user.email,
         name: user.name,
         role: user.role,
         profileImg: user.profileImg,
         canVolunteer: user.canVolunteer
-      }));
+      };
+      
+      localStorage.setItem('authUser', JSON.stringify(authUser));
       
       toast({
         title: "Login Successful",
@@ -47,7 +64,11 @@ const Login = () => {
       });
       
       setIsLoading(false);
-      navigate('/');
+      
+      // Add a small delay before navigation to ensure localStorage is updated
+      setTimeout(() => {
+        navigate('/');
+      }, 100);
     } else {
       setError('Invalid email or password');
       setIsLoading(false);

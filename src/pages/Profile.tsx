@@ -15,6 +15,7 @@ const Profile = () => {
     requestsHelped: 0,
     responseReceived: 0
   });
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -22,30 +23,43 @@ const Profile = () => {
     // Check authentication
     const authUser = localStorage.getItem('authUser');
     if (!authUser) {
-      toast({
-        title: "Authentication Required",
-        description: "Please sign in to view your profile",
-      });
-      navigate('/login');
+      redirectToLogin();
       return;
     }
     
-    const userData = JSON.parse(authUser);
-    setUser(userData);
-    setActingAs(userData.role);
-    
-    // Get resource requests
-    const allRequests = JSON.parse(localStorage.getItem('resourceRequests') || '[]');
-    const userRequests = allRequests.filter((req: any) => req.userId === userData.id);
-    setRequests(userRequests);
-    
-    // Calculate stats
-    setStats({
-      requestsMade: userRequests.filter((req: any) => req.type === 'need').length,
-      requestsHelped: userRequests.filter((req: any) => req.type === 'offer').length,
-      responseReceived: 0 // Would need tracking for this in a real app
+    try {
+      const userData = JSON.parse(authUser);
+      setUser(userData);
+      setActingAs(userData.role);
+      
+      // Get resource requests
+      const allRequests = JSON.parse(localStorage.getItem('resourceRequests') || '[]');
+      const userRequests = allRequests.filter((req: any) => req.userId === userData.id);
+      setRequests(userRequests);
+      
+      // Calculate stats
+      setStats({
+        requestsMade: userRequests.filter((req: any) => req.type === 'need').length,
+        requestsHelped: userRequests.filter((req: any) => req.type === 'offer').length,
+        responseReceived: 0 // Would need tracking for this in a real app
+      });
+      
+      setIsLoading(false);
+    } catch (e) {
+      console.error("Error parsing user data:", e);
+      // Clear invalid data
+      localStorage.removeItem('authUser');
+      redirectToLogin();
+    }
+  }, []);
+  
+  const redirectToLogin = () => {
+    toast({
+      title: "Authentication Required",
+      description: "Please sign in to view your profile",
     });
-  }, [navigate, toast]);
+    navigate('/login');
+  };
 
   const handleRoleSwitch = () => {
     if (!user || !user.canVolunteer) return;
@@ -63,6 +77,21 @@ const Profile = () => {
       description: `You are now acting as a ${newRole}`,
     });
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <Header />
+        <div className="pt-20 flex items-center justify-center min-h-screen">
+          <div className="animate-pulse flex flex-col items-center">
+            <div className="h-6 bg-white/10 rounded w-48 mb-4"></div>
+            <div className="h-4 bg-white/10 rounded w-64 mb-3"></div>
+            <div className="h-4 bg-white/10 rounded w-32"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) return null;
 

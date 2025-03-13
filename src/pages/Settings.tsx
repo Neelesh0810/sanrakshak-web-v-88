@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
@@ -37,35 +38,48 @@ const Settings = () => {
   useEffect(() => {
     // Check if user is logged in
     const storedUser = localStorage.getItem('authUser');
+    
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
-      
-      // Load settings from localStorage if available
-      const storedSettings = localStorage.getItem(`settings_${JSON.parse(storedUser).id}`);
-      if (storedSettings) {
-        setSettings(JSON.parse(storedSettings));
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+        
+        // Load settings from localStorage if available
+        const storedSettings = localStorage.getItem(`settings_${parsedUser.id}`);
+        if (storedSettings) {
+          setSettings(JSON.parse(storedSettings));
+        }
+        
+        // Simulate loading
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 800);
+      } catch (e) {
+        console.error("Error parsing user data:", e);
+        // Clear invalid data
+        localStorage.removeItem('authUser');
+        redirectToLogin();
       }
     } else {
-      // Redirect to login if not logged in
-      toast({
-        title: "Authentication Required",
-        description: "Please sign in to access settings",
-      });
-      navigate('/login');
+      redirectToLogin();
     }
-    
-    // Simulate loading
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 800);
-  }, [toast, navigate]);
+  }, []);
+  
+  // Separate function to handle redirection to login
+  const redirectToLogin = () => {
+    toast({
+      title: "Authentication Required",
+      description: "Please sign in to access settings",
+    });
+    navigate('/login');
+  };
   
   // Update theme when settings darkMode changes
   useEffect(() => {
-    if (!isLoading) {
+    if (!isLoading && user) {
       setTheme(settings.darkMode ? 'dark' : 'light');
     }
-  }, [settings.darkMode, setTheme, isLoading]);
+  }, [settings.darkMode, setTheme, isLoading, user]);
   
   const handleSettingToggle = (setting: keyof SettingsState) => {
     if (typeof settings[setting] === 'boolean') {
@@ -118,6 +132,9 @@ const Settings = () => {
       </div>
     );
   }
+  
+  // Return null if no user is found (will redirect in useEffect)
+  if (!user) return null;
   
   return (
     <div className="min-h-screen bg-background text-foreground">
