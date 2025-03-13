@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Menu, X, AlertTriangle, Bell, Settings, User, LogOut, Shield } from 'lucide-react';
+import { Menu, X, AlertTriangle, Bell, Settings, User, LogOut, Shield, UserCheck, Building, ArrowRightLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import Notifications from './Notifications';
@@ -19,6 +19,7 @@ const Header: React.FC<HeaderProps> = ({
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [roleSwitcherOpen, setRoleSwitcherOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { theme } = useTheme();
@@ -44,6 +45,7 @@ const Header: React.FC<HeaderProps> = ({
   
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const toggleProfile = () => setProfileOpen(!profileOpen);
+  const toggleRoleSwitcher = () => setRoleSwitcherOpen(!roleSwitcherOpen);
   
   const handleLogout = () => {
     localStorage.removeItem('authUser');
@@ -58,6 +60,35 @@ const Header: React.FC<HeaderProps> = ({
   const handleNavigate = (path: string) => {
     navigate(path);
     setProfileOpen(false);
+  };
+
+  const switchRole = (role: 'victim' | 'volunteer' | 'ngo' | 'government') => {
+    if (!user) return;
+    
+    const updatedUser = { ...user, role };
+    localStorage.setItem('authUser', JSON.stringify(updatedUser));
+    setUser(updatedUser);
+    
+    toast({
+      title: "Role Changed",
+      description: `You are now viewing as: ${getRoleName(role)}`,
+      duration: 3000,
+    });
+    
+    setRoleSwitcherOpen(false);
+    
+    // Reload the page to reflect changes
+    window.location.reload();
+  };
+  
+  const getRoleName = (role: string): string => {
+    switch (role) {
+      case 'victim': return 'Affected Person';
+      case 'volunteer': return 'Volunteer';
+      case 'ngo': return 'NGO';
+      case 'government': return 'Government';
+      default: return role;
+    }
   };
   
   return (
@@ -91,7 +122,7 @@ const Header: React.FC<HeaderProps> = ({
           </Link>
           
           <nav className="hidden md:flex items-center space-x-6">
-            <Link to="/" className="text-sm font-medium hover:opacity-80 transition-opacity">
+            <Link to="/dashboard" className="text-sm font-medium hover:opacity-80 transition-opacity">
               Dashboard
             </Link>
             <Link to="/resources" className="text-sm font-medium hover:opacity-80 transition-opacity">
@@ -108,6 +139,62 @@ const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center space-x-4">
             {user ? (
               <>
+                {user.role && (
+                  <div className="relative">
+                    <button 
+                      onClick={toggleRoleSwitcher}
+                      className="flex items-center space-x-2 rounded-full hover:bg-white/5 p-1 transition-colors"
+                      aria-label="Switch Role"
+                    >
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isLight ? "bg-gray-200" : "bg-white/10"}`}>
+                        <ArrowRightLeft size={16} />
+                      </div>
+                    </button>
+                    
+                    {roleSwitcherOpen && (
+                      <div className={`absolute right-0 mt-2 w-48 ${isLight ? "bg-white border border-gray-200" : "bg-black border border-white/10"} shadow-xl rounded-xl z-50 overflow-hidden`}>
+                        <div className={`p-3 ${isLight ? "border-b border-gray-200" : "border-b border-white/10"} text-sm`}>
+                          <p className="font-medium">Switch Role</p>
+                          <p className={`${isLight ? "text-gray-600" : "text-gray-400"} text-xs mt-0.5`}>View as different user type</p>
+                        </div>
+                        <div>
+                          <button
+                            className={`flex items-center w-full px-3 py-2 text-sm hover:bg-white/10 ${user.role === 'victim' ? 'bg-white/5' : ''}`}
+                            onClick={() => switchRole('victim')}
+                          >
+                            <User size={16} className="mr-2" />
+                            <span>Affected Person</span>
+                          </button>
+                          
+                          <button
+                            className={`flex items-center w-full px-3 py-2 text-sm hover:bg-white/10 ${user.role === 'volunteer' ? 'bg-white/5' : ''}`}
+                            onClick={() => switchRole('volunteer')}
+                          >
+                            <UserCheck size={16} className="mr-2" />
+                            <span>Volunteer</span>
+                          </button>
+                          
+                          <button
+                            className={`flex items-center w-full px-3 py-2 text-sm hover:bg-white/10 ${user.role === 'ngo' ? 'bg-white/5' : ''}`}
+                            onClick={() => switchRole('ngo')}
+                          >
+                            <Building size={16} className="mr-2" />
+                            <span>NGO</span>
+                          </button>
+                          
+                          <button
+                            className={`flex items-center w-full px-3 py-2 text-sm hover:bg-white/10 ${user.role === 'government' ? 'bg-white/5' : ''}`}
+                            onClick={() => switchRole('government')}
+                          >
+                            <Shield size={16} className="mr-2" />
+                            <span>Government</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
                 <Notifications />
                 
                 <div className="relative">

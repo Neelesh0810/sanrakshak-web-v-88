@@ -119,9 +119,9 @@ const VolunteerDashboard: React.FC = () => {
                 </div>
                 <div className="mt-3 pt-3 border-t border-white/5 flex justify-between items-center">
                   <span className="text-xs text-gray-500">Assigned 2 hours ago</span>
-                  <button className="text-xs text-white bg-white/10 hover:bg-white/15 px-2 py-1 rounded transition-colors">
+                  <Link to="/volunteer-tasks/task-1" className="text-xs text-white bg-white/10 hover:bg-white/15 px-2 py-1 rounded transition-colors">
                     View Details
-                  </button>
+                  </Link>
                 </div>
               </div>
               
@@ -138,9 +138,9 @@ const VolunteerDashboard: React.FC = () => {
                 </div>
                 <div className="mt-3 pt-3 border-t border-white/5 flex justify-between items-center">
                   <span className="text-xs text-gray-500">Today, 4:00 PM - 8:00 PM</span>
-                  <button className="text-xs text-white bg-white/10 hover:bg-white/15 px-2 py-1 rounded transition-colors">
+                  <Link to="/volunteer-tasks/task-2" className="text-xs text-white bg-white/10 hover:bg-white/15 px-2 py-1 rounded transition-colors">
                     View Details
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>

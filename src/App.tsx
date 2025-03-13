@@ -21,6 +21,10 @@ import ShelterMap from "./pages/ShelterMap";
 import ChatSection from "./pages/ChatSection";
 import ResourceDetails from "./pages/ResourceDetails";
 import StatusDetails from "./pages/StatusDetails";
+import LandingPage from "./pages/LandingPage";
+import VolunteerTasks from "./pages/VolunteerTasks";
+import VolunteerTaskDetails from "./pages/VolunteerTaskDetails";
+import VolunteerStats from "./pages/VolunteerStats";
 
 const queryClient = new QueryClient();
 
@@ -102,7 +106,8 @@ const App = () => {
           <Sonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Index />} />
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/dashboard" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -116,6 +121,9 @@ const App = () => {
               <Route path="/emergency-plan" element={<EmergencyPlan />} />
               <Route path="/shelter-map" element={<ShelterMap />} />
               <Route path="/chat/:contactId" element={<ChatSection />} />
+              <Route path="/volunteer-tasks" element={<VolunteerTasks />} />
+              <Route path="/volunteer-tasks/:id" element={<VolunteerTaskDetails />} />
+              <Route path="/volunteer-stats" element={<VolunteerStats />} />
               <Route path="/profile" element={
                 <ProtectedRoute>
                   <Profile />
