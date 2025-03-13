@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import VictimDashboard from './dashboards/VictimDashboard';
 import VolunteerDashboard from './dashboards/VolunteerDashboard';
 import NGODashboard from './dashboards/NGODashboard';
 import GovernmentDashboard from './dashboards/GovernmentDashboard';
-import { AlertTriangle, Info, Map, Users, Zap } from 'lucide-react';
+import { Info, Map, Users, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AnimatedTransition from './AnimatedTransition';
 import { Link } from 'react-router-dom';
@@ -39,8 +38,7 @@ const Dashboard: React.FC = () => {
           
           <div className="flex flex-col sm:flex-row sm:items-center justify-between">
             <div className="mb-4 sm:mb-0 sm:mr-6">
-              <div className="flex items-center mb-2">
-                <AlertTriangle size={18} className="mr-2 text-white" />
+              <div className="mb-2">
                 <h2 className="text-xl font-semibold">Hurricane Warning: Category 3</h2>
               </div>
               <p className="text-gray-300 text-sm mb-3">

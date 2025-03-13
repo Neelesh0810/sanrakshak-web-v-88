@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { AlertTriangle, Info, Map, ArrowRight } from 'lucide-react';
+import { Info, Map, ArrowRight } from 'lucide-react';
 import ResourceCard from '../ResourceCard';
 import StatusUpdate from '../StatusUpdate';
 import EmergencyContact from '../EmergencyContact';
@@ -17,8 +16,7 @@ const VictimDashboard: React.FC = () => {
           <div className="relative overflow-hidden glass-dark rounded-xl border border-white/10 p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between">
               <div className="mb-4 sm:mb-0 sm:mr-6">
-                <div className="flex items-center mb-2">
-                  <AlertTriangle size={18} className="mr-2 text-white" />
+                <div className="mb-2">
                   <h2 className="text-xl font-semibold">Need Help?</h2>
                 </div>
                 <p className="text-gray-300 text-sm mb-3">
