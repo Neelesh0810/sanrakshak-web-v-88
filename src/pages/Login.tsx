@@ -22,6 +22,7 @@ const Login = () => {
           // Verify that the stored data is valid JSON
           const parsedUser = JSON.parse(authUser);
           if (parsedUser && parsedUser.id) {
+            // Force a clean navigation without history
             navigate('/dashboard', { replace: true });
           }
         } catch (e) {
@@ -66,19 +67,24 @@ const Login = () => {
           canVolunteer: user.canVolunteer
         };
         
-        // Set the user in localStorage before navigation
+        // Set the user in localStorage
         localStorage.setItem('authUser', JSON.stringify(authUser));
         
-        // Show success toast
+        // Display success toast
         toast({
           title: "Login Successful",
           description: "Welcome back to Relief Connect",
         });
         
-        // Dispatch storage event to notify other components
+        // Force update other components via storage event
+        window.dispatchEvent(new Event('auth-state-changed')); 
         window.dispatchEvent(new Event('storage'));
         
-        // Navigate with replace to avoid navigation stack issues
+        // Clear form
+        setEmail('');
+        setPassword('');
+        
+        // Navigate to dashboard with replace to ensure clean history
         navigate('/dashboard', { replace: true });
       } else {
         setError('Invalid email or password');

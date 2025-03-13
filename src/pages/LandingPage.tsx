@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, AlertTriangle, Shield, CheckCircle, MapPin, Menu, X } from 'lucide-react';
@@ -11,48 +10,71 @@ const LandingPage = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Check if user is already logged in and update state
   useEffect(() => {
     const checkAuth = () => {
-      const authUser = localStorage.getItem('authUser');
-      if (authUser) {
-        try {
+      setIsLoading(true);
+      try {
+        const authUser = localStorage.getItem('authUser');
+        if (authUser) {
           // Verify that the stored data is valid JSON
           const parsedUser = JSON.parse(authUser);
           if (parsedUser && parsedUser.id) {
             setUser(parsedUser);
+          } else {
+            setUser(null);
           }
-        } catch (e) {
-          // Clear invalid data
-          console.error("Invalid authUser data:", e);
-          localStorage.removeItem('authUser');
+        } else {
+          setUser(null);
         }
+      } catch (e) {
+        // Clear invalid data
+        console.error("Invalid authUser data:", e);
+        localStorage.removeItem('authUser');
+        setUser(null);
+      } finally {
+        setIsLoading(false);
       }
     };
     
     checkAuth();
     
-    // Listen for storage events to update auth state
-    const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === 'authUser') {
-        checkAuth();
-      }
+    // Listen for auth state changes
+    const handleAuthChange = () => {
+      checkAuth();
     };
     
-    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('storage', handleAuthChange);
+    window.addEventListener('auth-state-changed', handleAuthChange);
     
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('storage', handleAuthChange);
+      window.removeEventListener('auth-state-changed', handleAuthChange);
     };
-  }, [navigate]);
+  }, []);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
   
   const handleLogout = () => {
     localStorage.removeItem('authUser');
     setUser(null);
-    window.location.reload();
+    
+    // Dispatch auth change event
+    window.dispatchEvent(new Event('auth-state-changed'));
+    window.dispatchEvent(new Event('storage'));
+    
+    // Toast for logout confirmation
+    navigate('/', { replace: true });
+  };
+
+  const handleGetStarted = () => {
+    if (user) {
+      navigate('/dashboard', { replace: true });
+    } else {
+      navigate('/signup', { replace: true });
+    }
   };
 
   return (
@@ -90,7 +112,9 @@ const LandingPage = () => {
             </div>
             
             <div className="flex items-center space-x-4">
-              {user ? (
+              {isLoading ? (
+                <div className="w-24 h-8 bg-white/10 animate-pulse rounded-lg"></div>
+              ) : user ? (
                 <>
                   <Link 
                     to="/profile" 
@@ -222,7 +246,9 @@ const LandingPage = () => {
                 </p>
                 
                 <div className="flex flex-col sm:flex-row justify-center gap-4">
-                  {user ? (
+                  {isLoading ? (
+                    <div className="h-12 bg-white/10 animate-pulse rounded-lg w-40"></div>
+                  ) : user ? (
                     <Link 
                       to="/dashboard" 
                       className="inline-flex items-center justify-center px-6 py-3 rounded-lg text-base font-medium bg-white text-black hover:bg-white/90 transition-colors"
@@ -231,13 +257,13 @@ const LandingPage = () => {
                       <ArrowRight size={18} className="ml-2" />
                     </Link>
                   ) : (
-                    <Link 
-                      to="/signup" 
+                    <button 
+                      onClick={handleGetStarted}
                       className="inline-flex items-center justify-center px-6 py-3 rounded-lg text-base font-medium bg-white text-black hover:bg-white/90 transition-colors"
                     >
                       Get Started
                       <ArrowRight size={18} className="ml-2" />
-                    </Link>
+                    </button>
                   )}
                   
                   <Link 
@@ -308,11 +334,10 @@ const LandingPage = () => {
                   style={{ transform: 'rotate(15deg)' }}
                 >
                   <Shield size={20} className="text-primary font-bold" />
-                  <span className="font-bold text-lg">S.</span>
+                  <span className="ml-2 text-sm text-muted-foreground">
+                    Emergency Response Platform
+                  </span>
                 </div>
-                <span className="ml-2 text-sm text-muted-foreground">
-                  Emergency Response Platform
-                </span>
               </div>
             </div>
             
