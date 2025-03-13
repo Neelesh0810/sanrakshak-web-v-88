@@ -1,8 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { Menu, X, AlertTriangle, Bell, Settings } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Menu, X, AlertTriangle, Bell, Settings, User, LogOut } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import Notifications from './Notifications';
+import { useToast } from "@/hooks/use-toast";
 
 interface HeaderProps {
   title?: string;
@@ -15,6 +17,12 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  
+  // Get user from localStorage
+  const [user, setUser] = useState<any>(null);
   
   useEffect(() => {
     const handleScroll = () => {
@@ -25,7 +33,25 @@ const Header: React.FC<HeaderProps> = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   
+  useEffect(() => {
+    const storedUser = localStorage.getItem('authUser');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+  
   const toggleMenu = () => setMenuOpen(!menuOpen);
+  const toggleProfile = () => setProfileOpen(!profileOpen);
+  
+  const handleLogout = () => {
+    localStorage.removeItem('authUser');
+    setUser(null);
+    toast({
+      title: "Logged Out",
+      description: "You have been signed out successfully",
+    });
+    navigate('/');
+  };
   
   return (
     <header 
@@ -61,18 +87,73 @@ const Header: React.FC<HeaderProps> = ({
           </nav>
           
           <div className="flex items-center space-x-4">
-            <button 
-              className="p-2 rounded-full hover:bg-white/5 transition-colors focus-ring"
-              aria-label="Notifications"
-            >
-              <Bell size={20} />
-            </button>
-            <button 
-              className="p-2 rounded-full hover:bg-white/5 transition-colors focus-ring"
-              aria-label="Settings"
-            >
-              <Settings size={20} />
-            </button>
+            {user ? (
+              <>
+                <Notifications />
+                
+                <div className="relative">
+                  <button 
+                    onClick={toggleProfile}
+                    className="flex items-center space-x-2 rounded-full hover:bg-white/5 p-1 transition-colors"
+                    aria-label="User profile"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                      <User size={16} />
+                    </div>
+                  </button>
+                  
+                  {profileOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-black border border-white/10 shadow-xl rounded-xl z-50 overflow-hidden">
+                      <div className="p-3 border-b border-white/10 text-sm">
+                        <p className="font-medium">{user.name}</p>
+                        <p className="text-gray-400 text-xs mt-0.5">{user.email}</p>
+                      </div>
+                      <div>
+                        <Link 
+                          to="/profile" 
+                          className="flex items-center px-4 py-2 text-sm hover:bg-white/5 transition-colors"
+                          onClick={() => setProfileOpen(false)}
+                        >
+                          <User size={16} className="mr-2" />
+                          <span>Profile</span>
+                        </Link>
+                        <Link 
+                          to="/settings" 
+                          className="flex items-center px-4 py-2 text-sm hover:bg-white/5 transition-colors"
+                          onClick={() => setProfileOpen(false)}
+                        >
+                          <Settings size={16} className="mr-2" />
+                          <span>Settings</span>
+                        </Link>
+                        <button 
+                          onClick={handleLogout}
+                          className="flex items-center px-4 py-2 text-sm hover:bg-white/5 transition-colors w-full text-left border-t border-white/10"
+                        >
+                          <LogOut size={16} className="mr-2" />
+                          <span>Sign out</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Link 
+                  to="/login" 
+                  className="text-sm font-medium py-1.5 px-3 rounded-lg hover:bg-white/5 transition-colors"
+                >
+                  Sign in
+                </Link>
+                <Link 
+                  to="/signup" 
+                  className="text-sm font-medium py-1.5 px-3 rounded-lg bg-white text-black hover:bg-white/90 transition-colors"
+                >
+                  Sign up
+                </Link>
+              </div>
+            )}
+            
             <button 
               className="md:hidden p-2 rounded-full hover:bg-white/5 transition-colors focus-ring"
               onClick={toggleMenu}
@@ -116,13 +197,32 @@ const Header: React.FC<HeaderProps> = ({
             >
               Alerts
             </Link>
-            <Link 
-              to="/profile" 
-              className="text-2xl font-medium" 
-              onClick={toggleMenu}
-            >
-              Profile
-            </Link>
+            {user ? (
+              <Link 
+                to="/profile" 
+                className="text-2xl font-medium" 
+                onClick={toggleMenu}
+              >
+                Profile
+              </Link>
+            ) : (
+              <div className="flex flex-col items-center space-y-4 mt-6">
+                <Link 
+                  to="/login" 
+                  className="text-xl font-medium py-2 px-6 rounded-lg hover:bg-white/5 transition-colors"
+                  onClick={toggleMenu}
+                >
+                  Sign in
+                </Link>
+                <Link 
+                  to="/signup" 
+                  className="text-xl font-medium py-2 px-6 rounded-lg bg-white text-black hover:bg-white/90 transition-colors"
+                  onClick={toggleMenu}
+                >
+                  Sign up
+                </Link>
+              </div>
+            )}
           </nav>
         </div>
       )}

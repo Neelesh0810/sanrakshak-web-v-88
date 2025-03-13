@@ -1,7 +1,8 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { ArrowRight, Droplet, Home, ShoppingBag, Utensils, Heart, Shield } from 'lucide-react';
+import { ArrowRight, Droplet, Home, ShoppingBag, Utensils, Heart, Shield, CheckCircle } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast";
 
 interface ResourceCardProps {
   type: 'need' | 'offer';
@@ -24,6 +25,10 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   urgent = false,
   className,
 }) => {
+  const [isRequesting, setIsRequesting] = useState(false);
+  const [isRequested, setIsRequested] = useState(false);
+  const { toast } = useToast();
+  
   const getCategoryIcon = () => {
     switch (category) {
       case 'water':
@@ -41,6 +46,49 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
       default:
         return <Droplet size={18} />;
     }
+  };
+
+  const handleRequestClick = () => {
+    // Check if user is logged in
+    const user = localStorage.getItem('authUser');
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to request or respond",
+      });
+      return;
+    }
+    
+    setIsRequesting(true);
+    
+    // Simulate request processing
+    setTimeout(() => {
+      setIsRequesting(false);
+      setIsRequested(true);
+      
+      // Add to notifications
+      const currentUser = JSON.parse(user);
+      const notifications = JSON.parse(localStorage.getItem(`notifications_${currentUser.id}`) || '[]');
+      
+      const newNotification = {
+        id: Date.now().toString(),
+        type: type === 'need' ? 'response' : 'request',
+        title: type === 'need' ? 'You offered help' : 'You requested resource',
+        message: `You have ${type === 'need' ? 'offered to help with' : 'requested'}: ${title}`,
+        time: Date.now(),
+        read: false,
+        link: '/connect'
+      };
+      
+      localStorage.setItem(`notifications_${currentUser.id}`, JSON.stringify([newNotification, ...notifications]));
+      
+      toast({
+        title: type === 'need' ? "Response Sent" : "Request Sent",
+        description: type === 'need' 
+          ? "Your offer to help has been sent" 
+          : "Your request has been submitted",
+      });
+    }, 1000);
   };
 
   return (
@@ -84,13 +132,31 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
         </div>
         
         <div className="flex justify-end">
-          <button 
-            className="flex items-center text-sm font-medium py-1.5 px-3 rounded-full bg-white/10 hover:bg-white/15 transition-colors focus-ring"
-            aria-label={type === 'need' ? 'I can help' : 'I need this'}
-          >
-            <span className="mr-1.5">{type === 'need' ? 'Respond' : 'Request'}</span>
-            <ArrowRight size={14} />
-          </button>
+          {isRequested ? (
+            <button 
+              disabled
+              className="flex items-center text-sm font-medium py-1.5 px-3 rounded-full bg-white/10 opacity-70 transition-colors"
+            >
+              <CheckCircle size={14} className="mr-1.5" />
+              <span>{type === 'need' ? 'Response Sent' : 'Requested'}</span>
+            </button>
+          ) : (
+            <button 
+              onClick={handleRequestClick}
+              disabled={isRequesting}
+              className="flex items-center text-sm font-medium py-1.5 px-3 rounded-full bg-white/10 hover:bg-white/15 transition-colors focus-ring disabled:opacity-50"
+              aria-label={type === 'need' ? 'I can help' : 'I need this'}
+            >
+              {isRequesting ? (
+                <span className="animate-pulse">Processing...</span>
+              ) : (
+                <>
+                  <span className="mr-1.5">{type === 'need' ? 'Respond' : 'Request'}</span>
+                  <ArrowRight size={14} />
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
     </div>
