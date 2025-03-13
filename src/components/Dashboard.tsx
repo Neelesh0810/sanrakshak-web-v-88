@@ -7,6 +7,7 @@ import EmergencyContact from './EmergencyContact';
 import LocationFinder from './LocationFinder';
 import { cn } from '@/lib/utils';
 import AnimatedTransition from './AnimatedTransition';
+import { Link } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'resources' | 'updates' | 'map'>('resources');
@@ -84,12 +85,12 @@ const Dashboard: React.FC = () => {
               </div>
               
               <div className="flex space-x-2">
-                <button className="px-4 py-2 rounded-full text-sm bg-white text-black hover:bg-white/90 transition-colors">
+                <Link to="/emergency-plan" className="px-4 py-2 rounded-full text-sm bg-white text-black hover:bg-white/90 transition-colors">
                   Emergency Plan
-                </button>
-                <button className="px-4 py-2 rounded-full text-sm bg-white/10 hover:bg-white/15 transition-colors">
+                </Link>
+                <Link to="/shelter-map" className="px-4 py-2 rounded-full text-sm bg-white/10 hover:bg-white/15 transition-colors">
                   Shelter Map
-                </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -101,14 +102,15 @@ const Dashboard: React.FC = () => {
           <AnimatedTransition className="mb-6" delay={100}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">Recent Resources</h2>
-              <button className="flex items-center text-sm text-gray-400 hover:text-white transition-colors">
+              <Link to="/resources" className="flex items-center text-sm text-gray-400 hover:text-white transition-colors">
                 <span className="mr-1">View All</span>
                 <ArrowRight size={14} />
-              </button>
+              </Link>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <ResourceCard
+                id="resource-1"
                 type="need"
                 category="water"
                 title="Clean Drinking Water"
@@ -118,6 +120,7 @@ const Dashboard: React.FC = () => {
               />
               
               <ResourceCard
+                id="resource-2"
                 type="offer"
                 category="shelter"
                 title="Temporary Housing Available"
@@ -127,6 +130,7 @@ const Dashboard: React.FC = () => {
               />
               
               <ResourceCard
+                id="resource-3"
                 type="need"
                 category="medical"
                 title="Diabetes Medication"
@@ -137,6 +141,7 @@ const Dashboard: React.FC = () => {
               />
               
               <ResourceCard
+                id="resource-4"
                 type="offer"
                 category="food"
                 title="Hot Meals Available"
@@ -149,14 +154,15 @@ const Dashboard: React.FC = () => {
           <AnimatedTransition delay={200}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">Status Updates</h2>
-              <button className="flex items-center text-sm text-gray-400 hover:text-white transition-colors">
+              <Link to="/alerts" className="flex items-center text-sm text-gray-400 hover:text-white transition-colors">
                 <span className="mr-1">View All</span>
                 <ArrowRight size={14} />
-              </button>
+              </Link>
             </div>
             
             <div className="space-y-4">
               <StatusUpdate
+                id="status-1"
                 title="Power Restoration Progress"
                 message="Crews are working to restore power to the eastern district. Estimated completion: 24 hours."
                 source="City Power & Utilities"
@@ -165,6 +171,7 @@ const Dashboard: React.FC = () => {
               />
               
               <StatusUpdate
+                id="status-2"
                 title="Road Closure Update"
                 message="Main Street between 5th and 8th Ave remains flooded and closed to traffic. Use alternate routes."
                 source="Department of Transportation"
@@ -173,6 +180,7 @@ const Dashboard: React.FC = () => {
               />
               
               <StatusUpdate
+                id="status-3"
                 title="Medical Supply Delivery"
                 message="Additional medical supplies have arrived at Central Hospital and Community Clinic."
                 source="Health Department"
@@ -198,6 +206,7 @@ const Dashboard: React.FC = () => {
                 name="Emergency Response"
                 role="Coordination Center"
                 phone="555-911"
+                contactId="emergency-1"
                 available={true}
               />
               
@@ -205,6 +214,7 @@ const Dashboard: React.FC = () => {
                 name="Dr. Sarah Johnson"
                 role="Medical Coordinator"
                 phone="555-123-7890"
+                contactId="medical-1"
                 available={true}
               />
               
@@ -212,6 +222,7 @@ const Dashboard: React.FC = () => {
                 name="Robert Chen"
                 role="Shelter Manager"
                 phone="555-456-7890"
+                contactId="shelter-1"
                 available={false}
               />
             </div>

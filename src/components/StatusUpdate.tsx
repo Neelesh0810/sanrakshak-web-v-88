@@ -2,8 +2,10 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Clock } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface StatusUpdateProps {
+  id?: string;
   title: string;
   message: string;
   source: string;
@@ -13,6 +15,7 @@ interface StatusUpdateProps {
 }
 
 const StatusUpdate: React.FC<StatusUpdateProps> = ({
+  id = "status-1",
   title,
   message,
   source,
@@ -54,9 +57,12 @@ const StatusUpdate: React.FC<StatusUpdateProps> = ({
         
         <div className="flex justify-between items-center">
           <span className="text-xs text-gray-500">Source: {source}</span>
-          <button className="text-xs bg-white/10 hover:bg-white/15 px-3 py-1 rounded-full transition-colors">
+          <Link 
+            to={`/status/${id}`} 
+            className="text-xs bg-white/10 hover:bg-white/15 px-3 py-1 rounded-full transition-colors"
+          >
             Details
-          </button>
+          </Link>
         </div>
       </div>
     </div>

@@ -2,11 +2,13 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Phone, MessageCircle, Copy } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface EmergencyContactProps {
   name: string;
   role: string;
   phone: string;
+  contactId?: string;
   available?: boolean;
   className?: string;
 }
@@ -15,6 +17,7 @@ const EmergencyContact: React.FC<EmergencyContactProps> = ({
   name,
   role,
   phone,
+  contactId = "default",
   available = true,
   className,
 }) => {
@@ -69,12 +72,13 @@ const EmergencyContact: React.FC<EmergencyContactProps> = ({
             <span>Call</span>
           </button>
           
-          <button 
+          <Link 
+            to={`/chat/${contactId}`}
             className="flex items-center justify-center rounded-full py-1.5 px-4 text-sm bg-white/10 hover:bg-white/15 transition-colors flex-1"
           >
             <MessageCircle size={14} className="mr-1.5" />
             <span>Message</span>
-          </button>
+          </Link>
         </div>
       </div>
     </div>

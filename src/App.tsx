@@ -9,13 +9,17 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import Connect from "./pages/Connect";
 import Resources from "./pages/Resources";
 import Map from "./pages/Map";
 import Alerts from "./pages/Alerts";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import ForgotPassword from "./pages/ForgotPassword";
+import EmergencyPlan from "./pages/EmergencyPlan";
+import ShelterMap from "./pages/ShelterMap";
+import ChatSection from "./pages/ChatSection";
+import ResourceDetails from "./pages/ResourceDetails";
+import StatusDetails from "./pages/StatusDetails";
 
 const queryClient = new QueryClient();
 
@@ -81,14 +85,14 @@ const App = () => {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             
             {/* Protected Routes */}
-            <Route path="/connect" element={
-              <ProtectedRoute>
-                <Connect />
-              </ProtectedRoute>
-            } />
             <Route path="/resources" element={<Resources />} />
+            <Route path="/resources/:id" element={<ResourceDetails />} />
             <Route path="/map" element={<Map />} />
             <Route path="/alerts" element={<Alerts />} />
+            <Route path="/status/:id" element={<StatusDetails />} />
+            <Route path="/emergency-plan" element={<EmergencyPlan />} />
+            <Route path="/shelter-map" element={<ShelterMap />} />
+            <Route path="/chat/:contactId" element={<ChatSection />} />
             <Route path="/profile" element={
               <ProtectedRoute>
                 <Profile />

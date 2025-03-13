@@ -4,7 +4,6 @@ import Header from '../components/Header';
 import Dashboard from '../components/Dashboard';
 import { useToast } from "@/hooks/use-toast";
 
-// Add framer-motion dependency
 const Index = () => {
   const { toast } = useToast();
   

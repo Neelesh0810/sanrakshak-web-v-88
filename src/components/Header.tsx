@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Menu, X, AlertTriangle, Bell, Settings, User, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -21,7 +20,6 @@ const Header: React.FC<HeaderProps> = ({
   const { toast } = useToast();
   const navigate = useNavigate();
   
-  // Get user from localStorage
   const [user, setUser] = useState<any>(null);
   
   useEffect(() => {
@@ -72,11 +70,11 @@ const Header: React.FC<HeaderProps> = ({
           </Link>
           
           <nav className="hidden md:flex items-center space-x-6">
+            <Link to="/" className="text-sm font-medium hover:opacity-80 transition-opacity">
+              Dashboard
+            </Link>
             <Link to="/resources" className="text-sm font-medium hover:opacity-80 transition-opacity">
               Resources
-            </Link>
-            <Link to="/connect" className="text-sm font-medium hover:opacity-80 transition-opacity">
-              Connect
             </Link>
             <Link to="/map" className="text-sm font-medium hover:opacity-80 transition-opacity">
               Map
@@ -165,23 +163,22 @@ const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
       
-      {/* Mobile menu */}
       {menuOpen && (
         <div className="fixed inset-0 pt-16 bg-black/95 backdrop-blur-md z-40 animate-fade-in md:hidden">
           <nav className="flex flex-col items-center justify-center h-full space-y-8 p-6">
+            <Link 
+              to="/" 
+              className="text-2xl font-medium" 
+              onClick={toggleMenu}
+            >
+              Dashboard
+            </Link>
             <Link 
               to="/resources" 
               className="text-2xl font-medium" 
               onClick={toggleMenu}
             >
               Resources
-            </Link>
-            <Link 
-              to="/connect" 
-              className="text-2xl font-medium" 
-              onClick={toggleMenu}
-            >
-              Connect
             </Link>
             <Link 
               to="/map" 
