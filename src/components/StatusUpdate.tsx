@@ -46,7 +46,7 @@ const StatusUpdate: React.FC<StatusUpdateProps> = ({
         'rounded-lg overflow-hidden transition-all',
         isLight 
           ? 'bg-white border border-gray-300 shadow-soft' 
-          : 'bg-black/30 backdrop-blur-sm',
+          : 'bg-black/30 backdrop-blur-sm border border-white/10',
         getPriorityStyles(),
         className
       )}
@@ -69,7 +69,7 @@ const StatusUpdate: React.FC<StatusUpdateProps> = ({
             className={cn(
               "text-xs px-3 py-1 rounded-full transition-colors",
               isLight 
-                ? "bg-gray-200 hover:bg-gray-300" 
+                ? "bg-gray-200 hover:bg-gray-300 text-gray-800" 
                 : "bg-white/10 hover:bg-white/15"
             )}
           >
