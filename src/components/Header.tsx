@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Menu, X, AlertTriangle, Bell, Settings, User, LogOut, Shield } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -75,13 +76,12 @@ const Header: React.FC<HeaderProps> = ({
             )}
             <div className="flex items-center">
               <div 
-                className="flex items-center justify-center mr-1 transform rotate-15"
+                className="flex items-center justify-center transform rotate-15"
                 style={{ transform: 'rotate(15deg)' }}
               >
                 <Shield size={24} className="text-primary font-bold" />
                 <span className="font-bold text-xl">S.</span>
               </div>
-              <span className="font-semibold text-xl tracking-tight">{title}</span>
             </div>
           </Link>
           
