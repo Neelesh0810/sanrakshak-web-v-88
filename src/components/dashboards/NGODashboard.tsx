@@ -1,9 +1,9 @@
-import React, { useMemo, useState } from 'react';
+
+import React, { useMemo } from 'react';
 import { Building, ArrowRight, PieChart, Users, Map, Plus } from 'lucide-react';
 import ResourceCard from '../ResourceCard';
 import StatusUpdate from '../StatusUpdate';
 import AnimatedTransition from '../AnimatedTransition';
-import ResourceDetailsPanel from '../ResourceDetailsPanel';
 import { Link } from 'react-router-dom';
 import useResourceData from '@/hooks/useResourceData';
 
@@ -14,9 +14,6 @@ interface NGODashboardProps {
 const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
   // Use passed resourceData or create a new instance
   const { resources, loading } = resourceData || useResourceData();
-  
-  // State for the resource details panel
-  const [selectedResourceDetails, setSelectedResourceDetails] = useState<any>(null);
   
   // Filter resources to show urgent needs for NGO assistance
   const urgentNeeds = useMemo(() => {
@@ -57,29 +54,6 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
       .sort(([,a], [,b]) => b.percentage - a.percentage)
       .slice(0, 4); // Top 4 categories
   }, [resources]);
-  
-  // Handle showing resource details
-  const handleViewResourceDetails = (category: string) => {
-    // Find a resource of this category or create a dummy one
-    const resourceOfCategory = resources.find(r => r.category === category.toLowerCase()) || {
-      id: `${category.toLowerCase()}-1`,
-      type: 'offer',
-      category: category.toLowerCase(),
-      title: `${category} Supplies`,
-      description: `Information about ${category.toLowerCase()} resources and distribution details.`,
-      location: 'Multiple Distribution Centers',
-      timestamp: Date.now(),
-      status: category === 'Food' ? 'addressing' : 'available',
-      quantity: category === 'Water' ? 5000 : category === 'Food' ? 120 : 300
-    };
-    
-    setSelectedResourceDetails(resourceOfCategory);
-  };
-  
-  // Close the resource details panel
-  const closeResourceDetails = () => {
-    setSelectedResourceDetails(null);
-  };
   
   return (
     <div className="container mx-auto px-4">
@@ -130,13 +104,10 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
                 <p className="text-sm text-gray-400 mb-3">5,000 bottles ready for distribution</p>
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-gray-500">Updated 30 minutes ago</span>
-                  <button
-                    onClick={() => handleViewResourceDetails('Water')}
-                    className="text-white hover:underline flex items-center"
-                  >
+                  <Link to="/resource-management/water" className="text-white hover:underline flex items-center">
                     <span>Details</span>
                     <ArrowRight size={12} className="ml-1" />
-                  </button>
+                  </Link>
                 </div>
               </div>
               
@@ -148,13 +119,10 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
                 <p className="text-sm text-gray-400 mb-3">120 meal kits remaining (Critical level)</p>
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-gray-500">Updated 45 minutes ago</span>
-                  <button
-                    onClick={() => handleViewResourceDetails('Food')}
-                    className="text-white hover:underline flex items-center"
-                  >
+                  <Link to="/resource-management/food" className="text-white hover:underline flex items-center">
                     <span>Details</span>
                     <ArrowRight size={12} className="ml-1" />
-                  </button>
+                  </Link>
                 </div>
               </div>
               
@@ -166,13 +134,10 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
                 <p className="text-sm text-gray-400 mb-3">First aid kits, medications, and basic medical equipment</p>
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-gray-500">Updated 2 hours ago</span>
-                  <button
-                    onClick={() => handleViewResourceDetails('Medical')}
-                    className="text-white hover:underline flex items-center"
-                  >
+                  <Link to="/resource-management/medical" className="text-white hover:underline flex items-center">
                     <span>Details</span>
                     <ArrowRight size={12} className="ml-1" />
-                  </button>
+                  </Link>
                 </div>
               </div>
               
@@ -184,13 +149,10 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
                 <p className="text-sm text-gray-400 mb-3">3 shelter locations with capacity for 150 more people</p>
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-gray-500">Updated 1 hour ago</span>
-                  <button
-                    onClick={() => handleViewResourceDetails('Shelter')}
-                    className="text-white hover:underline flex items-center"
-                  >
+                  <Link to="/resource-management/shelter" className="text-white hover:underline flex items-center">
                     <span>Details</span>
                     <ArrowRight size={12} className="ml-1" />
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -214,10 +176,12 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
             
             <div className="space-y-4">
               {loading ? (
+                // Show loading states
                 Array(2).fill(0).map((_, index) => (
                   <div key={`loading-${index}`} className="animate-pulse rounded-xl p-6 bg-white/5 h-64"></div>
                 ))
               ) : urgentNeeds.length > 0 ? (
+                // Show urgent needs
                 urgentNeeds.map(resource => (
                   <ResourceCard
                     key={resource.id}
@@ -232,6 +196,7 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
                   />
                 ))
               ) : (
+                // No urgent needs
                 <div className="p-6 border border-white/10 rounded-xl text-center">
                   <p className="text-gray-400">No urgent help requests at the moment.</p>
                 </div>
@@ -314,13 +279,6 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
           </AnimatedTransition>
         </div>
       </div>
-
-      {selectedResourceDetails && (
-        <ResourceDetailsPanel 
-          resource={selectedResourceDetails} 
-          onClose={closeResourceDetails} 
-        />
-      )}
     </div>
   );
 };

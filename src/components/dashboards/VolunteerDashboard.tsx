@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { Users, ArrowRight, Clock, CheckCircle } from 'lucide-react';
 import ResourceCard from '../ResourceCard';
@@ -87,10 +88,12 @@ const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ resourceData })
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {loading ? (
+                // Show loading states
                 Array(4).fill(0).map((_, index) => (
                   <div key={`loading-${index}`} className="animate-pulse rounded-xl p-6 bg-white/5 h-64"></div>
                 ))
               ) : needsResources.length > 0 ? (
+                // Show resources that need help
                 needsResources.map(resource => (
                   <ResourceCard
                     key={resource.id}
@@ -105,6 +108,7 @@ const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ resourceData })
                   />
                 ))
               ) : (
+                // No resources available
                 <div className="col-span-2 p-6 border border-white/10 rounded-xl text-center">
                   <p className="text-gray-400">No assistance requests at the moment.</p>
                 </div>

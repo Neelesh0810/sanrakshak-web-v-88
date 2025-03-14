@@ -13,7 +13,6 @@ interface StatusUpdateProps {
   timestamp: string;
   priority?: 'low' | 'medium' | 'high';
   className?: string;
-  showDetailsLink?: boolean;
 }
 
 const StatusUpdate: React.FC<StatusUpdateProps> = ({
@@ -24,7 +23,6 @@ const StatusUpdate: React.FC<StatusUpdateProps> = ({
   timestamp,
   priority = 'medium',
   className,
-  showDetailsLink = true,
 }) => {
   const { theme } = useTheme();
   const isLight = theme === 'light';
@@ -66,19 +64,17 @@ const StatusUpdate: React.FC<StatusUpdateProps> = ({
         
         <div className="flex justify-between items-center">
           <span className={cn("text-xs", isLight ? "text-gray-600" : "text-gray-500")}>Source: {source}</span>
-          {showDetailsLink && (
-            <Link 
-              to={`/dashboard`} 
-              className={cn(
-                "text-xs px-3 py-1 rounded-full transition-colors",
-                isLight 
-                  ? "bg-gray-200 hover:bg-gray-300 text-gray-800" 
-                  : "bg-white/10 hover:bg-white/15"
-              )}
-            >
-              Details
-            </Link>
-          )}
+          <Link 
+            to={`/status/${id}`} 
+            className={cn(
+              "text-xs px-3 py-1 rounded-full transition-colors",
+              isLight 
+                ? "bg-gray-200 hover:bg-gray-300 text-gray-800" 
+                : "bg-white/10 hover:bg-white/15"
+            )}
+          >
+            Details
+          </Link>
         </div>
       </div>
     </div>
