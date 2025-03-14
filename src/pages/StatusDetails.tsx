@@ -1,309 +1,257 @@
+import React from 'react';
+import { useParams, Link } from 'react-router-dom';
+import Header from '../components/Header';
+import { Clock, Info, AlertTriangle, MapPin, ExternalLink, Bookmark, Share2 } from 'lucide-react';
+import { useTheme } from '../context/ThemeProvider';
+import BackButton from '../components/BackButton';
 
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import Header from '@/components/Header';
-import BackButton from '@/components/BackButton';
-import { AlertTriangle, MapPin, Clock, User, Building, Share, Bookmark, CheckSquare } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-
-interface StatusUpdate {
-  id: string;
-  title: string;
-  message: string;
-  source: string;
-  timestamp: string;
-  priority: 'low' | 'medium' | 'high';
-  location?: string;
-  category?: string;
-  authorType?: 'government' | 'ngo';
-}
-
-const StatusDetails: React.FC = () => {
-  const { statusId } = useParams<{ statusId: string }>();
-  const [statusUpdate, setStatusUpdate] = useState<StatusUpdate | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isSaved, setIsSaved] = useState(false);
-  const { toast } = useToast();
-  const navigate = useNavigate();
+const StatusDetails = () => {
+  const { id } = useParams<{ id: string }>();
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   
-  useEffect(() => {
-    const fetchStatusUpdate = () => {
-      // Simulate API call with timeout
-      setTimeout(() => {
-        // In a real app, this would be fetched from an API
-        const mockStatusUpdates: Record<string, StatusUpdate> = {
-          'status-1': {
-            id: 'status-1',
-            title: 'Power Restoration Progress',
-            message: 'Crews are working to restore power to the eastern district. Estimated completion: 24 hours. Multiple power lines were damaged during the storm, affecting approximately 5,000 households. Emergency generators have been deployed to critical facilities including hospitals and emergency shelters.',
-            source: 'City Power & Utilities',
-            timestamp: '1 hour ago',
-            priority: 'high',
-            location: 'Eastern District',
-            category: 'Infrastructure',
-            authorType: 'government'
-          },
-          'status-2': {
-            id: 'status-2',
-            title: 'Road Closure Update',
-            message: 'Main Street between 5th and 8th Ave remains flooded and closed to traffic. Use alternate routes. Water levels are receding slowly. Cleanup crews are on standby and will begin work as soon as water levels permit. Please avoid the area unless absolutely necessary.',
-            source: 'Department of Transportation',
-            timestamp: '3 hours ago',
-            priority: 'medium',
-            location: 'Downtown Area',
-            category: 'Transportation',
-            authorType: 'government'
-          },
-          'status-3': {
-            id: 'status-3',
-            title: 'Medical Supply Distribution',
-            message: 'Medical supplies including first aid kits, insulin, and other essential medications are available at Red Cross relief centers. Please bring identification and prescription information if available. Supplies are limited but additional shipments are expected tomorrow.',
-            source: 'Red Cross',
-            timestamp: '5 hours ago',
-            priority: 'high',
-            location: 'Multiple Locations',
-            category: 'Medical',
-            authorType: 'ngo'
-          }
-        };
-        
-        if (statusId && statusId in mockStatusUpdates) {
-          setStatusUpdate(mockStatusUpdates[statusId]);
-        } else {
-          setStatusUpdate(null);
-        }
-        
-        // Check if this status update is saved
-        checkIfSaved(statusId || '');
-        
-        setLoading(false);
-      }, 1000);
-    };
-    
-    fetchStatusUpdate();
-  }, [statusId]);
-  
-  const checkIfSaved = (id: string) => {
-    const savedUpdates = localStorage.getItem('savedStatusUpdates');
-    if (savedUpdates) {
-      try {
-        const parsedUpdates = JSON.parse(savedUpdates);
-        const isSavedStatus = parsedUpdates.some((update: StatusUpdate) => update.id === id);
-        setIsSaved(isSavedStatus);
-      } catch (error) {
-        console.error('Error checking saved status:', error);
-        setIsSaved(false);
+  const statusMap: { [key: string]: any } = {
+    'status-1': {
+      title: 'Power Restoration Progress',
+      message: 'Crews are working to restore power to the eastern district. Estimated completion: 24 hours.',
+      fullDescription: 'Utility crews have been deployed across the eastern district to repair downed power lines and restore service. Areas with critical infrastructure like hospitals and emergency shelters are being prioritized. Residents should prepare for at least 24 more hours without power. Charging stations have been set up at Central High School and the Community Center.',
+      affectedAreas: ['East Side', 'Riverside', 'Downtown (partial)'],
+      source: 'City Power & Utilities',
+      sourceUrl: '#',
+      timestamp: '1 hour ago',
+      updated: 'June 15, 2023 - 10:25 AM',
+      priority: 'high',
+      coordinates: {
+        lat: 34.052235,
+        lng: -118.243683
       }
-    } else {
-      setIsSaved(false);
-    }
-  };
-  
-  const handleSaveToggle = () => {
-    if (!statusUpdate) return;
-    
-    // Get current saved updates
-    const savedUpdates = localStorage.getItem('savedStatusUpdates');
-    let updatesArray: StatusUpdate[] = [];
-    
-    if (savedUpdates) {
-      try {
-        updatesArray = JSON.parse(savedUpdates);
-      } catch (error) {
-        console.error('Error parsing saved updates:', error);
-        updatesArray = [];
+    },
+    'status-2': {
+      title: 'Road Closure Update',
+      message: 'Main Street between 5th and 8th Ave remains flooded and closed to traffic. Use alternate routes.',
+      fullDescription: 'Flooding has made Main Street impassable between 5th and 8th Avenue. Public Works is pumping water but the road is expected to remain closed for at least 48 hours. Traffic is being diverted to Highland Avenue and Park Street. Emergency vehicles have established alternate routes to maintain response times.',
+      affectedAreas: ['Downtown', 'Business District'],
+      source: 'Department of Transportation',
+      sourceUrl: '#',
+      timestamp: '3 hours ago',
+      updated: 'June 15, 2023 - 8:15 AM',
+      priority: 'medium',
+      coordinates: {
+        lat: 34.052235,
+        lng: -118.243683
+      }
+    },
+    'status-3': {
+      title: 'Medical Supply Delivery',
+      message: 'Additional medical supplies have arrived at Central Hospital and Community Clinic.',
+      fullDescription: 'A shipment of critical medical supplies including insulin, antibiotics, wound care supplies, and respiratory medications has arrived at Central Hospital and Community Clinic. Patients in need of prescription refills should contact the Community Clinic. Mobile medical units are being deployed to neighborhoods with limited transportation access.',
+      affectedAreas: ['Citywide'],
+      source: 'Health Department',
+      sourceUrl: '#',
+      timestamp: '5 hours ago',
+      updated: 'June 15, 2023 - 6:30 AM',
+      priority: 'low',
+      coordinates: {
+        lat: 34.052235,
+        lng: -118.243683
       }
     }
-    
-    if (isSaved) {
-      // Remove from saved
-      updatesArray = updatesArray.filter(update => update.id !== statusUpdate.id);
-      localStorage.setItem('savedStatusUpdates', JSON.stringify(updatesArray));
-      setIsSaved(false);
-      
-      toast({
-        title: "Removed from saved",
-        description: "Status update removed from your saved items",
-      });
-      
-      // Dispatch custom event
-      window.dispatchEvent(new Event('status-unsaved'));
-    } else {
-      // Add to saved
-      updatesArray.push(statusUpdate);
-      localStorage.setItem('savedStatusUpdates', JSON.stringify(updatesArray));
-      setIsSaved(true);
-      
-      toast({
-        title: "Saved",
-        description: "Status update saved for quick access",
-      });
-      
-      // Dispatch custom event
-      window.dispatchEvent(new Event('status-saved'));
+  };
+  
+  const status = statusMap[id || ''] || {
+    title: 'Status Not Found',
+    message: 'The requested status update could not be found.',
+    fullDescription: 'No additional information available.',
+    affectedAreas: ['Unknown'],
+    source: 'Unknown',
+    sourceUrl: '#',
+    timestamp: 'Unknown',
+    updated: 'Unknown',
+    priority: 'medium',
+    coordinates: {
+      lat: 0,
+      lng: 0
     }
   };
   
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
+  const getPriorityStyles = () => {
+    switch (status.priority) {
       case 'high':
-        return 'bg-red-500';
+        return isLight ? 'border-l-4 border-red-500' : 'border-l-4 border-white';
       case 'medium':
-        return 'bg-yellow-500';
+        return isLight ? 'border-l-4 border-gray-800' : 'border-l-4 border-gray-400';
       case 'low':
-        return 'bg-green-500';
+        return isLight ? 'border-l-4 border-gray-500' : 'border-l-4 border-gray-700';
       default:
-        return 'bg-blue-500';
+        return isLight ? 'border-l-4 border-gray-800' : 'border-l-4 border-gray-400';
     }
   };
   
-  const getPriorityTextColor = (priority: string) => {
-    switch (priority) {
+  const getPriorityIcon = () => {
+    switch (status.priority) {
       case 'high':
-        return 'text-red-500';
+        return <AlertTriangle size={20} className={`mr-2 ${isLight ? "text-red-500" : "text-white"}`} />;
       case 'medium':
-        return 'text-yellow-500';
+        return <Info size={20} className={`mr-2 ${isLight ? "text-gray-800" : "text-gray-300"}`} />;
       case 'low':
-        return 'text-green-500';
+        return <Info size={20} className={`mr-2 ${isLight ? "text-gray-600" : "text-gray-500"}`} />;
       default:
-        return 'text-blue-500';
+        return <Info size={20} className={`mr-2 ${isLight ? "text-gray-800" : "text-gray-300"}`} />;
     }
   };
-  
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-black text-white">
-        <Header />
-        <div className="container mx-auto px-4 pt-20 pb-16">
-          <BackButton />
-          <div className="animate-pulse mt-6">
-            <div className="h-8 bg-white/10 rounded w-1/3 mb-4"></div>
-            <div className="h-4 bg-white/5 rounded w-full mb-2"></div>
-            <div className="h-4 bg-white/5 rounded w-full mb-2"></div>
-            <div className="h-4 bg-white/5 rounded w-3/4 mb-4"></div>
-            <div className="h-10 bg-white/10 rounded w-full"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  
-  if (!statusUpdate) {
-    return (
-      <div className="min-h-screen bg-black text-white">
-        <Header />
-        <div className="container mx-auto px-4 pt-20 pb-16">
-          <BackButton />
-          <div className="mt-6 text-center">
-            <h1 className="text-xl font-bold mb-4">Status Update Not Found</h1>
-            <p className="text-gray-400 mb-6">The status update you're looking for doesn't exist or has been removed.</p>
-            <Button onClick={() => navigate('/alerts')}>
-              Return to Alerts
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
   
   return (
-    <div className="min-h-screen bg-black text-white">
-      <Header />
-      <div className="container mx-auto px-4 pt-20 pb-16">
-        <BackButton />
-        
-        <div className="mt-6">
-          <div className="flex justify-between items-start mb-4">
-            <div className="flex flex-col">
+    <div className={`min-h-screen ${isLight ? "bg-white" : "bg-black"} text-foreground`}>
+      <Header emergency={true} />
+      
+      <main className="pt-20 pb-16">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="mb-6">
+            <BackButton className={`${isLight ? "text-gray-600 hover:text-black" : "text-gray-400 hover:text-white"} transition-colors mb-4`} />
+            
+            <div className="flex items-start justify-between">
               <div className="flex items-center">
-                <div className={`w-2 h-2 rounded-full mr-2 ${getPriorityColor(statusUpdate.priority)}`} />
-                <h1 className="text-2xl font-bold">{statusUpdate.title}</h1>
+                {getPriorityIcon()}
+                <h1 className="text-2xl font-bold">{status.title}</h1>
               </div>
-              <div className="flex flex-wrap text-sm text-gray-400 mt-2">
-                <div className="flex items-center mr-4 mb-2">
-                  <Clock size={14} className="mr-1" />
-                  <span>{statusUpdate.timestamp}</span>
+              
+              <div className="flex space-x-2">
+                <button className={`p-2 rounded-full ${isLight ? "hover:bg-gray-100" : "hover:bg-white/10"} transition-colors`}>
+                  <Bookmark size={18} />
+                </button>
+                <button className={`p-2 rounded-full ${isLight ? "hover:bg-gray-100" : "hover:bg-white/10"} transition-colors`}>
+                  <Share2 size={18} />
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div className={`${isLight ? "bg-white border border-gray-300 shadow-soft" : "bg-black/30 border border-white/10"} rounded-lg overflow-hidden transition-all mb-6 ${getPriorityStyles()}`}>
+            <div className="p-4">
+              <div className={`flex items-center text-sm ${isLight ? "text-gray-600" : "text-gray-400"} mb-4`}>
+                <Clock size={14} className="mr-2" />
+                <span>Updated: {status.updated}</span>
+              </div>
+              
+              <p className={isLight ? "text-gray-800" : "text-gray-200"} mb-4>{status.message}</p>
+              
+              <div className="flex justify-between items-center">
+                <span className={`text-xs ${isLight ? "text-gray-600" : "text-gray-500"}`}>Source: {status.source}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <div className={`${isLight ? "bg-white border border-gray-300 shadow-soft" : "bg-black/30 border border-white/10"} rounded-xl p-6 mb-6`}>
+                <h2 className="text-xl font-semibold mb-4">Detailed Information</h2>
+                <p className={isLight ? "text-gray-700" : "text-gray-300"} mb-6>{status.fullDescription}</p>
+                
+                <h3 className="font-medium mb-2">Affected Areas</h3>
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {status.affectedAreas.map((area: string, index: number) => (
+                    <span 
+                      key={index} 
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isLight ? "bg-gray-200" : "bg-white/10"}`}
+                    >
+                      {area}
+                    </span>
+                  ))}
                 </div>
-                {statusUpdate.location && (
-                  <div className="flex items-center mr-4 mb-2">
-                    <MapPin size={14} className="mr-1" />
-                    <span>{statusUpdate.location}</span>
+                
+                <div className={`flex items-center ${isLight ? "text-gray-700" : "text-gray-400"} mb-2`}>
+                  <MapPin size={18} className="mr-2" />
+                  <span>Location Information</span>
+                </div>
+                
+                <div className={`${isLight ? "bg-gray-100 border border-gray-300" : "bg-black/40 border border-white/5"} rounded-lg h-56 flex items-center justify-center mb-4`}>
+                  <div className="text-center">
+                    <p className={isLight ? "text-gray-700" : "text-gray-400"}>Map view would be displayed here</p>
+                    <p className={`text-xs ${isLight ? "text-gray-600" : "text-gray-500"} mt-1`}>
+                      Coordinates: {status.coordinates.lat}, {status.coordinates.lng}
+                    </p>
                   </div>
-                )}
-                {statusUpdate.category && (
-                  <div className="flex items-center mb-2">
-                    <AlertTriangle size={14} className="mr-1" />
-                    <span>{statusUpdate.category}</span>
+                </div>
+              </div>
+              
+              <div className={`${isLight ? "bg-white border border-gray-300 shadow-soft" : "bg-black/30 border border-white/10"} rounded-xl p-6`}>
+                <h2 className="text-xl font-semibold mb-4">Related Updates</h2>
+                
+                <div className="space-y-4">
+                  <div className={`border-l-4 ${isLight ? "border-gray-500 bg-gray-50" : "border-gray-700 bg-white/5"} rounded-r-lg p-3`}>
+                    <h3 className="font-medium">Weather Condition Update</h3>
+                    <p className={`text-sm ${isLight ? "text-gray-700" : "text-gray-400"} mt-1`}>
+                      Heavy rain expected to continue for the next 12 hours.
+                    </p>
+                    <div className="flex justify-between items-center mt-2">
+                      <span className={`text-xs ${isLight ? "text-gray-600" : "text-gray-500"}`}>National Weather Service</span>
+                      <Link to="/alerts" className="text-xs hover:underline">View</Link>
+                    </div>
                   </div>
-                )}
+                  
+                  <div className={`border-l-4 ${isLight ? "border-gray-500 bg-gray-50" : "border-gray-700 bg-white/5"} rounded-r-lg p-3`}>
+                    <h3 className="font-medium">Shelter Capacity Status</h3>
+                    <p className={`text-sm ${isLight ? "text-gray-700" : "text-gray-400"} mt-1`}>
+                      Central High School shelter at 75% capacity, Community Center at 60%.
+                    </p>
+                    <div className="flex justify-between items-center mt-2">
+                      <span className={`text-xs ${isLight ? "text-gray-600" : "text-gray-500"}`}>Emergency Management</span>
+                      <Link to="/alerts" className="text-xs hover:underline">View</Link>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             
-            <div className="flex items-center space-x-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="border-white/10 bg-white/5"
-                onClick={handleSaveToggle}
-              >
-                {isSaved ? (
-                  <>
-                    <CheckSquare size={16} className="mr-2 text-green-500" />
-                    <span>Saved</span>
-                  </>
-                ) : (
-                  <>
-                    <Bookmark size={16} className="mr-2" />
-                    <span>Save</span>
-                  </>
-                )}
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="border-white/10 bg-white/5"
-              >
-                <Share size={16} className="mr-2" />
-                <span>Share</span>
-              </Button>
-            </div>
-          </div>
-          
-          <div className="glass-dark border border-white/10 rounded-xl p-6 mb-6">
-            <p className="mb-6 leading-relaxed">{statusUpdate.message}</p>
-            <div className="flex items-center justify-between pt-4 border-t border-white/10">
-              <div className="flex items-center">
-                {statusUpdate.authorType === 'government' ? (
-                  <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center mr-3">
-                    <Building size={16} />
+            <div>
+              <div className={`${isLight ? "bg-white border border-gray-300 shadow-soft" : "bg-black/30 border border-white/10"} rounded-xl p-6 mb-6`}>
+                <h2 className="text-xl font-semibold mb-4">Source Information</h2>
+                
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-sm font-medium">Published by</h3>
+                    <p className={`${isLight ? "text-gray-700" : "text-gray-400"} text-sm`}>{status.source}</p>
                   </div>
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center mr-3">
-                    <User size={16} />
+                  
+                  <div>
+                    <h3 className="text-sm font-medium">Contact</h3>
+                    <p className={`${isLight ? "text-gray-700" : "text-gray-400"} text-sm`}>Emergency Response Center</p>
+                    <p className={`${isLight ? "text-gray-700" : "text-gray-400"} text-sm`}>555-555-1234</p>
                   </div>
-                )}
-                <div>
-                  <p className="font-medium text-sm">{statusUpdate.source}</p>
-                  <p className="text-xs text-gray-400">
-                    {statusUpdate.authorType === 'government' ? 'Government Agency' : 'Non-Government Organization'}
-                  </p>
+                  
+                  <a 
+                    href={status.sourceUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className={`flex items-center text-sm ${isLight ? "text-gray-800 hover:text-black" : "text-gray-300 hover:text-white"}`}
+                  >
+                    Visit official website
+                    <ExternalLink size={14} className="ml-2" />
+                  </a>
                 </div>
               </div>
-              <div className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityTextColor(statusUpdate.priority)} bg-white/5`}>
-                {statusUpdate.priority.charAt(0).toUpperCase() + statusUpdate.priority.slice(1)} Priority
+              
+              <div className={`${isLight ? "bg-white border border-gray-300 shadow-soft" : "bg-black/30 border border-white/10"} rounded-xl p-6`}>
+                <h2 className="text-xl font-semibold mb-4">Actions</h2>
+                
+                <div className="space-y-3">
+                  <Link to="/resources" className={`block w-full py-2 px-4 rounded-lg text-center ${isLight ? "bg-black text-white hover:bg-gray-800" : "bg-white text-black hover:bg-white/90"} transition-colors`}>
+                    Find Related Resources
+                  </Link>
+                  
+                  <Link to="/shelter-map" className={`block w-full py-2 px-4 rounded-lg text-center ${isLight ? "bg-gray-200 hover:bg-gray-300 text-gray-800" : "bg-white/10 hover:bg-white/15"} transition-colors`}>
+                    View Shelter Map
+                  </Link>
+                  
+                  <Link to="/emergency-plan" className={`block w-full py-2 px-4 rounded-lg text-center ${isLight ? "bg-gray-200 hover:bg-gray-300 text-gray-800" : "bg-white/10 hover:bg-white/15"} transition-colors`}>
+                    Emergency Plan
+                  </Link>
+                </div>
               </div>
-            </div>
-          </div>
-          
-          <div className="glass-dark border border-white/10 rounded-xl p-6">
-            <h2 className="text-lg font-bold mb-4">Related Resources</h2>
-            <div className="text-center py-6 text-gray-400">
-              <p>No related resources available at this time.</p>
             </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

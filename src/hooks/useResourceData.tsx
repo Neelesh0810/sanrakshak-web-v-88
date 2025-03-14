@@ -239,67 +239,13 @@ const useResourceData = () => {
     return updatedResponses.find((r: ResourceResponse) => r.id === responseId);
   };
   
-  // Function to update a resource status
-  const updateResourceStatus = (resourceId: string, status: ResourceStatus) => {
-    const updatedResources = resources.map(resource => {
-      if (resource.id === resourceId) {
-        return { ...resource, status };
-      }
-      return resource;
-    });
-    
-    setResources(updatedResources);
-    
-    // Save to localStorage
-    if (updatedResources.length > 0) {
-      const connectResources = localStorage.getItem('resourceRequests');
-      const pageResources = localStorage.getItem('resources');
-      
-      if (connectResources) {
-        try {
-          const parsed = JSON.parse(connectResources);
-          const updatedConnectResources = parsed.map((r: Resource) => {
-            if (r.id === resourceId) {
-              return { ...r, status };
-            }
-            return r;
-          });
-          localStorage.setItem('resourceRequests', JSON.stringify(updatedConnectResources));
-        } catch (error) {
-          console.error('Error updating connectResources:', error);
-        }
-      }
-      
-      if (pageResources) {
-        try {
-          const parsed = JSON.parse(pageResources);
-          const updatedPageResources = parsed.map((r: Resource) => {
-            if (r.id === resourceId) {
-              return { ...r, status };
-            }
-            return r;
-          });
-          localStorage.setItem('resources', JSON.stringify(updatedPageResources));
-        } catch (error) {
-          console.error('Error updating pageResources:', error);
-        }
-      }
-    }
-    
-    // Dispatch event to notify other components
-    window.dispatchEvent(new Event('resource-updated'));
-    
-    return updatedResources.find(r => r.id === resourceId);
-  };
-  
   return {
     resources,
     responses,
     loading,
     addResource,
     addResponse,
-    updateResponse,
-    updateResourceStatus
+    updateResponse
   };
 };
 
