@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X, Bell, Settings, User, LogOut, UserCheck, Building, ArrowRightLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -25,6 +26,7 @@ const Header: React.FC<HeaderProps> = ({
   const isLight = theme === 'light';
   
   const [user, setUser] = useState<any>(null);
+  const [isAdminDashboard, setIsAdminDashboard] = useState(false);
   
   // Refs for click outside detection
   const profileRef = useRef<HTMLDivElement>(null);
@@ -47,6 +49,12 @@ const Header: React.FC<HeaderProps> = ({
     } else {
       setUser(null);
     }
+    
+    // Check if we're on the admin dashboard
+    setIsAdminDashboard(
+      window.location.pathname.includes('/admin-dashboard') || 
+      window.location.pathname.includes('/admin')
+    );
   }, []);
   
   // Handle clicks outside dropdowns
@@ -145,25 +153,29 @@ const Header: React.FC<HeaderProps> = ({
             </div>
           </Link>
           
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link to="/dashboard" className="text-sm font-medium hover:opacity-80 transition-opacity">
-              Dashboard
-            </Link>
-            <Link to="/resources" className="text-sm font-medium hover:opacity-80 transition-opacity">
-              Resources
-            </Link>
-            <Link to="/map" className="text-sm font-medium hover:opacity-80 transition-opacity">
-              Map
-            </Link>
-            <Link to="/alerts" className="text-sm font-medium hover:opacity-80 transition-opacity">
-              Alerts
-            </Link>
-          </nav>
+          {/* Only show navigation for non-admin dashboard */}
+          {!isAdminDashboard && (
+            <nav className="hidden md:flex items-center space-x-6">
+              <Link to="/dashboard" className="text-sm font-medium hover:opacity-80 transition-opacity">
+                Dashboard
+              </Link>
+              <Link to="/resources" className="text-sm font-medium hover:opacity-80 transition-opacity">
+                Resources
+              </Link>
+              <Link to="/map" className="text-sm font-medium hover:opacity-80 transition-opacity">
+                Map
+              </Link>
+              <Link to="/alerts" className="text-sm font-medium hover:opacity-80 transition-opacity">
+                Alerts
+              </Link>
+            </nav>
+          )}
           
           <div className="flex items-center space-x-4">
             {user ? (
               <>
-                {user.role && (
+                {/* Only show role switcher if not admin and not on admin dashboard */}
+                {user.role !== 'admin' && !isAdminDashboard && user.role && (
                   <div className="relative" ref={roleSwitcherRef}>
                     <button 
                       onClick={toggleRoleSwitcher}
@@ -223,9 +235,12 @@ const Header: React.FC<HeaderProps> = ({
                   </div>
                 )}
                 
-                <div ref={notificationsRef}>
-                  <Notifications />
-                </div>
+                {/* Only show notifications if not on admin dashboard */}
+                {!isAdminDashboard && (
+                  <div ref={notificationsRef}>
+                    <Notifications />
+                  </div>
+                )}
                 
                 <div className="relative" ref={profileRef}>
                   <button 
@@ -253,20 +268,25 @@ const Header: React.FC<HeaderProps> = ({
                         </button>
                       </div>
                       <div>
-                        <button 
-                          onClick={() => handleNavigate('/profile')}
-                          className={`flex items-center px-4 py-2 text-sm ${isLight ? "hover:bg-gray-100" : "hover:bg-white/5"} transition-colors w-full text-left`}
-                        >
-                          <User size={16} className="mr-2" />
-                          <span>Profile</span>
-                        </button>
-                        <button 
-                          onClick={() => handleNavigate('/settings')}
-                          className={`flex items-center px-4 py-2 text-sm ${isLight ? "hover:bg-gray-100" : "hover:bg-white/5"} transition-colors w-full text-left`}
-                        >
-                          <Settings size={16} className="mr-2" />
-                          <span>Settings</span>
-                        </button>
+                        {/* Only show profile and settings links for non-admin users */}
+                        {user.role !== 'admin' && (
+                          <>
+                            <button 
+                              onClick={() => handleNavigate('/profile')}
+                              className={`flex items-center px-4 py-2 text-sm ${isLight ? "hover:bg-gray-100" : "hover:bg-white/5"} transition-colors w-full text-left`}
+                            >
+                              <User size={16} className="mr-2" />
+                              <span>Profile</span>
+                            </button>
+                            <button 
+                              onClick={() => handleNavigate('/settings')}
+                              className={`flex items-center px-4 py-2 text-sm ${isLight ? "hover:bg-gray-100" : "hover:bg-white/5"} transition-colors w-full text-left`}
+                            >
+                              <Settings size={16} className="mr-2" />
+                              <span>Settings</span>
+                            </button>
+                          </>
+                        )}
                         <button 
                           onClick={handleLogout}
                           className={`flex items-center px-4 py-2 text-sm ${isLight ? "hover:bg-gray-100 border-t border-gray-200" : "hover:bg-white/5 border-t border-white/10"} transition-colors w-full text-left`}
@@ -296,18 +316,22 @@ const Header: React.FC<HeaderProps> = ({
               </div>
             )}
             
-            <button 
-              className="md:hidden p-2 rounded-full hover:bg-white/5 transition-colors focus-ring"
-              onClick={toggleMenu}
-              aria-label="Menu"
-            >
-              {menuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
+            {/* Only show mobile menu button for non-admin users */}
+            {user && user.role !== 'admin' && !isAdminDashboard && (
+              <button 
+                className="md:hidden p-2 rounded-full hover:bg-white/5 transition-colors focus-ring"
+                onClick={toggleMenu}
+                aria-label="Menu"
+              >
+                {menuOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
+            )}
           </div>
         </div>
       </div>
       
-      {menuOpen && (
+      {/* Mobile menu - only for non-admin users */}
+      {menuOpen && user && user.role !== 'admin' && !isAdminDashboard && (
         <div className={`fixed inset-0 pt-16 ${isLight ? "bg-white/95 backdrop-blur-md" : "bg-black/95 backdrop-blur-md"} z-40 animate-fade-in md:hidden`}>
           <nav className="flex flex-col items-center justify-center h-full space-y-8 p-6">
             <Link 

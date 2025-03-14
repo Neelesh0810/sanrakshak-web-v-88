@@ -11,10 +11,10 @@ import {
   Filter, 
   Search, 
   RefreshCw,
-  AlertCircle
+  AlertCircle,
+  LogOut
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeProvider';
-import Header from '@/components/Header';
 
 interface Resource {
   id: string;
@@ -220,11 +220,51 @@ const AdminDashboard = () => {
     return { pending, addressing, resolved, total: resources.length };
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('authUser');
+    
+    window.dispatchEvent(new Event('auth-state-changed'));
+    window.dispatchEvent(new Event('storage'));
+    
+    toast({
+      title: "Logged Out",
+      description: "You have been signed out successfully",
+    });
+    
+    navigate('/', { replace: true });
+  };
+
   const counts = getRequestCounts();
 
   return (
     <div className="min-h-screen bg-black">
-      <Header title="Admin Dashboard" />
+      {/* Custom Admin Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 py-4 px-6 transition-all duration-300 backdrop-blur-xl bg-black/50">
+        <div className="container mx-auto">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <span className="font-bold text-xl">Sanrakshak Admin</span>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              {user && (
+                <div className="flex items-center">
+                  <span className="mr-4 text-sm text-gray-400">
+                    Logged in as <span className="font-medium text-white">{user.email}</span>
+                  </span>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center space-x-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 py-1.5 px-3 rounded-lg transition-colors"
+                  >
+                    <LogOut size={16} />
+                    <span>Logout</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
       
       <AnimatedTransition>
         <main className="pt-20 pb-16 min-h-screen">
