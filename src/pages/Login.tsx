@@ -3,9 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import AnimatedTransition from '@/components/AnimatedTransition';
-import { Lock, Mail, ArrowRight, Shield } from 'lucide-react';
+import { Lock, Mail, ArrowRight, Shield, User } from 'lucide-react';
 import BackButton from '@/components/BackButton';
 import { useTheme } from '../context/ThemeProvider';
+import { Switch } from "@/components/ui/switch";
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -130,20 +131,30 @@ const Login = () => {
       <div className="flex-1 flex items-center justify-center p-4">
         <AnimatedTransition className="w-full max-w-md">
           <div className={`${isLight ? "border border-gray-300 shadow-soft bg-white" : "glass-dark"} rounded-xl p-6 sm:p-8`}>
-            <div className="text-center mb-8">
-              <h1 className="text-2xl font-bold mb-2">
-                {isAdmin ? (
-                  <span className="flex items-center justify-center">
-                    <Shield className="mr-2" size={20} />
-                    Administrator Login
-                  </span>
-                ) : (
-                  "Welcome Back"
-                )}
+            <div className="text-center mb-6">
+              <h1 className="text-2xl font-bold">
+                Welcome Back
               </h1>
               <p className={isLight ? "text-gray-600" : "text-gray-400"}>
-                Sign in to {isAdmin ? "access the admin panel" : "your Relief Connect account"}
+                Sign in to your Relief Connect account
               </p>
+            </div>
+            
+            {/* User/Admin Toggle Switch */}
+            <div className="flex items-center justify-center mb-6 space-x-2">
+              <div className="flex items-center space-x-2">
+                <User className={`${isAdmin ? "text-gray-400" : "text-primary"} w-5 h-5`} />
+                <span className={`text-sm ${isAdmin ? "text-gray-400" : "text-foreground"}`}>User</span>
+              </div>
+              <Switch 
+                checked={isAdmin}
+                onCheckedChange={toggleAdminMode}
+                className={`${isAdmin ? "bg-primary" : "bg-gray-300 dark:bg-gray-700"}`}
+              />
+              <div className="flex items-center space-x-2">
+                <Shield className={`${isAdmin ? "text-primary" : "text-gray-400"} w-5 h-5`} />
+                <span className={`text-sm ${isAdmin ? "text-foreground" : "text-gray-400"}`}>Admin</span>
+              </div>
             </div>
             
             {error && (
@@ -221,16 +232,6 @@ const Login = () => {
                 <Link to="/signup" className={isLight ? "text-black hover:underline" : "text-white hover:underline"}>
                   Create one
                 </Link>
-              </div>
-              
-              <div className="pt-4 text-center">
-                <button
-                  type="button"
-                  onClick={toggleAdminMode}
-                  className={`text-sm ${isLight ? "text-black hover:underline" : "text-white hover:underline"}`}
-                >
-                  {isAdmin ? "Sign in as regular user" : "Sign in as administrator"}
-                </button>
               </div>
             </form>
           </div>
