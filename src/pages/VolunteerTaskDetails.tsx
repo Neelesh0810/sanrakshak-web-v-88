@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import { useToast } from "@/hooks/use-toast";
 import useResourceData from '@/hooks/useResourceData';
+import AddNoteDialog from '@/components/AddNoteDialog';
 import { 
   ArrowLeft, 
   CheckCircle, 
@@ -28,6 +28,8 @@ const VolunteerTaskDetails = () => {
   const { theme } = useTheme();
   const isLight = theme === 'light';
   const { resources, responses } = useResourceData();
+  const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
+  const [taskNotes, setTaskNotes] = useState<Array<{text: string, timestamp: number, user: string}>>([]);
   
   // Extract the response ID from the task ID
   const responseId = id ? id.replace('task-', '') : '';
@@ -76,6 +78,13 @@ const VolunteerTaskDetails = () => {
     };
   }, [id, responseId, resources, responses]);
   
+  // Initialize taskNotes with the initial notes from taskData
+  useEffect(() => {
+    if (taskData && taskData.notes) {
+      setTaskNotes(taskData.notes);
+    }
+  }, [taskData]);
+  
   useEffect(() => {
     // Set loading to false after a brief delay
     const timer = setTimeout(() => {
@@ -93,11 +102,18 @@ const VolunteerTaskDetails = () => {
     });
   };
 
-  const handleAddNote = () => {
-    // This would add a note in a real app
+  const handleAddNote = (noteText: string) => {
+    const newNote = {
+      text: noteText,
+      timestamp: Date.now(),
+      user: JSON.parse(localStorage.getItem('authUser') || '{}').name || 'Volunteer'
+    };
+    
+    setTaskNotes([...taskNotes, newNote]);
+    
     toast({
       title: "Note Added",
-      description: "Your note has been added to the task",
+      description: "Your note has been added to the task"
     });
   };
 
@@ -260,37 +276,35 @@ const VolunteerTaskDetails = () => {
                     </div>
                   )}
                   
-                  {taskData.notes && taskData.notes.length > 0 && (
-                    <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <h3 className="text-lg font-semibold">Activity Log</h3>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={handleAddNote}
-                        >
-                          <MessageSquare size={14} className="mr-1" />
-                          Add Note
-                        </Button>
-                      </div>
-                      
-                      <div className="rounded-lg border border-white/10">
-                        <div className="divide-y divide-white/10">
-                          {taskData.notes.map((note: any, index: number) => (
-                            <div key={index} className="p-3">
-                              <div className="flex justify-between items-start">
-                                <span className="font-medium text-sm">{note.user}</span>
-                                <span className="text-xs text-gray-400">
-                                  {new Date(note.timestamp).toLocaleString()}
-                                </span>
-                              </div>
-                              <p className="mt-1 text-sm">{note.text}</p>
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-semibold">Activity Log</h3>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setIsNoteDialogOpen(true)}
+                      >
+                        <MessageSquare size={14} className="mr-1" />
+                        Add Note
+                      </Button>
+                    </div>
+                    
+                    <div className="rounded-lg border border-white/10">
+                      <div className="divide-y divide-white/10">
+                        {taskNotes.map((note, index) => (
+                          <div key={index} className="p-3">
+                            <div className="flex justify-between items-start">
+                              <span className="font-medium text-sm">{note.user}</span>
+                              <span className="text-xs text-gray-400">
+                                {new Date(note.timestamp).toLocaleString()}
+                              </span>
                             </div>
-                          ))}
-                        </div>
+                            <p className="mt-1 text-sm">{note.text}</p>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  )}
+                  </div>
                 </div>
                 
                 <div className="px-6 py-4 border-t border-white/10 flex items-center justify-between">
@@ -323,8 +337,15 @@ const VolunteerTaskDetails = () => {
           </div>
         </div>
       </main>
+      
+      <AddNoteDialog 
+        isOpen={isNoteDialogOpen}
+        onClose={() => setIsNoteDialogOpen(false)}
+        onAddNote={handleAddNote}
+      />
     </div>
   );
 };
 
 export default VolunteerTaskDetails;
+
