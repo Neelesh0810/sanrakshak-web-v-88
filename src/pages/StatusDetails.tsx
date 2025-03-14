@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Header from '../components/Header';
-import { ArrowLeft, Clock, Info, AlertTriangle, MapPin, ExternalLink, Bookmark, Share2 } from 'lucide-react';
+import { Clock, Info, AlertTriangle, MapPin, ExternalLink, Bookmark, Share2 } from 'lucide-react';
 import { useTheme } from '../context/ThemeProvider';
+import BackButton from '../components/BackButton';
 
 const StatusDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -109,10 +109,7 @@ const StatusDetails = () => {
       <main className="pt-20 pb-16">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="mb-6">
-            <Link to="/alerts" className={`flex items-center ${isLight ? "text-gray-600 hover:text-black" : "text-gray-400 hover:text-white"} transition-colors mb-4`}>
-              <ArrowLeft size={16} className="mr-2" />
-              <span>Back to Alerts</span>
-            </Link>
+            <BackButton className={`${isLight ? "text-gray-600 hover:text-black" : "text-gray-400 hover:text-white"} transition-colors mb-4`} />
             
             <div className="flex items-start justify-between">
               <div className="flex items-center">
@@ -131,7 +128,7 @@ const StatusDetails = () => {
             </div>
           </div>
           
-          <div className={`${isLight ? "bg-white border border-gray-300 shadow-soft" : "bg-black/30 backdrop-blur-sm border border-white/10"} rounded-lg overflow-hidden transition-all mb-6 ${getPriorityStyles()}`}>
+          <div className={`${isLight ? "bg-white border border-gray-300 shadow-soft" : "bg-black/30 border border-white/10"} rounded-lg overflow-hidden transition-all mb-6 ${getPriorityStyles()}`}>
             <div className="p-4">
               <div className={`flex items-center text-sm ${isLight ? "text-gray-600" : "text-gray-400"} mb-4`}>
                 <Clock size={14} className="mr-2" />

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useTheme } from '../context/ThemeProvider';
 
@@ -11,11 +11,17 @@ interface BackButtonProps {
 
 const BackButton: React.FC<BackButtonProps> = ({ className }) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { theme } = useTheme();
   const isLight = theme === 'light';
   
   const handleGoBack = () => {
-    navigate(-1);
+    const returnTo = searchParams.get('returnTo');
+    if (returnTo) {
+      navigate(`/${returnTo}`);
+    } else {
+      navigate(-1);
+    }
   };
   
   return (

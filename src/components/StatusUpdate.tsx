@@ -65,7 +65,7 @@ const StatusUpdate: React.FC<StatusUpdateProps> = ({
         <div className="flex justify-between items-center">
           <span className={cn("text-xs", isLight ? "text-gray-600" : "text-gray-500")}>Source: {source}</span>
           <Link 
-            to={`/status/${id}`} 
+            to={`/status/${id}?returnTo=dashboard`} 
             className={cn(
               "text-xs px-3 py-1 rounded-full transition-colors",
               isLight 
