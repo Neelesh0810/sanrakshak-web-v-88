@@ -1,13 +1,12 @@
 
 import React, { useMemo } from 'react';
-import { Info, Map, ArrowRight } from 'lucide-react';
+import { Info, ArrowRight } from 'lucide-react';
 import ResourceCard from '../ResourceCard';
 import StatusUpdate from '../StatusUpdate';
 import EmergencyContact from '../EmergencyContact';
 import LocationFinder from '../LocationFinder';
 import AnimatedTransition from '../AnimatedTransition';
 import { Link } from 'react-router-dom';
-import { Button } from '../ui/button';
 import useResourceData from '@/hooks/useResourceData';
 
 interface VictimDashboardProps {

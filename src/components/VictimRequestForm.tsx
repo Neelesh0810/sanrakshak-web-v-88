@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Droplet, Home, ShoppingBag, Utensils, Heart, Shield, AlertCircle } from 'lucide-react';
+import { Droplet, Home, ShoppingBag, Utensils, Heart, Shield, AlertCircle, CheckCircle, MapPin, Calendar, Clock, User, Phone, AlertTriangle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 type ResourceCategory = 'water' | 'shelter' | 'food' | 'supplies' | 'medical' | 'safety';
@@ -11,9 +11,13 @@ interface VictimRequestFormProps {
     description: string;
     category: ResourceCategory;
     location: string;
+    locationDetails: string;
     people: number;
     urgent: boolean;
     contact?: string;
+    contactName?: string;
+    specialNotes?: string;
+    items: Array<{name: string, quantity: number}>
   }) => void;
   onCancel: () => void;
 }
@@ -23,11 +27,19 @@ const VictimRequestForm: React.FC<VictimRequestFormProps> = ({ onSubmit, onCance
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<ResourceCategory>('water');
   const [location, setLocation] = useState('');
+  const [locationDetails, setLocationDetails] = useState('');
   const [people, setPeople] = useState(1);
   const [urgent, setUrgent] = useState(false);
+  const [contactName, setContactName] = useState('');
   const [contact, setContact] = useState('');
+  const [specialNotes, setSpecialNotes] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
+  
+  // Items to deliver
+  const [items, setItems] = useState<Array<{name: string, quantity: number}>>([
+    { name: '', quantity: 1 }
+  ]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -48,6 +60,12 @@ const VictimRequestForm: React.FC<VictimRequestFormProps> = ({ onSubmit, onCance
       newErrors.people = 'Number of people must be at least 1';
     }
     
+    // Validate items
+    const validItems = items.filter(item => item.name.trim() !== '');
+    if (validItems.length === 0) {
+      newErrors.items = 'Please add at least one item';
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -64,137 +82,101 @@ const VictimRequestForm: React.FC<VictimRequestFormProps> = ({ onSubmit, onCance
       return;
     }
     
+    // Filter out empty items
+    const validItems = items.filter(item => item.name.trim() !== '');
+    
     onSubmit({
       title,
       description,
       category,
       location,
+      locationDetails,
       people,
       urgent,
-      contact: contact || undefined
+      contact: contact || undefined,
+      contactName: contactName || undefined,
+      specialNotes: specialNotes || undefined,
+      items: validItems
     });
+  };
+  
+  const handleAddItem = () => {
+    setItems([...items, { name: '', quantity: 1 }]);
+  };
+  
+  const handleRemoveItem = (index: number) => {
+    const newItems = [...items];
+    newItems.splice(index, 1);
+    setItems(newItems);
+  };
+  
+  const handleItemChange = (index: number, field: 'name' | 'quantity', value: string | number) => {
+    const newItems = [...items];
+    newItems[index][field] = value;
+    setItems(newItems);
+  };
+
+  const getCategoryIcon = () => {
+    switch(category) {
+      case 'water': return <Droplet size={20} className="mr-2" />;
+      case 'shelter': return <Home size={20} className="mr-2" />;
+      case 'food': return <Utensils size={20} className="mr-2" />;
+      case 'supplies': return <ShoppingBag size={20} className="mr-2" />;
+      case 'medical': return <Heart size={20} className="mr-2" />;
+      case 'safety': return <Shield size={20} className="mr-2" />;
+      default: return <Droplet size={20} className="mr-2" />;
+    }
   };
 
   return (
     <div className="glass-dark border border-white/10 rounded-xl p-5">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Request Assistance</h2>
-        {urgent && (
-          <div className="bg-red-500/20 text-red-300 px-3 py-1 rounded-full text-sm flex items-center">
-            <AlertCircle size={14} className="mr-1" />
-            Urgent Request
-          </div>
-        )}
+      <div className="flex items-center mb-6">
+        <CheckCircle size={24} className="mr-3 text-white" />
+        <h2 className="text-2xl font-bold">Request Assistance</h2>
       </div>
       
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="flex flex-wrap gap-2 mb-4">
+        {urgent && (
+          <span className="text-xs px-3 py-1 rounded-full bg-red-900/30 text-red-400">
+            High Priority
+          </span>
+        )}
+        <span className="text-xs px-3 py-1 rounded-full bg-blue-900/30 text-blue-400">
+          New Request
+        </span>
+      </div>
+      
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label htmlFor="title" className="block text-sm font-medium mb-1">
-            What do you need? <span className="text-red-400">*</span>
+            Request Title <span className="text-red-400">*</span>
           </label>
-          <input
-            id="title"
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Brief description of what you need"
-            className={`w-full bg-black/40 border ${errors.title ? 'border-red-400' : 'border-white/10'} rounded-lg p-3 placeholder:text-gray-500 focus:ring-1 focus:ring-white/30 focus:outline-none`}
-          />
+          <div className="flex items-center">
+            {getCategoryIcon()}
+            <input
+              id="title"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="E.g., Water Delivery, Medical Assistance, etc."
+              className={`w-full bg-black/40 border ${errors.title ? 'border-red-400' : 'border-white/10'} rounded-lg p-3 placeholder:text-gray-500 focus:ring-1 focus:ring-white/30 focus:outline-none`}
+            />
+          </div>
           {errors.title && (
             <p className="mt-1 text-sm text-red-400">{errors.title}</p>
           )}
         </div>
         
         <div>
-          <label className="block text-sm font-medium mb-1">
-            Category <span className="text-red-400">*</span>
-          </label>
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              type="button"
-              onClick={() => setCategory('water')}
-              className={`flex flex-col items-center justify-center p-3 rounded-lg border ${
-                category === 'water' 
-                  ? 'border-white bg-white/10' 
-                  : 'border-white/10 hover:border-white/30'
-              }`}
-            >
-              <Droplet size={24} className="mb-1" />
-              <span className="text-xs">Water</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setCategory('shelter')}
-              className={`flex flex-col items-center justify-center p-3 rounded-lg border ${
-                category === 'shelter' 
-                  ? 'border-white bg-white/10' 
-                  : 'border-white/10 hover:border-white/30'
-              }`}
-            >
-              <Home size={24} className="mb-1" />
-              <span className="text-xs">Shelter</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setCategory('food')}
-              className={`flex flex-col items-center justify-center p-3 rounded-lg border ${
-                category === 'food' 
-                  ? 'border-white bg-white/10' 
-                  : 'border-white/10 hover:border-white/30'
-              }`}
-            >
-              <Utensils size={24} className="mb-1" />
-              <span className="text-xs">Food</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setCategory('supplies')}
-              className={`flex flex-col items-center justify-center p-3 rounded-lg border ${
-                category === 'supplies' 
-                  ? 'border-white bg-white/10' 
-                  : 'border-white/10 hover:border-white/30'
-              }`}
-            >
-              <ShoppingBag size={24} className="mb-1" />
-              <span className="text-xs">Supplies</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setCategory('medical')}
-              className={`flex flex-col items-center justify-center p-3 rounded-lg border ${
-                category === 'medical' 
-                  ? 'border-white bg-white/10' 
-                  : 'border-white/10 hover:border-white/30'
-              }`}
-            >
-              <Heart size={24} className="mb-1" />
-              <span className="text-xs">Medical</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setCategory('safety')}
-              className={`flex flex-col items-center justify-center p-3 rounded-lg border ${
-                category === 'safety' 
-                  ? 'border-white bg-white/10' 
-                  : 'border-white/10 hover:border-white/30'
-              }`}
-            >
-              <Shield size={24} className="mb-1" />
-              <span className="text-xs">Safety</span>
-            </button>
-          </div>
-        </div>
-        
-        <div>
-          <label htmlFor="description" className="block text-sm font-medium mb-1">
-            Details <span className="text-red-400">*</span>
+          <label htmlFor="description" className="block text-sm font-medium mb-1 text-blue-400">
+            Description <span className="text-red-400">*</span>
           </label>
           <textarea
             id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
-            placeholder="Provide more information about what you need"
+            placeholder="Describe your situation and needs in detail"
             className={`w-full bg-black/40 border ${errors.description ? 'border-red-400' : 'border-white/10'} rounded-lg p-3 placeholder:text-gray-500 focus:ring-1 focus:ring-white/30 focus:outline-none resize-none`}
           />
           {errors.description && (
@@ -202,73 +184,191 @@ const VictimRequestForm: React.FC<VictimRequestFormProps> = ({ onSubmit, onCance
           )}
         </div>
         
-        <div className="flex gap-4">
-          <div className="flex-1">
-            <label htmlFor="location" className="block text-sm font-medium mb-1">
-              Your Location <span className="text-red-400">*</span>
-            </label>
-            <input
-              id="location"
-              type="text"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="Your current location"
-              className={`w-full bg-black/40 border ${errors.location ? 'border-red-400' : 'border-white/10'} rounded-lg p-3 placeholder:text-gray-500 focus:ring-1 focus:ring-white/30 focus:outline-none`}
-            />
-            {errors.location && (
-              <p className="mt-1 text-sm text-red-400">{errors.location}</p>
-            )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <h3 className="text-lg font-semibold mb-3">Location Details</h3>
+            <div className="space-y-3">
+              <div>
+                <div className="flex items-start">
+                  <MapPin size={16} className="mr-2 mt-1.5 text-gray-400 flex-shrink-0" />
+                  <input
+                    id="location"
+                    type="text"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    placeholder="Area, District, Block #"
+                    className={`w-full bg-transparent border-b ${errors.location ? 'border-red-400' : 'border-white/10'} pb-1 focus:outline-none focus:border-white/30`}
+                  />
+                </div>
+                {errors.location && (
+                  <p className="mt-1 text-sm text-red-400 ml-6">{errors.location}</p>
+                )}
+              </div>
+              
+              <div className="ml-6">
+                <textarea
+                  value={locationDetails}
+                  onChange={(e) => setLocationDetails(e.target.value)}
+                  placeholder="Additional location details (building type, landmarks, access instructions)"
+                  rows={2}
+                  className="w-full bg-transparent border-b border-white/10 pb-1 focus:outline-none focus:border-white/30 text-gray-400"
+                />
+              </div>
+            </div>
           </div>
           
           <div>
-            <label htmlFor="people" className="block text-sm font-medium mb-1">
-              # of People <span className="text-red-400">*</span>
-            </label>
-            <input
-              id="people"
-              type="number"
-              min="1"
-              value={people}
-              onChange={(e) => setPeople(parseInt(e.target.value) || 1)}
-              className={`w-24 bg-black/40 border ${errors.people ? 'border-red-400' : 'border-white/10'} rounded-lg p-3 placeholder:text-gray-500 focus:ring-1 focus:ring-white/30 focus:outline-none`}
-            />
-            {errors.people && (
-              <p className="mt-1 text-sm text-red-400">{errors.people}</p>
-            )}
+            <h3 className="text-lg font-semibold mb-3">Time Information</h3>
+            <div className="space-y-3">
+              <div className="flex items-start">
+                <Calendar size={16} className="mr-2 mt-0.5 text-gray-400 flex-shrink-0" />
+                <span>Request Date: {new Date().toLocaleDateString()}</span>
+              </div>
+              <div className="flex items-start">
+                <Clock size={16} className="mr-2 mt-0.5 text-gray-400 flex-shrink-0" />
+                <span>Time: {new Date().toLocaleTimeString()}</span>
+              </div>
+              <div className="flex items-start mt-2">
+                <AlertTriangle size={16} className="mr-2 mt-0.5 text-gray-400 flex-shrink-0" />
+                <div className="flex items-center">
+                  <input
+                    id="urgent"
+                    type="checkbox"
+                    checked={urgent}
+                    onChange={(e) => setUrgent(e.target.checked)}
+                    className="w-4 h-4 bg-black border-white/30 rounded focus:ring-white mr-2"
+                  />
+                  <label htmlFor="urgent">
+                    Mark as urgent/high priority
+                  </label>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         
         <div>
-          <label htmlFor="contact" className="block text-sm font-medium mb-1">
-            Contact Information (Optional)
-          </label>
-          <input
-            id="contact"
-            type="text"
-            value={contact}
-            onChange={(e) => setContact(e.target.value)}
-            placeholder="Phone number or other contact info"
-            className="w-full bg-black/40 border border-white/10 rounded-lg p-3 placeholder:text-gray-500 focus:ring-1 focus:ring-white/30 focus:outline-none"
-          />
-          <p className="mt-1 text-xs text-gray-400">
-            This helps responders reach you directly
-          </p>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold">Items To Deliver</h3>
+            <button 
+              type="button" 
+              onClick={handleAddItem}
+              className="text-sm bg-white/10 hover:bg-white/15 px-2 py-1 rounded-lg transition-colors"
+            >
+              + Add Item
+            </button>
+          </div>
+          
+          {errors.items && (
+            <p className="text-sm text-red-400 mb-2">{errors.items}</p>
+          )}
+          
+          <div className="overflow-hidden">
+            <table className="w-full">
+              <thead className="border-b border-white/10 text-left">
+                <tr>
+                  <th className="py-2 font-medium">Item</th>
+                  <th className="py-2 font-medium text-right">Quantity</th>
+                  <th className="py-2 w-10"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((item, index) => (
+                  <tr key={index} className="border-b border-white/5">
+                    <td className="py-2">
+                      <input
+                        type="text"
+                        value={item.name}
+                        onChange={(e) => handleItemChange(index, 'name', e.target.value)}
+                        placeholder="Item name"
+                        className="w-full bg-transparent focus:outline-none"
+                      />
+                    </td>
+                    <td className="py-2">
+                      <input
+                        type="number"
+                        min="1"
+                        value={item.quantity}
+                        onChange={(e) => handleItemChange(index, 'quantity', parseInt(e.target.value) || 1)}
+                        className="w-16 bg-transparent text-right focus:outline-none"
+                      />
+                    </td>
+                    <td className="py-2 text-center">
+                      {items.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveItem(index)}
+                          className="text-gray-400 hover:text-red-400 transition-colors"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
         
-        <div className="flex items-center">
-          <input
-            id="urgent"
-            type="checkbox"
-            checked={urgent}
-            onChange={(e) => setUrgent(e.target.checked)}
-            className="w-4 h-4 bg-black border-white/30 rounded focus:ring-white"
-          />
-          <label htmlFor="urgent" className="ml-2 text-sm">
-            This is an urgent need <span className="text-red-400">(life-threatening or critical)</span>
-          </label>
+        <div>
+          <h3 className="text-lg font-semibold mb-3">Beneficiary Information</h3>
+          <div className="space-y-3">
+            <div className="flex items-start">
+              <User size={16} className="mr-2 mt-1.5 text-gray-400 flex-shrink-0" />
+              <input
+                type="text"
+                value={contactName}
+                onChange={(e) => setContactName(e.target.value)}
+                placeholder="Contact Name"
+                className="w-full bg-transparent border-b border-white/10 pb-1 focus:outline-none focus:border-white/30"
+              />
+            </div>
+            
+            <div className="flex items-start">
+              <Phone size={16} className="mr-2 mt-1.5 text-gray-400 flex-shrink-0" />
+              <input
+                type="text"
+                value={contact}
+                onChange={(e) => setContact(e.target.value)}
+                placeholder="Contact Number"
+                className="w-full bg-transparent border-b border-white/10 pb-1 focus:outline-none focus:border-white/30"
+              />
+            </div>
+            
+            <div className="flex items-start">
+              <AlertTriangle size={16} className="mr-2 mt-1.5 text-gray-400 flex-shrink-0" />
+              <input
+                type="text"
+                value={specialNotes}
+                onChange={(e) => setSpecialNotes(e.target.value)}
+                placeholder="Special notes (elderly, children, medical conditions)"
+                className="w-full bg-transparent border-b border-white/10 pb-1 focus:outline-none focus:border-white/30"
+              />
+            </div>
+            
+            <div className="flex items-start">
+              <div className="w-5 mr-2 flex-shrink-0"></div>
+              <div className="flex items-center">
+                <label className="text-sm text-gray-400">
+                  Number of people: 
+                  <input
+                    type="number"
+                    min="1"
+                    value={people}
+                    onChange={(e) => setPeople(parseInt(e.target.value) || 1)}
+                    className={`w-12 ml-2 bg-transparent border-b ${errors.people ? 'border-red-400' : 'border-white/10'} pb-1 focus:outline-none focus:border-white/30 text-center`}
+                  />
+                </label>
+                {errors.people && (
+                  <p className="ml-2 text-sm text-red-400">{errors.people}</p>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
         
-        <div className="flex justify-end space-x-3 pt-2">
+        <div className="flex justify-end space-x-3 pt-4">
           <button
             type="button"
             onClick={onCancel}

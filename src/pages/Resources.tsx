@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import ResourceCard from '../components/ResourceCard';
@@ -81,10 +80,14 @@ const Resources = () => {
       title: formData.title,
       description: formData.description,
       location: formData.location,
+      locationDetails: formData.locationDetails,
       contact: formData.contact,
+      contactName: formData.contactName,
+      specialNotes: formData.specialNotes,
       urgent: formData.urgent,
       status: 'pending',
-      people: formData.people
+      people: formData.people,
+      items: formData.items
     });
     
     setShowVictimForm(false);
