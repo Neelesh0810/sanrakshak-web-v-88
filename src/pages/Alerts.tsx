@@ -4,6 +4,7 @@ import Header from '../components/Header';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import { AlertTriangle, Bell, Clock, Filter, BellOff } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import BackButton from '@/components/BackButton';
 
 interface Alert {
   id: string;
@@ -164,6 +165,10 @@ const Alerts = () => {
       <AnimatedTransition>
         <main className="pt-20 pb-16 min-h-screen">
           <div className="container mx-auto px-4">
+            <div className="mb-4">
+              <BackButton />
+            </div>
+          
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
               <div>
                 <h1 className="text-2xl font-bold mb-2">Emergency Alerts</h1>

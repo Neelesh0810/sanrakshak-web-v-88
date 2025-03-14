@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import ResourceCard from '../components/ResourceCard';
@@ -7,6 +8,7 @@ import { PlusCircle, Filter } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import AnimatedTransition from '@/components/AnimatedTransition';
 import useResourceData from '@/hooks/useResourceData';
+import BackButton from '@/components/BackButton';
 
 type ResourceType = 'need' | 'offer';
 type ResourceCategory = 'water' | 'shelter' | 'food' | 'supplies' | 'medical' | 'safety';
@@ -135,6 +137,10 @@ const Resources = () => {
       <AnimatedTransition>
         <main className="pt-20 pb-16 min-h-screen">
           <div className="container mx-auto px-4">
+            <div className="mb-4">
+              <BackButton />
+            </div>
+          
             <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-8">
               <div>
                 <h1 className="text-2xl font-bold mb-2">Resource Exchange</h1>

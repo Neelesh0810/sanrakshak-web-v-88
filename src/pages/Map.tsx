@@ -5,6 +5,7 @@ import AnimatedTransition from '@/components/AnimatedTransition';
 import LocationFinder from '@/components/LocationFinder';
 import { MapPin, Navigation, Compass } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import BackButton from '@/components/BackButton';
 
 const Map = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -52,6 +53,10 @@ const Map = () => {
       <AnimatedTransition>
         <main className="pt-20 pb-16 min-h-screen">
           <div className="container mx-auto px-4">
+            <div className="mb-4">
+              <BackButton />
+            </div>
+          
             <div className="mb-6">
               <h1 className="text-2xl font-bold mb-2">Emergency Resources Map</h1>
               <p className="text-gray-400">Find nearby assistance and resources</p>

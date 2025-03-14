@@ -20,7 +20,8 @@ const BackButton: React.FC<BackButtonProps> = ({ className }) => {
     if (returnTo) {
       navigate(`/${returnTo}`);
     } else {
-      navigate(-1);
+      // Default to dashboard if no returnTo is specified
+      navigate('/dashboard');
     }
   };
   
