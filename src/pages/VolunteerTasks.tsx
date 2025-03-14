@@ -28,7 +28,9 @@ const VolunteerTasks = () => {
           beneficiary: {
             name: 'Sarah Johnson',
             contact: '555-123-4567'
-          }
+          },
+          category: 'water',
+          responseId: 'response-1'
         },
         {
           id: 'task-2',
@@ -43,7 +45,9 @@ const VolunteerTasks = () => {
             start: '4:00 PM',
             end: '8:00 PM',
             date: 'Today'
-          }
+          },
+          category: 'shelter',
+          responseId: 'response-2'
         },
         {
           id: 'task-3',
@@ -54,7 +58,9 @@ const VolunteerTasks = () => {
           status: 'completed',
           priority: 'high',
           createdAt: Date.now() - 172800000, // 2 days ago
-          completedAt: Date.now() - 86400000 // 1 day ago
+          completedAt: Date.now() - 86400000, // 1 day ago
+          category: 'medical',
+          responseId: 'response-3'
         }
       ];
       

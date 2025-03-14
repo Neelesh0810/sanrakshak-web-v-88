@@ -41,6 +41,13 @@ const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ resourceData })
     
     return userResponses.slice(0, 2); // Only show the top 2
   }, [responses]);
+
+  // Map response IDs to task IDs for correct navigation
+  const getTaskIdForResponse = (responseId: string) => {
+    // For this example, we're creating a predictable mapping
+    // In a real app, you would look up the correct task ID from your data
+    return `task-${responseId.split('-')[1]}`;
+  };
   
   return (
     <div className="container mx-auto px-4">
@@ -145,7 +152,10 @@ const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ resourceData })
                       <span className="text-xs text-gray-500">
                         {new Date(response.time).toLocaleString()}
                       </span>
-                      <Link to={`/volunteer-tasks/${response.id}`} className="text-xs text-white bg-white/10 hover:bg-white/15 px-2 py-1 rounded transition-colors">
+                      <Link 
+                        to={`/volunteer-tasks/${getTaskIdForResponse(response.id)}`} 
+                        className="text-xs text-white bg-white/10 hover:bg-white/15 px-2 py-1 rounded transition-colors"
+                      >
                         View Details
                       </Link>
                     </div>
