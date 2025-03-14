@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import ResourceCard from '../components/ResourceCard';
 import RequestForm from '../components/RequestForm';
+import VictimRequestForm from '../components/VictimRequestForm';
 import { PlusCircle, Filter } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import AnimatedTransition from '@/components/AnimatedTransition';
@@ -20,11 +21,15 @@ interface Resource {
   contact?: string;
   urgent?: boolean;
   timestamp: number;
+  status?: 'pending' | 'addressing' | 'resolved';
+  assignedTo?: string;
+  people?: number;
 }
 
 const Resources = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [showVictimForm, setShowVictimForm] = useState(false);
   const [filter, setFilter] = useState<ResourceType | 'all'>('all');
   const [categoryFilter, setCategoryFilter] = useState<ResourceCategory | 'all'>('all');
   const { toast } = useToast();
@@ -52,7 +57,9 @@ const Resources = () => {
           description: 'Family of 4 needs clean drinking water. We have been without for 2 days.',
           location: 'North District, Block C',
           urgent: true,
-          timestamp: Date.now() - 3600000
+          timestamp: Date.now() - 3600000,
+          status: 'pending',
+          people: 4
         },
         {
           id: '2',
@@ -62,7 +69,8 @@ const Resources = () => {
           description: 'We have prepared 50 hot meals ready for distribution today until 6pm.',
           location: 'Community Center, East Wing',
           contact: '555-0123',
-          timestamp: Date.now() - 7200000
+          timestamp: Date.now() - 7200000,
+          status: 'pending'
         },
         {
           id: '3',
@@ -73,7 +81,9 @@ const Resources = () => {
           location: 'South Side Apartments, Building 3',
           contact: '555-0187',
           urgent: true,
-          timestamp: Date.now() - 1800000
+          timestamp: Date.now() - 1800000,
+          status: 'addressing',
+          people: 1
         },
         {
           id: '4',
@@ -83,7 +93,8 @@ const Resources = () => {
           description: 'Can accommodate 3 people in spare rooms. Clean, safe environment with basic amenities.',
           location: 'West Hills, House #42',
           contact: '555-0149',
-          timestamp: Date.now() - 10800000
+          timestamp: Date.now() - 10800000,
+          status: 'pending'
         }
       ];
       
@@ -104,7 +115,8 @@ const Resources = () => {
     const newResource: Resource = {
       ...formData,
       id: Date.now().toString(),
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      status: 'pending'
     };
     
     const updatedResources = [newResource, ...resources];
@@ -116,6 +128,51 @@ const Resources = () => {
       title: formData.type === 'need' ? "Request Posted" : "Offer Posted",
       description: "Your post has been published successfully",
     });
+  };
+
+  const handleVictimRequestSubmit = (formData: {
+    title: string;
+    description: string;
+    category: ResourceCategory;
+    location: string;
+    people: number;
+    urgent: boolean;
+    contact?: string;
+  }) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to submit a request",
+      });
+      return;
+    }
+    
+    const newResource: Resource = {
+      id: Date.now().toString(),
+      type: 'need',
+      category: formData.category,
+      title: formData.title,
+      description: formData.description,
+      location: formData.location,
+      contact: formData.contact,
+      urgent: formData.urgent,
+      timestamp: Date.now(),
+      status: 'pending',
+      people: formData.people
+    };
+    
+    const updatedResources = [newResource, ...resources];
+    setResources(updatedResources);
+    localStorage.setItem('resources', JSON.stringify(updatedResources));
+    
+    setShowVictimForm(false);
+    toast({
+      title: "Request Submitted",
+      description: "Your request has been sent to the emergency response team",
+    });
+    
+    // Trigger notification update
+    window.dispatchEvent(new Event('resource-created'));
   };
   
   const filteredResources = resources
@@ -138,6 +195,21 @@ const Resources = () => {
     const days = Math.floor(hours / 24);
     return `${days} day${days === 1 ? '' : 's'} ago`;
   };
+
+  const showRequestForm = () => {
+    if (user?.role === 'victim') {
+      setShowVictimForm(true);
+    } else {
+      setShowForm(true);
+    }
+    
+    // Close any other open form
+    if (user?.role === 'victim') {
+      setShowForm(false);
+    } else {
+      setShowVictimForm(false);
+    }
+  };
   
   return (
     <div className="min-h-screen bg-black text-white">
@@ -153,12 +225,12 @@ const Resources = () => {
               </div>
               
               <button
-                onClick={() => setShowForm(true)}
+                onClick={showRequestForm}
                 className="flex items-center space-x-2 bg-white text-black px-4 py-2 rounded-lg hover:bg-white/90 transition-colors"
                 aria-label="Create new post"
               >
                 <PlusCircle size={18} />
-                <span>New Post</span>
+                <span>{user?.role === 'victim' ? 'Request Help' : 'New Post'}</span>
               </button>
             </div>
             
@@ -167,6 +239,13 @@ const Resources = () => {
                 <RequestForm 
                   onSubmit={handleFormSubmit} 
                   onCancel={() => setShowForm(false)} 
+                />
+              </div>
+            ) : showVictimForm ? (
+              <div className="mb-8">
+                <VictimRequestForm 
+                  onSubmit={handleVictimRequestSubmit} 
+                  onCancel={() => setShowVictimForm(false)} 
                 />
               </div>
             ) : (

@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -24,6 +25,7 @@ import LandingPage from "./pages/LandingPage";
 import VolunteerTasks from "./pages/VolunteerTasks";
 import VolunteerTaskDetails from "./pages/VolunteerTaskDetails";
 import VolunteerStats from "./pages/VolunteerStats";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -118,6 +120,14 @@ const App = () => {
     return children;
   };
 
+  // Special route for admin access
+  const AdminRoute = ({ children }: { children: JSX.Element }) => {
+    if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    if (!user) return <Navigate to="/login" replace />;
+    if (user && user.role !== 'admin') return <Navigate to="/dashboard" replace />;
+    return children;
+  };
+
   // Redirect authenticated users away from auth pages
   const AuthRoute = ({ children }: { children: JSX.Element }) => {
     if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -138,6 +148,13 @@ const App = () => {
                 <ProtectedRoute>
                   <Index />
                 </ProtectedRoute>
+              } />
+              
+              {/* Admin Route */}
+              <Route path="/admin-dashboard" element={
+                <AdminRoute>
+                  <AdminDashboard />
+                </AdminRoute>
               } />
               
               {/* Auth Routes */}

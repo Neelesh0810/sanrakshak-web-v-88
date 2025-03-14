@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, AlertTriangle, CheckCircle, MapPin, Menu, X } from 'lucide-react';
+import { ArrowRight, CheckCircle, MapPin, Menu, X } from 'lucide-react';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import { useTheme } from '../context/ThemeProvider';
 
@@ -231,7 +231,7 @@ const LandingPage = () => {
           <div className="container mx-auto px-4">
             <AnimatedTransition>
               <div className="max-w-4xl mx-auto text-center">
-                <div className="inline-flex items-center px-3 py-1 mb-6 rounded-full bg-primary/10 text-primary-foreground text-sm">
+                <div className="inline-flex items-center px-4 py-2 mb-6 rounded-full bg-primary/10 text-primary-foreground text-sm md:text-base font-medium">
                   <span>Emergency Response Platform</span>
                 </div>
                 

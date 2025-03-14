@@ -3,16 +3,20 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import AnimatedTransition from '@/components/AnimatedTransition';
-import { Lock, Mail, ArrowRight } from 'lucide-react';
+import { Lock, Mail, ArrowRight, Shield } from 'lucide-react';
 import BackButton from '@/components/BackButton';
+import { useTheme } from '../context/ThemeProvider';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
 
   // Check if user is already logged in
   useEffect(() => {
@@ -23,8 +27,12 @@ const Login = () => {
           // Verify that the stored data is valid JSON
           const parsedUser = JSON.parse(authUser);
           if (parsedUser && parsedUser.id) {
-            // Force a clean navigation without history
-            navigate('/dashboard', { replace: true });
+            // If admin, go to admin dashboard, otherwise regular dashboard
+            if (parsedUser.role === 'admin') {
+              navigate('/admin-dashboard', { replace: true });
+            } else {
+              navigate('/dashboard', { replace: true });
+            }
           }
         } catch (e) {
           // Clear invalid data
@@ -58,6 +66,13 @@ const Login = () => {
           return;
         }
         
+        // For admin login, check if user has admin role
+        if (isAdmin && user.role !== 'admin') {
+          setError('You do not have administrator access.');
+          setIsLoading(false);
+          return;
+        }
+        
         // Store authenticated user in localStorage (without password)
         const authUser = {
           id: user.id,
@@ -78,15 +93,19 @@ const Login = () => {
         // Display success toast
         toast({
           title: "Login Successful",
-          description: "Welcome back to Relief Connect",
+          description: `Welcome back to ${isAdmin ? 'the admin panel' : 'Relief Connect'}`,
         });
         
         // Clear form
         setEmail('');
         setPassword('');
         
-        // Navigate to dashboard with replace to ensure clean history
-        navigate('/dashboard', { replace: true });
+        // Navigate to appropriate dashboard
+        if (user.role === 'admin') {
+          navigate('/admin-dashboard', { replace: true });
+        } else {
+          navigate('/dashboard', { replace: true });
+        }
       } else {
         setError('Invalid email or password');
       }
@@ -98,21 +117,37 @@ const Login = () => {
     }
   };
 
+  const toggleAdminMode = () => {
+    setIsAdmin(!isAdmin);
+    setError(''); // Clear any previous errors when switching modes
+  };
+
   return (
-    <div className="min-h-screen bg-black dark:bg-black text-white dark:text-white flex flex-col">
+    <div className={`min-h-screen ${isLight ? "bg-white" : "bg-black"} text-foreground flex flex-col`}>
       <div className="p-4">
         <BackButton />
       </div>
       <div className="flex-1 flex items-center justify-center p-4">
         <AnimatedTransition className="w-full max-w-md">
-          <div className="glass-dark rounded-xl p-6 sm:p-8">
+          <div className={`${isLight ? "border border-gray-300 shadow-soft bg-white" : "glass-dark"} rounded-xl p-6 sm:p-8`}>
             <div className="text-center mb-8">
-              <h1 className="text-2xl font-bold mb-2">Welcome Back</h1>
-              <p className="text-gray-400">Sign in to access your Relief Connect account</p>
+              <h1 className="text-2xl font-bold mb-2">
+                {isAdmin ? (
+                  <span className="flex items-center justify-center">
+                    <Shield className="mr-2" size={20} />
+                    Administrator Login
+                  </span>
+                ) : (
+                  "Welcome Back"
+                )}
+              </h1>
+              <p className={isLight ? "text-gray-600" : "text-gray-400"}>
+                Sign in to {isAdmin ? "access the admin panel" : "your Relief Connect account"}
+              </p>
             </div>
             
             {error && (
-              <div className="mb-4 p-3 bg-white/5 border border-white/10 rounded-lg text-sm text-red-400">
+              <div className={`mb-4 p-3 ${isLight ? "bg-red-50 border border-red-200 text-red-600" : "bg-white/5 border border-white/10 text-red-400"} rounded-lg text-sm`}>
                 {error}
               </div>
             )}
@@ -124,7 +159,7 @@ const Login = () => {
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail size={18} className="text-gray-400" />
+                    <Mail size={18} className={isLight ? "text-gray-500" : "text-gray-400"} />
                   </div>
                   <input
                     id="email"
@@ -133,7 +168,7 @@ const Login = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="w-full bg-black/40 border border-white/10 rounded-lg py-3 pl-10 pr-4 placeholder:text-gray-500 focus:ring-1 focus:ring-white/30 focus:outline-none"
+                    className={`w-full ${isLight ? "bg-white border-gray-300 placeholder:text-gray-400 focus:ring-gray-400" : "bg-black/40 border-white/10 placeholder:text-gray-500 focus:ring-white/30"} border rounded-lg py-3 pl-10 pr-4 focus:ring-1 focus:outline-none`}
                   />
                 </div>
               </div>
@@ -143,13 +178,13 @@ const Login = () => {
                   <label htmlFor="password" className="text-sm font-medium">
                     Password
                   </label>
-                  <Link to="/forgot-password" className="text-sm text-gray-400 hover:text-white">
+                  <Link to="/forgot-password" className={`text-sm ${isLight ? "text-gray-600" : "text-gray-400"} hover:text-primary`}>
                     Forgot?
                   </Link>
                 </div>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock size={18} className="text-gray-400" />
+                    <Lock size={18} className={isLight ? "text-gray-500" : "text-gray-400"} />
                   </div>
                   <input
                     id="password"
@@ -158,7 +193,7 @@ const Login = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="w-full bg-black/40 border border-white/10 rounded-lg py-3 pl-10 pr-4 placeholder:text-gray-500 focus:ring-1 focus:ring-white/30 focus:outline-none"
+                    className={`w-full ${isLight ? "bg-white border-gray-300 placeholder:text-gray-400 focus:ring-gray-400" : "bg-black/40 border-white/10 placeholder:text-gray-500 focus:ring-white/30"} border rounded-lg py-3 pl-10 pr-4 focus:ring-1 focus:outline-none`}
                   />
                 </div>
               </div>
@@ -166,7 +201,7 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full rounded-lg bg-white dark:bg-white text-black dark:text-black font-medium py-3 flex items-center justify-center hover:bg-white/90 transition-colors disabled:opacity-50"
+                className={`w-full rounded-lg font-medium py-3 flex items-center justify-center transition-colors disabled:opacity-50 ${isLight ? "bg-black text-white hover:bg-gray-800" : "bg-white text-black hover:bg-white/90"}`}
               >
                 {isLoading ? (
                   <span className="flex items-center">
@@ -183,9 +218,19 @@ const Login = () => {
               
               <div className="text-center text-sm text-gray-400">
                 <span>Don't have an account? </span>
-                <Link to="/signup" className="text-white hover:underline">
+                <Link to="/signup" className={isLight ? "text-black hover:underline" : "text-white hover:underline"}>
                   Create one
                 </Link>
+              </div>
+              
+              <div className="pt-4 text-center">
+                <button
+                  type="button"
+                  onClick={toggleAdminMode}
+                  className={`text-sm ${isLight ? "text-black hover:underline" : "text-white hover:underline"}`}
+                >
+                  {isAdmin ? "Sign in as regular user" : "Sign in as administrator"}
+                </button>
               </div>
             </form>
           </div>
