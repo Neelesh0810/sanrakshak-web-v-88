@@ -56,7 +56,8 @@ const RoleSwitcher: React.FC = () => {
   };
   
   // Don't render anything if user is admin or no user is logged in
-  if (!currentUser || currentUser.role === 'admin') {
+  // Also, check if we are on admin-dashboard and don't render the switcher
+  if (!currentUser || currentUser.role === 'admin' || window.location.pathname.includes('/admin-dashboard')) {
     return null;
   }
   

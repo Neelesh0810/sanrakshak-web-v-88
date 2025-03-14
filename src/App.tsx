@@ -113,10 +113,12 @@ const App = () => {
     };
   }, []);
   
-  // Function to protect routes
+  // Function to protect routes for regular users
   const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
     if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
     if (!user) return <Navigate to="/login" replace />;
+    // Redirect admin users to admin dashboard
+    if (user.role === 'admin') return <Navigate to="/admin-dashboard" replace />;
     return children;
   };
 
@@ -131,7 +133,12 @@ const App = () => {
   // Redirect authenticated users away from auth pages
   const AuthRoute = ({ children }: { children: JSX.Element }) => {
     if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-    if (user) return <Navigate to="/dashboard" replace />;
+    if (user) {
+      // Redirect admin users to admin dashboard, others to regular dashboard
+      return user.role === 'admin' 
+        ? <Navigate to="/admin-dashboard" replace /> 
+        : <Navigate to="/dashboard" replace />;
+    }
     return children;
   };
 
@@ -155,6 +162,11 @@ const App = () => {
                 <AdminRoute>
                   <AdminDashboard />
                 </AdminRoute>
+              } />
+              
+              {/* Admin logout route - to avoid showing other admin pages */}
+              <Route path="/admin/*" element={
+                <Navigate to="/admin-dashboard" replace />
               } />
               
               {/* Auth Routes */}
