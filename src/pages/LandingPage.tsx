@@ -1,6 +1,7 @@
+
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, CheckCircle, MapPin, Menu, X } from 'lucide-react';
+import { ArrowRight, CheckCircle, MapPin, Menu, X, AlertTriangle } from 'lucide-react';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import { useTheme } from '../context/ThemeProvider';
 
