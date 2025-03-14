@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
@@ -24,7 +23,13 @@ const StatusDetails = () => {
       const user = JSON.parse(authUser);
       setUserRole(user.role);
     }
-  }, []);
+    
+    // Check if already subscribed to this alert
+    const subscribedAlerts = JSON.parse(localStorage.getItem('subscribedAlerts') || '[]');
+    if (subscribedAlerts.includes(id)) {
+      setSubscribed(true);
+    }
+  }, [id]);
   
   // Mock status data based on ID
   // In a real app, this would be fetched from an API
@@ -94,6 +99,25 @@ const StatusDetails = () => {
   
   const handleSubscribe = () => {
     setSubscribed(true);
+    
+    // Save subscription in localStorage
+    const subscribedAlerts = JSON.parse(localStorage.getItem('subscribedAlerts') || '[]');
+    if (!subscribedAlerts.includes(id)) {
+      subscribedAlerts.push(id);
+      localStorage.setItem('subscribedAlerts', JSON.stringify(subscribedAlerts));
+    }
+    
+    // Trigger notification event
+    window.dispatchEvent(new CustomEvent('notification-added', { 
+      detail: { 
+        id: `notification-${Date.now()}`,
+        title: "New Alert Subscription",
+        message: `You will receive updates for ${status.title}`,
+        timestamp: new Date().toISOString(),
+        read: false
+      }
+    }));
+    
     toast({
       title: "Subscribed to Updates",
       description: "You will receive notifications for this alert",
