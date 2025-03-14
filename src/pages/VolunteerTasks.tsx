@@ -1,72 +1,59 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Header from '@/components/Header';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import { Link } from 'react-router-dom';
 import { CheckCircle, ArrowLeft, Clock, ArrowRight, MapPin, Phone, User } from 'lucide-react';
 import { useTheme } from '../context/ThemeProvider';
+import useResourceData, { Resource } from '@/hooks/useResourceData';
+import { Card, CardContent } from '@/components/ui/card';
 
 const VolunteerTasks = () => {
-  const [tasks, setTasks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { theme } = useTheme();
+  const { resources, responses } = useResourceData();
   const isLight = theme === 'light';
+  
+  const tasks = useMemo(() => {
+    const currentUser = JSON.parse(localStorage.getItem('authUser') || '{}');
+    if (!currentUser.id) return [];
+    
+    const userResponses = responses.filter(response => 
+      response.type === 'offer' && 
+      ['pending', 'accepted'].includes(response.status)
+    );
+    
+    return userResponses.map(response => {
+      const resource = resources.find(r => r.id === response.requestId);
+      if (!resource) return null;
+      
+      return {
+        id: `task-${response.id}`,
+        title: resource.title,
+        type: 'assistance',
+        description: resource.description,
+        location: resource.location,
+        locationDetails: resource.locationDetails,
+        status: response.status === 'pending' ? 'in-progress' : response.status,
+        priority: resource.urgent ? 'high' : 'medium',
+        createdAt: resource.timestamp,
+        beneficiary: {
+          name: resource.contactName || 'Anonymous',
+          contact: resource.contact || 'No contact provided'
+        },
+        category: resource.category,
+        responseId: response.id,
+        items: resource.items,
+        specialNotes: resource.specialNotes
+      };
+    }).filter(Boolean);
+  }, [resources, responses]);
 
   useEffect(() => {
-    // Simulate fetching tasks
-    setTimeout(() => {
-      const mockTasks = [
-        {
-          id: 'task-1',
-          title: 'Water Delivery',
-          type: 'delivery',
-          description: 'Delivering bottled water to Riverside District',
-          location: 'Riverside District, Block 3',
-          status: 'in-progress',
-          priority: 'high',
-          createdAt: Date.now() - 7200000, // 2 hours ago
-          beneficiary: {
-            name: 'Sarah Johnson',
-            contact: '555-123-4567'
-          },
-          category: 'water',
-          responseId: 'response-1'
-        },
-        {
-          id: 'task-2',
-          title: 'Shelter Support',
-          type: 'assistance',
-          description: 'Helping at Central High School shelter location',
-          location: 'Central High School, 123 Main St',
-          status: 'scheduled',
-          priority: 'medium',
-          createdAt: Date.now() - 86400000, // 1 day ago
-          scheduledTime: {
-            start: '4:00 PM',
-            end: '8:00 PM',
-            date: 'Today'
-          },
-          category: 'shelter',
-          responseId: 'response-2'
-        },
-        {
-          id: 'task-3',
-          title: 'Medical Supply Transport',
-          type: 'delivery',
-          description: 'Transporting medical supplies from main hospital to field clinic',
-          location: 'City Hospital to Westside Field Clinic',
-          status: 'completed',
-          priority: 'high',
-          createdAt: Date.now() - 172800000, // 2 days ago
-          completedAt: Date.now() - 86400000, // 1 day ago
-          category: 'medical',
-          responseId: 'response-3'
-        }
-      ];
-      
-      setTasks(mockTasks);
+    const timer = setTimeout(() => {
       setLoading(false);
     }, 1000);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   const getStatusBadge = (status: string) => {
@@ -175,15 +162,6 @@ const VolunteerTasks = () => {
                                   <span>{task.beneficiary.contact}</span>
                                 </div>
                               )}
-                              
-                              {task.scheduledTime && (
-                                <div className="flex items-center text-sm">
-                                  <Clock size={14} className="mr-2 opacity-70" />
-                                  <span>
-                                    {task.scheduledTime.date}, {task.scheduledTime.start} - {task.scheduledTime.end}
-                                  </span>
-                                </div>
-                              )}
                             </div>
                           </div>
                           <div>
@@ -193,10 +171,7 @@ const VolunteerTasks = () => {
                         
                         <div className="mt-4 pt-4 border-t border-gray-100 dark:border-white/5 flex justify-between items-center">
                           <div className="text-xs text-gray-500">
-                            {task.status === 'completed' 
-                              ? `Completed ${new Date(task.completedAt).toLocaleDateString()}`
-                              : `Assigned ${new Date(task.createdAt).toLocaleDateString()}`
-                            }
+                            {new Date(task.createdAt).toLocaleDateString()}
                           </div>
                           <Link 
                             to={`/volunteer-tasks/${task.id}`}

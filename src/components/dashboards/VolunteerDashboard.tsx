@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { Users, ArrowRight, Clock, CheckCircle } from 'lucide-react';
 import ResourceCard from '../ResourceCard';
@@ -44,9 +43,7 @@ const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ resourceData })
 
   // Map response IDs to task IDs for correct navigation
   const getTaskIdForResponse = (responseId: string) => {
-    // For this example, we're creating a predictable mapping
-    // In a real app, you would look up the correct task ID from your data
-    return `task-${responseId.split('-')[1]}`;
+    return `task-${responseId}`;
   };
   
   return (
