@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useMemo } from 'react';
 import { Info, Map, ArrowRight } from 'lucide-react';
 import ResourceCard from '../ResourceCard';
 import StatusUpdate from '../StatusUpdate';
@@ -7,8 +8,29 @@ import LocationFinder from '../LocationFinder';
 import AnimatedTransition from '../AnimatedTransition';
 import { Link } from 'react-router-dom';
 import { Button } from '../ui/button';
+import useResourceData from '@/hooks/useResourceData';
 
-const VictimDashboard: React.FC = () => {
+interface VictimDashboardProps {
+  resourceData?: ReturnType<typeof useResourceData>;
+}
+
+const VictimDashboard: React.FC<VictimDashboardProps> = ({ resourceData }) => {
+  // Use passed resourceData or create a new instance
+  const { resources, loading } = resourceData || useResourceData();
+  
+  // Filter resources to only show offers (available to victims)
+  const availableResources = useMemo(() => {
+    return resources
+      .filter(resource => resource.type === 'offer')
+      .sort((a, b) => {
+        // Sort by urgent first, then by timestamp (newest first)
+        if (a.urgent && !b.urgent) return -1;
+        if (!a.urgent && b.urgent) return 1;
+        return b.timestamp - a.timestamp;
+      })
+      .slice(0, 4); // Only show the top 4
+  }, [resources]);
+  
   return (
     <div className="container mx-auto px-4">
       <div className="mb-6">
@@ -53,43 +75,32 @@ const VictimDashboard: React.FC = () => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <ResourceCard
-                type="offer"
-                category="water"
-                title="Clean Drinking Water"
-                description="Distribution of bottled water at community center"
-                location="Central Community Center"
-                requestId="resource-w1"
-              />
-              
-              <ResourceCard
-                type="offer"
-                category="shelter"
-                title="Temporary Housing Available"
-                description="Can accommodate up to 30 people in emergency shelters"
-                location="Hillcrest Area, St. Mary School"
-                contact="555-123-4567"
-                requestId="resource-s1"
-              />
-              
-              <ResourceCard
-                type="offer"
-                category="medical"
-                title="Medical Assistance"
-                description="First aid, medication refills, and basic health services"
-                location="Downtown Medical Center"
-                contact="555-987-6543"
-                requestId="resource-m1"
-              />
-              
-              <ResourceCard
-                type="offer"
-                category="food"
-                title="Hot Meals Available"
-                description="Serving hot meals from 12-2pm daily. Can deliver to elderly or disabled."
-                location="Community Center, 100 Main St"
-                requestId="resource-f1"
-              />
+              {loading ? (
+                // Show loading states
+                Array(4).fill(0).map((_, index) => (
+                  <div key={`loading-${index}`} className="animate-pulse rounded-xl p-6 bg-white/5 h-64"></div>
+                ))
+              ) : availableResources.length > 0 ? (
+                // Show available resources
+                availableResources.map(resource => (
+                  <ResourceCard
+                    key={resource.id}
+                    type="offer"
+                    category={resource.category}
+                    title={resource.title}
+                    description={resource.description}
+                    location={resource.location}
+                    contact={resource.contact}
+                    urgent={resource.urgent}
+                    requestId={resource.id}
+                  />
+                ))
+              ) : (
+                // No resources available
+                <div className="col-span-2 p-6 border border-white/10 rounded-xl text-center">
+                  <p className="text-gray-400">No resources available at the moment.</p>
+                </div>
+              )}
             </div>
           </AnimatedTransition>
           

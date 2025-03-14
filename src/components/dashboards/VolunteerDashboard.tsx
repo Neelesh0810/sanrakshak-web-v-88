@@ -1,12 +1,47 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Users, ArrowRight, Clock, CheckCircle } from 'lucide-react';
 import ResourceCard from '../ResourceCard';
 import StatusUpdate from '../StatusUpdate';
 import AnimatedTransition from '../AnimatedTransition';
 import { Link } from 'react-router-dom';
+import useResourceData from '@/hooks/useResourceData';
 
-const VolunteerDashboard: React.FC = () => {
+interface VolunteerDashboardProps {
+  resourceData?: ReturnType<typeof useResourceData>;
+}
+
+const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ resourceData }) => {
+  // Use passed resourceData or create a new instance
+  const { resources, responses, loading } = resourceData || useResourceData();
+  
+  // Filter resources to only show needs (that volunteers can help with)
+  const needsResources = useMemo(() => {
+    return resources
+      .filter(resource => resource.type === 'need')
+      .sort((a, b) => {
+        // Sort by urgent first, then by timestamp (newest first)
+        if (a.urgent && !b.urgent) return -1;
+        if (!a.urgent && b.urgent) return 1;
+        return b.timestamp - a.timestamp;
+      })
+      .slice(0, 4); // Only show the top 4
+  }, [resources]);
+  
+  // Get active responses for the current user
+  const activeResponses = useMemo(() => {
+    const currentUser = JSON.parse(localStorage.getItem('authUser') || '{}');
+    if (!currentUser.id) return [];
+    
+    // Get responses for this user
+    const userResponses = responses.filter(response => 
+      response.type === 'offer' && 
+      ['pending', 'accepted'].includes(response.status)
+    );
+    
+    return userResponses.slice(0, 2); // Only show the top 2
+  }, [responses]);
+  
   return (
     <div className="container mx-auto px-4">
       <div className="mb-6">
@@ -23,7 +58,7 @@ const VolunteerDashboard: React.FC = () => {
                 </p>
                 <div className="flex items-center text-xs text-gray-400">
                   <Clock size={12} className="mr-1" />
-                  <span>Last updated: 10 minutes ago</span>
+                  <span>Last updated: just now</span>
                 </div>
               </div>
               
@@ -52,47 +87,32 @@ const VolunteerDashboard: React.FC = () => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <ResourceCard
-                type="need"
-                category="water"
-                title="Clean Drinking Water"
-                description="Urgently need bottled water for family of 4, including infant."
-                location="Riverside District, Block 3"
-                urgent={true}
-                requestId="resource-1"
-              />
-              
-              <ResourceCard
-                type="need"
-                category="medical"
-                title="Diabetes Medication"
-                description="Need insulin and blood sugar testing supplies."
-                location="Downtown, Apartment Complex B"
-                contact="555-987-6543"
-                urgent={true}
-                requestId="resource-3"
-              />
-              
-              <ResourceCard
-                type="need"
-                category="food"
-                title="Food for Family of 5"
-                description="Need non-perishable food items for family with three children."
-                location="Eastside, Meadow Apartments"
-                contact="555-111-2222"
-                requestId="resource-5"
-              />
-              
-              <ResourceCard
-                type="need"
-                category="supplies"
-                title="Baby Supplies Needed"
-                description="Need diapers (size 2), formula, and baby wipes urgently."
-                location="Westside Heights, Building C"
-                contact="555-333-4444"
-                urgent={true}
-                requestId="resource-6"
-              />
+              {loading ? (
+                // Show loading states
+                Array(4).fill(0).map((_, index) => (
+                  <div key={`loading-${index}`} className="animate-pulse rounded-xl p-6 bg-white/5 h-64"></div>
+                ))
+              ) : needsResources.length > 0 ? (
+                // Show resources that need help
+                needsResources.map(resource => (
+                  <ResourceCard
+                    key={resource.id}
+                    type="need"
+                    category={resource.category}
+                    title={resource.title}
+                    description={resource.description}
+                    location={resource.location}
+                    contact={resource.contact}
+                    urgent={resource.urgent}
+                    requestId={resource.id}
+                  />
+                ))
+              ) : (
+                // No resources available
+                <div className="col-span-2 p-6 border border-white/10 rounded-xl text-center">
+                  <p className="text-gray-400">No assistance requests at the moment.</p>
+                </div>
+              )}
             </div>
           </AnimatedTransition>
           
@@ -106,43 +126,39 @@ const VolunteerDashboard: React.FC = () => {
             </div>
             
             <div className="space-y-4">
-              <div className="p-4 border border-white/10 rounded-xl bg-black/30">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="flex items-center">
-                      <CheckCircle size={16} className="mr-2 text-white/70" />
-                      <h3 className="font-medium">Water Delivery</h3>
+              {activeResponses.length > 0 ? (
+                activeResponses.map(response => (
+                  <div key={response.id} className="p-4 border border-white/10 rounded-xl bg-black/30">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="flex items-center">
+                          <CheckCircle size={16} className="mr-2 text-white/70" />
+                          <h3 className="font-medium">{response.title}</h3>
+                        </div>
+                        <p className="text-sm text-gray-400 mt-1">Helping with {response.category} resources</p>
+                      </div>
+                      <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full">
+                        {response.status === 'pending' ? 'In Progress' : response.status}
+                      </span>
                     </div>
-                    <p className="text-sm text-gray-400 mt-1">Delivering bottled water to Riverside District</p>
+                    <div className="mt-3 pt-3 border-t border-white/5 flex justify-between items-center">
+                      <span className="text-xs text-gray-500">
+                        {new Date(response.time).toLocaleString()}
+                      </span>
+                      <Link to={`/volunteer-tasks/${response.id}`} className="text-xs text-white bg-white/10 hover:bg-white/15 px-2 py-1 rounded transition-colors">
+                        View Details
+                      </Link>
+                    </div>
                   </div>
-                  <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full">In Progress</span>
-                </div>
-                <div className="mt-3 pt-3 border-t border-white/5 flex justify-between items-center">
-                  <span className="text-xs text-gray-500">Assigned 2 hours ago</span>
-                  <Link to="/volunteer-tasks/task-1" className="text-xs text-white bg-white/10 hover:bg-white/15 px-2 py-1 rounded transition-colors">
-                    View Details
+                ))
+              ) : (
+                <div className="p-4 border border-white/10 rounded-xl bg-black/30 text-center">
+                  <p className="text-gray-400">You haven't responded to any requests yet.</p>
+                  <Link to="/resources" className="inline-block mt-2 text-sm bg-white/10 hover:bg-white/15 px-3 py-1 rounded">
+                    Find people to help
                   </Link>
                 </div>
-              </div>
-              
-              <div className="p-4 border border-white/10 rounded-xl bg-black/30">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="flex items-center">
-                      <CheckCircle size={16} className="mr-2 text-white/70" />
-                      <h3 className="font-medium">Shelter Support</h3>
-                    </div>
-                    <p className="text-sm text-gray-400 mt-1">Helping at Central High School shelter location</p>
-                  </div>
-                  <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full">Scheduled</span>
-                </div>
-                <div className="mt-3 pt-3 border-t border-white/5 flex justify-between items-center">
-                  <span className="text-xs text-gray-500">Today, 4:00 PM - 8:00 PM</span>
-                  <Link to="/volunteer-tasks/task-2" className="text-xs text-white bg-white/10 hover:bg-white/15 px-2 py-1 rounded transition-colors">
-                    View Details
-                  </Link>
-                </div>
-              </div>
+              )}
             </div>
           </AnimatedTransition>
         </div>

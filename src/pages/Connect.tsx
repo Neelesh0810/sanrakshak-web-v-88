@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import AnimatedTransition from '../components/AnimatedTransition';
@@ -7,6 +6,7 @@ import { Plus, ArrowRight, Filter, UserCheck, AlertTriangle } from 'lucide-react
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from 'react-router-dom';
 import RequestForm from '@/components/RequestForm';
+import useResourceData from '@/hooks/useResourceData';
 
 type ResourceRequest = {
   id: string;
@@ -23,7 +23,7 @@ type ResourceRequest = {
 };
 
 const Connect = () => {
-  const [requests, setRequests] = useState<ResourceRequest[]>([]);
+  const { resources, addResource } = useResourceData();
   const [showForm, setShowForm] = useState(false);
   const [filter, setFilter] = useState('all');
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -39,45 +39,9 @@ const Connect = () => {
       setCurrentUser(user);
       setActingMode(user.role);
     }
-    
-    // Load requests from localStorage
-    const savedRequests = localStorage.getItem('resourceRequests');
-    if (savedRequests) {
-      setRequests(JSON.parse(savedRequests));
-    } else {
-      // Example data if none exists
-      const initialRequests: ResourceRequest[] = [
-        {
-          id: '1',
-          type: 'need',
-          category: 'water',
-          title: 'Clean Drinking Water',
-          description: 'Urgently need bottled water for family of 4, including infant.',
-          location: 'Riverside District, Block 3',
-          urgent: true,
-          userId: 'user1',
-          username: 'Jane Doe',
-          createdAt: Date.now() - 3600000
-        },
-        {
-          id: '2',
-          type: 'offer',
-          category: 'shelter',
-          title: 'Temporary Housing Available',
-          description: 'Can accommodate up to 3 people in spare rooms. Has generator and supplies.',
-          location: 'Hillcrest Area, 22 Oak Street',
-          contact: '555-123-4567',
-          userId: 'user2',
-          username: 'Mark Johnson',
-          createdAt: Date.now() - 7200000
-        }
-      ];
-      setRequests(initialRequests);
-      localStorage.setItem('resourceRequests', JSON.stringify(initialRequests));
-    }
   }, []);
   
-  const handleAddRequest = (newRequest: Omit<ResourceRequest, 'id' | 'userId' | 'username' | 'createdAt'>) => {
+  const handleAddRequest = (newRequest: any) => {
     if (!currentUser) {
       toast({
         title: "Authentication Required",
@@ -104,17 +68,11 @@ const Connect = () => {
       return;
     }
     
-    const request: ResourceRequest = {
+    const addedResource = addResource({
       ...newRequest,
-      id: Date.now().toString(),
       userId: currentUser.id,
-      username: currentUser.name,
-      createdAt: Date.now()
-    };
-    
-    const updatedRequests = [request, ...requests];
-    setRequests(updatedRequests);
-    localStorage.setItem('resourceRequests', JSON.stringify(updatedRequests));
+      username: currentUser.name
+    });
     
     toast({
       title: "Request Submitted",
@@ -142,10 +100,10 @@ const Connect = () => {
   };
   
   const filteredRequests = filter === 'all' 
-    ? requests 
+    ? resources 
     : filter === 'my' 
-      ? requests.filter(req => req.userId === currentUser?.id)
-      : requests.filter(req => req.type === filter);
+      ? resources.filter(req => req.userId === currentUser?.id)
+      : resources.filter(req => req.type === filter);
   
   return (
     <div className="min-h-screen bg-black text-white">

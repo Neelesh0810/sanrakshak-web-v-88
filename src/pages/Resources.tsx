@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import ResourceCard from '../components/ResourceCard';
@@ -7,6 +6,7 @@ import VictimRequestForm from '../components/VictimRequestForm';
 import { PlusCircle, Filter } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import AnimatedTransition from '@/components/AnimatedTransition';
+import useResourceData from '@/hooks/useResourceData';
 
 type ResourceType = 'need' | 'offer';
 type ResourceCategory = 'water' | 'shelter' | 'food' | 'supplies' | 'medical' | 'safety';
@@ -27,11 +27,11 @@ interface Resource {
 }
 
 const Resources = () => {
-  const [resources, setResources] = useState<Resource[]>([]);
+  const { resources, addResource, loading } = useResourceData();
   const [showForm, setShowForm] = useState(false);
   const [showVictimForm, setShowVictimForm] = useState(false);
-  const [filter, setFilter] = useState<ResourceType | 'all'>('all');
-  const [categoryFilter, setCategoryFilter] = useState<ResourceCategory | 'all'>('all');
+  const [filter, setFilter] = useState<'need' | 'offer' | 'all'>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   
@@ -41,69 +41,9 @@ const Resources = () => {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
-    
-    // Load resources from localStorage
-    const storedResources = localStorage.getItem('resources');
-    if (storedResources) {
-      setResources(JSON.parse(storedResources));
-    } else {
-      // Sample data
-      const sampleResources: Resource[] = [
-        {
-          id: '1',
-          type: 'need',
-          category: 'water',
-          title: 'Clean Water Needed',
-          description: 'Family of 4 needs clean drinking water. We have been without for 2 days.',
-          location: 'North District, Block C',
-          urgent: true,
-          timestamp: Date.now() - 3600000,
-          status: 'pending',
-          people: 4
-        },
-        {
-          id: '2',
-          type: 'offer',
-          category: 'food',
-          title: 'Hot Meals Available',
-          description: 'We have prepared 50 hot meals ready for distribution today until 6pm.',
-          location: 'Community Center, East Wing',
-          contact: '555-0123',
-          timestamp: Date.now() - 7200000,
-          status: 'pending'
-        },
-        {
-          id: '3',
-          type: 'need',
-          category: 'medical',
-          title: 'Insulin Required',
-          description: 'Diabetic patient needs insulin. Current supply will last only 24 hours.',
-          location: 'South Side Apartments, Building 3',
-          contact: '555-0187',
-          urgent: true,
-          timestamp: Date.now() - 1800000,
-          status: 'addressing',
-          people: 1
-        },
-        {
-          id: '4',
-          type: 'offer',
-          category: 'shelter',
-          title: 'Temporary Housing',
-          description: 'Can accommodate 3 people in spare rooms. Clean, safe environment with basic amenities.',
-          location: 'West Hills, House #42',
-          contact: '555-0149',
-          timestamp: Date.now() - 10800000,
-          status: 'pending'
-        }
-      ];
-      
-      setResources(sampleResources);
-      localStorage.setItem('resources', JSON.stringify(sampleResources));
-    }
   }, []);
   
-  const handleFormSubmit = (formData: Omit<Resource, 'id' | 'timestamp'>) => {
+  const handleFormSubmit = (formData: any) => {
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -112,16 +52,10 @@ const Resources = () => {
       return;
     }
     
-    const newResource: Resource = {
+    addResource({
       ...formData,
-      id: Date.now().toString(),
-      timestamp: Date.now(),
       status: 'pending'
-    };
-    
-    const updatedResources = [newResource, ...resources];
-    setResources(updatedResources);
-    localStorage.setItem('resources', JSON.stringify(updatedResources));
+    });
     
     setShowForm(false);
     toast({
@@ -130,15 +64,7 @@ const Resources = () => {
     });
   };
 
-  const handleVictimRequestSubmit = (formData: {
-    title: string;
-    description: string;
-    category: ResourceCategory;
-    location: string;
-    people: number;
-    urgent: boolean;
-    contact?: string;
-  }) => {
+  const handleVictimRequestSubmit = (formData: any) => {
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -147,8 +73,7 @@ const Resources = () => {
       return;
     }
     
-    const newResource: Resource = {
-      id: Date.now().toString(),
+    addResource({
       type: 'need',
       category: formData.category,
       title: formData.title,
@@ -156,23 +81,15 @@ const Resources = () => {
       location: formData.location,
       contact: formData.contact,
       urgent: formData.urgent,
-      timestamp: Date.now(),
       status: 'pending',
       people: formData.people
-    };
-    
-    const updatedResources = [newResource, ...resources];
-    setResources(updatedResources);
-    localStorage.setItem('resources', JSON.stringify(updatedResources));
+    });
     
     setShowVictimForm(false);
     toast({
       title: "Request Submitted",
       description: "Your request has been sent to the emergency response team",
     });
-    
-    // Trigger notification update
-    window.dispatchEvent(new Event('resource-created'));
   };
   
   const filteredResources = resources
@@ -291,7 +208,7 @@ const Resources = () => {
                 <div className="flex flex-wrap gap-2 mt-3 sm:mt-0 sm:ml-4">
                   <select
                     value={categoryFilter}
-                    onChange={(e) => setCategoryFilter(e.target.value as ResourceCategory | 'all')}
+                    onChange={(e) => setCategoryFilter(e.target.value as string)}
                     className="bg-white/10 border border-white/10 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-white/20"
                   >
                     <option value="all">All Categories</option>

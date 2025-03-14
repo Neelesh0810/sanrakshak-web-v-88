@@ -146,6 +146,9 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
           ? "Your offer to help has been sent" 
           : "Your request has been submitted",
       });
+      
+      window.dispatchEvent(new Event('response-created'));
+      window.dispatchEvent(new Event('resource-updated'));
     }, 1000);
   };
 

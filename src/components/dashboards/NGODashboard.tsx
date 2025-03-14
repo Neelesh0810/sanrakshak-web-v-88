@@ -1,12 +1,60 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Building, ArrowRight, PieChart, Users, Map, Plus } from 'lucide-react';
 import ResourceCard from '../ResourceCard';
 import StatusUpdate from '../StatusUpdate';
 import AnimatedTransition from '../AnimatedTransition';
 import { Link } from 'react-router-dom';
+import useResourceData from '@/hooks/useResourceData';
 
-const NGODashboard: React.FC = () => {
+interface NGODashboardProps {
+  resourceData?: ReturnType<typeof useResourceData>;
+}
+
+const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
+  // Use passed resourceData or create a new instance
+  const { resources, loading } = resourceData || useResourceData();
+  
+  // Filter resources to show urgent needs for NGO assistance
+  const urgentNeeds = useMemo(() => {
+    return resources
+      .filter(resource => resource.type === 'need' && resource.urgent)
+      .sort((a, b) => b.timestamp - a.timestamp) // Newest first
+      .slice(0, 2); // Only show the top 2
+  }, [resources]);
+  
+  // Calculate resource distribution for chart
+  const resourceDistribution = useMemo(() => {
+    const distribution: Record<string, { count: number, percentage: number }> = {
+      water: { count: 0, percentage: 0 },
+      food: { count: 0, percentage: 0 },
+      medical: { count: 0, percentage: 0 },
+      shelter: { count: 0, percentage: 0 },
+      supplies: { count: 0, percentage: 0 },
+      safety: { count: 0, percentage: 0 }
+    };
+    
+    // Count resources by category
+    resources.forEach(resource => {
+      if (distribution[resource.category]) {
+        distribution[resource.category].count++;
+      }
+    });
+    
+    // Calculate percentages
+    const totalResources = resources.length;
+    if (totalResources > 0) {
+      Object.keys(distribution).forEach(key => {
+        distribution[key].percentage = Math.round((distribution[key].count / totalResources) * 100);
+      });
+    }
+    
+    // Sort by percentage (highest first)
+    return Object.entries(distribution)
+      .sort(([,a], [,b]) => b.percentage - a.percentage)
+      .slice(0, 4); // Top 4 categories
+  }, [resources]);
+  
   return (
     <div className="container mx-auto px-4">
       <div className="mb-6">
@@ -127,26 +175,32 @@ const NGODashboard: React.FC = () => {
             </div>
             
             <div className="space-y-4">
-              <ResourceCard
-                type="need"
-                category="water"
-                title="Clean Drinking Water"
-                description="Urgently need bottled water for family of 4, including infant."
-                location="Riverside District, Block 3"
-                urgent={true}
-                requestId="resource-1"
-              />
-              
-              <ResourceCard
-                type="need"
-                category="medical"
-                title="Diabetes Medication"
-                description="Need insulin and blood sugar testing supplies."
-                location="Downtown, Apartment Complex B"
-                contact="555-987-6543"
-                urgent={true}
-                requestId="resource-3"
-              />
+              {loading ? (
+                // Show loading states
+                Array(2).fill(0).map((_, index) => (
+                  <div key={`loading-${index}`} className="animate-pulse rounded-xl p-6 bg-white/5 h-64"></div>
+                ))
+              ) : urgentNeeds.length > 0 ? (
+                // Show urgent needs
+                urgentNeeds.map(resource => (
+                  <ResourceCard
+                    key={resource.id}
+                    type="need"
+                    category={resource.category}
+                    title={resource.title}
+                    description={resource.description}
+                    location={resource.location}
+                    contact={resource.contact}
+                    urgent={resource.urgent}
+                    requestId={resource.id}
+                  />
+                ))
+              ) : (
+                // No urgent needs
+                <div className="p-6 border border-white/10 rounded-xl text-center">
+                  <p className="text-gray-400">No urgent help requests at the moment.</p>
+                </div>
+              )}
             </div>
           </AnimatedTransition>
         </div>
@@ -186,42 +240,20 @@ const NGODashboard: React.FC = () => {
                   <h3 className="font-medium">Resource Distribution</h3>
                 </div>
                 <div className="mt-3 space-y-2">
-                  <div>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span>Water</span>
-                      <span>38%</span>
+                  {resourceDistribution.map(([category, data]) => (
+                    <div key={category}>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span>{category.charAt(0).toUpperCase() + category.slice(1)}</span>
+                        <span>{data.percentage}%</span>
+                      </div>
+                      <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-white rounded-full" 
+                          style={{ width: `${data.percentage}%` }}
+                        ></div>
+                      </div>
                     </div>
-                    <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                      <div className="h-full bg-white rounded-full" style={{ width: '38%' }}></div>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span>Food</span>
-                      <span>27%</span>
-                    </div>
-                    <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                      <div className="h-full bg-white rounded-full" style={{ width: '27%' }}></div>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span>Medical</span>
-                      <span>20%</span>
-                    </div>
-                    <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                      <div className="h-full bg-white rounded-full" style={{ width: '20%' }}></div>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span>Shelter</span>
-                      <span>15%</span>
-                    </div>
-                    <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                      <div className="h-full bg-white rounded-full" style={{ width: '15%' }}></div>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>

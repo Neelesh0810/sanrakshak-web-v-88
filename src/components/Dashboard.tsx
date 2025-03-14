@@ -8,10 +8,12 @@ import { Info, Map, Users, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AnimatedTransition from './AnimatedTransition';
 import { Link } from 'react-router-dom';
+import useResourceData from '@/hooks/useResourceData';
 
 const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'resources' | 'updates' | 'map'>('resources');
   const [userRole, setUserRole] = useState<'victim' | 'volunteer' | 'ngo' | 'government' | null>(null);
+  const resourceData = useResourceData();
   
   useEffect(() => {
     // Get current user from localStorage
@@ -68,15 +70,15 @@ const Dashboard: React.FC = () => {
   const renderDashboardByRole = () => {
     switch (userRole) {
       case 'victim':
-        return <VictimDashboard />;
+        return <VictimDashboard resourceData={resourceData} />;
       case 'volunteer':
-        return <VolunteerDashboard />;
+        return <VolunteerDashboard resourceData={resourceData} />;
       case 'ngo':
-        return <NGODashboard />;
+        return <NGODashboard resourceData={resourceData} />;
       case 'government':
         return <GovernmentDashboard />;
       default:
-        return <VictimDashboard />;
+        return <VictimDashboard resourceData={resourceData} />;
     }
   };
   
