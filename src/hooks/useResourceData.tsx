@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 
 // Define types for our resources
@@ -210,12 +209,43 @@ const useResourceData = () => {
     return newResponse;
   };
   
+  // Function to update a response
+  const updateResponse = (userId: string, responseId: string, updates: Partial<ResourceResponse>) => {
+    // Get the current responses for the user
+    const userResponses = JSON.parse(localStorage.getItem(`responses_${userId}`) || '[]');
+    
+    // Update the specific response
+    const updatedResponses = userResponses.map((response: ResourceResponse) => {
+      if (response.id === responseId) {
+        return { ...response, ...updates };
+      }
+      return response;
+    });
+    
+    // Save back to localStorage
+    localStorage.setItem(`responses_${userId}`, JSON.stringify(updatedResponses));
+    
+    // Update the responses state
+    setResponses(prev => prev.map(response => {
+      if (response.id === responseId) {
+        return { ...response, ...updates };
+      }
+      return response;
+    }));
+    
+    // Dispatch event to notify other components
+    window.dispatchEvent(new Event('response-updated'));
+    
+    return updatedResponses.find((r: ResourceResponse) => r.id === responseId);
+  };
+  
   return {
     resources,
     responses,
     loading,
     addResource,
-    addResponse
+    addResponse,
+    updateResponse
   };
 };
 

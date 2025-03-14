@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -27,9 +28,10 @@ const VolunteerTaskDetails = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const isLight = theme === 'light';
-  const { resources, responses } = useResourceData();
+  const { resources, responses, updateResponse } = useResourceData();
   const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
   const [taskNotes, setTaskNotes] = useState<Array<{text: string, timestamp: number, user: string}>>([]);
+  const [taskStatus, setTaskStatus] = useState<string>('in-progress');
   
   // Extract the response ID from the task ID
   const responseId = id ? id.replace('task-', '') : '';
@@ -78,10 +80,15 @@ const VolunteerTaskDetails = () => {
     };
   }, [id, responseId, resources, responses]);
   
-  // Initialize taskNotes with the initial notes from taskData
+  // Initialize taskNotes and taskStatus with values from taskData
   useEffect(() => {
-    if (taskData && taskData.notes) {
-      setTaskNotes(taskData.notes);
+    if (taskData) {
+      if (taskData.notes) {
+        setTaskNotes(taskData.notes);
+      }
+      if (taskData.status) {
+        setTaskStatus(taskData.status);
+      }
     }
   }, [taskData]);
   
@@ -95,7 +102,41 @@ const VolunteerTaskDetails = () => {
   }, []);
 
   const handleStatusUpdate = (newStatus: string) => {
-    // This would update the response status in a real app
+    if (!responseId) return;
+    
+    // Update the response status in our state
+    setTaskStatus(newStatus);
+    
+    // Add a note about the status change
+    const newNote = {
+      text: `Task marked as ${newStatus}`,
+      timestamp: Date.now(),
+      user: JSON.parse(localStorage.getItem('authUser') || '{}').name || 'Volunteer'
+    };
+    
+    setTaskNotes([...taskNotes, newNote]);
+    
+    // Get the current user ID from localStorage
+    const currentUser = JSON.parse(localStorage.getItem('authUser') || '{}');
+    const userId = currentUser.id;
+    
+    if (userId) {
+      // Update the response in localStorage
+      const userResponses = JSON.parse(localStorage.getItem(`responses_${userId}`) || '[]');
+      const updatedResponses = userResponses.map((response: any) => {
+        if (response.id === responseId) {
+          return { ...response, status: newStatus === 'processed' ? 'accepted' : newStatus };
+        }
+        return response;
+      });
+      
+      localStorage.setItem(`responses_${userId}`, JSON.stringify(updatedResponses));
+      
+      // Dispatch event to notify other components
+      window.dispatchEvent(new Event('response-updated'));
+    }
+    
+    // Show a toast notification
     toast({
       title: "Status Updated",
       description: `Task marked as ${newStatus}`,
@@ -187,7 +228,7 @@ const VolunteerTaskDetails = () => {
                     )}
                     
                     <span className="text-xs px-3 py-1 rounded-full bg-blue-900/30 text-blue-400">
-                      {taskData.status === 'in-progress' ? 'In Progress' : taskData.status}
+                      {taskStatus === 'in-progress' ? 'In Progress' : taskStatus}
                     </span>
                   </div>
                   
@@ -321,10 +362,10 @@ const VolunteerTaskDetails = () => {
                   </div>
                   
                   <div className="flex space-x-2">
-                    {taskData.status === 'in-progress' && (
+                    {taskStatus === 'in-progress' && (
                       <Button 
                         variant="default"
-                        onClick={() => handleStatusUpdate('completed')}
+                        onClick={() => handleStatusUpdate('processed')}
                       >
                         <CheckCheck size={16} className="mr-1.5" />
                         Mark Complete
@@ -348,4 +389,3 @@ const VolunteerTaskDetails = () => {
 };
 
 export default VolunteerTaskDetails;
-
