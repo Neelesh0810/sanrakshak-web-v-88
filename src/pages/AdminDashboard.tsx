@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
@@ -45,14 +44,12 @@ const AdminDashboard = () => {
   const isLight = theme === 'light';
 
   useEffect(() => {
-    // Check if user is logged in and is an admin
     const storedUser = localStorage.getItem('authUser');
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       if (parsedUser && parsedUser.role === 'admin') {
         setUser(parsedUser);
       } else {
-        // Redirect non-admin users
         toast({
           title: "Access Denied",
           description: "You need administrator privileges to access this page",
@@ -60,20 +57,17 @@ const AdminDashboard = () => {
         navigate('/dashboard', { replace: true });
       }
     } else {
-      // Redirect unauthenticated users
       navigate('/login', { replace: true });
     }
 
-    // Load resources from localStorage
     const storedResources = localStorage.getItem('resources');
     if (storedResources) {
       const parsedResources = JSON.parse(storedResources).map((res: any) => ({
         ...res,
-        status: res.status || 'pending' // Ensure status exists
+        status: res.status || 'pending'
       }));
       setResources(parsedResources);
     } else {
-      // Create sample data if none exists
       const sampleResources: Resource[] = [
         {
           id: '1',
@@ -120,21 +114,17 @@ const AdminDashboard = () => {
     setIsLoading(false);
   }, [navigate, toast]);
 
-  // Apply filters when resources, status filter, category filter or search query changes
   useEffect(() => {
     let result = [...resources];
     
-    // Apply status filter
     if (statusFilter !== 'all') {
       result = result.filter(resource => resource.status === statusFilter);
     }
     
-    // Apply category filter
     if (categoryFilter !== 'all') {
       result = result.filter(resource => resource.category === categoryFilter);
     }
     
-    // Apply search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter(resource => 
@@ -144,7 +134,6 @@ const AdminDashboard = () => {
       );
     }
     
-    // Sort by urgency and then timestamp
     result.sort((a, b) => {
       if (a.urgent && !b.urgent) return -1;
       if (!a.urgent && b.urgent) return 1;
@@ -197,7 +186,6 @@ const AdminDashboard = () => {
   const refreshData = () => {
     setIsLoading(true);
     
-    // Simulate data refresh
     setTimeout(() => {
       const storedResources = localStorage.getItem('resources');
       if (storedResources) {
@@ -238,7 +226,6 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Custom Admin Header */}
       <header className="fixed top-0 left-0 right-0 z-50 py-4 px-6 transition-all duration-300 backdrop-blur-xl bg-black/50">
         <div className="container mx-auto">
           <div className="flex items-center justify-between">
@@ -476,13 +463,8 @@ const RequestsTable: React.FC<RequestsTableProps> = ({
                 </span>
               </td>
               <td className="py-3 px-4">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                  ${resource.type === 'need' ? 'bg-red-500/20 text-red-300' : 'bg-green-500/20 text-green-300'}`
-                }>
-                  {resource.type === 'need' ? 'Need' : 'Offer'}
-                </span>
                 {resource.urgent && (
-                  <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500/20 text-red-300">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500/20 text-red-300">
                     Urgent
                   </span>
                 )}
