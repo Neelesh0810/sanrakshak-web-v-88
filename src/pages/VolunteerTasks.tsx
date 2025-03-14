@@ -11,8 +11,15 @@ import { Card, CardContent } from '@/components/ui/card';
 const VolunteerTasks = () => {
   const [loading, setLoading] = useState(true);
   const { theme } = useTheme();
-  const { resources, responses } = useResourceData();
+  const { resources, responses, cleanupInvalidResponses } = useResourceData();
   const isLight = theme === 'light';
+  
+  // Clean up any invalid responses when the component mounts
+  useEffect(() => {
+    if (!loading && cleanupInvalidResponses) {
+      cleanupInvalidResponses();
+    }
+  }, [loading, cleanupInvalidResponses]);
   
   const tasks = useMemo(() => {
     const currentUser = JSON.parse(localStorage.getItem('authUser') || '{}');

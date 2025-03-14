@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 
 // Define types for our resources
@@ -238,6 +239,43 @@ const useResourceData = () => {
     
     return updatedResponses.find((r: ResourceResponse) => r.id === responseId);
   };
+
+  // Function to clean up invalid responses
+  const cleanupInvalidResponses = () => {
+    const currentUser = JSON.parse(localStorage.getItem('authUser') || '{}');
+    if (!currentUser.id) return;
+
+    // Get current user's responses
+    const userResponses = JSON.parse(localStorage.getItem(`responses_${currentUser.id}`) || '[]');
+
+    // Filter out responses for non-existent resources
+    const validResponses = userResponses.filter((response: ResourceResponse) => 
+      resources.some(resource => resource.id === response.requestId)
+    );
+
+    // Only update if there are invalid responses
+    if (validResponses.length !== userResponses.length) {
+      localStorage.setItem(`responses_${currentUser.id}`, JSON.stringify(validResponses));
+      
+      // Update the responses state
+      setResponses(prev => {
+        const otherResponses = prev.filter(r => 
+          !userResponses.some((ur: ResourceResponse) => ur.id === r.id)
+        );
+        return [...otherResponses, ...validResponses];
+      });
+      
+      // Dispatch event to notify other components
+      window.dispatchEvent(new Event('response-updated'));
+    }
+  };
+
+  // Run cleanup when resources are loaded
+  useEffect(() => {
+    if (!loading) {
+      cleanupInvalidResponses();
+    }
+  }, [loading, resources]);
   
   return {
     resources,
@@ -245,7 +283,8 @@ const useResourceData = () => {
     loading,
     addResource,
     addResponse,
-    updateResponse
+    updateResponse,
+    cleanupInvalidResponses
   };
 };
 

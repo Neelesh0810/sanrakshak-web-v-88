@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+
+import React, { useMemo, useEffect } from 'react';
 import { Users, ArrowRight, Clock, CheckCircle } from 'lucide-react';
 import ResourceCard from '../ResourceCard';
 import StatusUpdate from '../StatusUpdate';
@@ -12,7 +13,14 @@ interface VolunteerDashboardProps {
 
 const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ resourceData }) => {
   // Use passed resourceData or create a new instance
-  const { resources, responses, loading } = resourceData || useResourceData();
+  const { resources, responses, loading, cleanupInvalidResponses } = resourceData || useResourceData();
+  
+  // Clean up any invalid responses when the component mounts
+  useEffect(() => {
+    if (!loading && cleanupInvalidResponses) {
+      cleanupInvalidResponses();
+    }
+  }, [loading, cleanupInvalidResponses]);
   
   // Filter resources to only show needs (that volunteers can help with)
   const needsResources = useMemo(() => {
@@ -38,10 +46,15 @@ const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ resourceData })
       ['pending', 'accepted'].includes(response.status)
     );
     
-    return userResponses.slice(0, 2); // Only show the top 2
-  }, [responses]);
+    // Only include responses that have a matching resource
+    const validResponses = userResponses.filter(response => 
+      resources.some(resource => resource.id === response.requestId)
+    );
+    
+    return validResponses.slice(0, 2); // Only show the top 2
+  }, [responses, resources]);
 
-  // FIX: Changed to match the expected format in VolunteerTaskDetails component
+  // Generate task IDs in the correct format for navigation
   const getTaskIdForResponse = (responseId: string) => {
     return `task-${responseId}`;
   };
