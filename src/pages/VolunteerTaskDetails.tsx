@@ -14,15 +14,20 @@ import {
   User, 
   Phone, 
   MessageSquare,
-  CheckCheck 
+  CheckCheck,
+  X 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useTheme } from '../context/ThemeProvider';
 
 const VolunteerTaskDetails = () => {
   const { id } = useParams<{ id: string }>();
   const [task, setTask] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [noteText, setNoteText] = useState('');
+  const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { theme } = useTheme();
@@ -82,12 +87,24 @@ const VolunteerTaskDetails = () => {
       title: "Status Updated",
       description: `Task marked as ${newStatus}`,
     });
+    
+    // In a real app, this would also update in the admin dashboard
+    // Dispatch an event to simulate real-time updates
+    window.dispatchEvent(new Event('resource-updated'));
   };
 
-  const handleAddNote = () => {
-    // This would open a dialog to add a note in a real app
+  const handleAddNoteSubmit = () => {
+    if (!noteText.trim()) {
+      toast({
+        title: "Note Required",
+        description: "Please enter a note before submitting",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     const newNote = {
-      text: 'Delivery completed successfully',
+      text: noteText,
       timestamp: Date.now(),
       user: 'You'
     };
@@ -101,6 +118,13 @@ const VolunteerTaskDetails = () => {
       title: "Note Added",
       description: "Your note has been added to the task",
     });
+    
+    setNoteText('');
+    setIsNoteDialogOpen(false);
+    
+    // In a real app, this would also update in the admin dashboard
+    // Dispatch an event to simulate real-time updates
+    window.dispatchEvent(new Event('resource-updated'));
   };
 
   if (loading) {
@@ -290,14 +314,41 @@ const VolunteerTaskDetails = () => {
                         <div>
                           <div className="flex items-center justify-between mb-3">
                             <h3 className="font-medium">Activity Log</h3>
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={handleAddNote}
-                            >
-                              <MessageSquare size={14} className="mr-1" />
-                              Add Note
-                            </Button>
+                            <Dialog open={isNoteDialogOpen} onOpenChange={setIsNoteDialogOpen}>
+                              <DialogTrigger asChild>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                >
+                                  <MessageSquare size={14} className="mr-1" />
+                                  Add Note
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className={isLight ? "" : "bg-black border-white/10"}>
+                                <DialogHeader>
+                                  <DialogTitle>Add Note</DialogTitle>
+                                </DialogHeader>
+                                <div className="py-4">
+                                  <Textarea
+                                    placeholder="Enter your note here..."
+                                    value={noteText}
+                                    onChange={(e) => setNoteText(e.target.value)}
+                                    className="min-h-[100px]"
+                                  />
+                                </div>
+                                <DialogFooter>
+                                  <Button
+                                    variant="outline"
+                                    onClick={() => setIsNoteDialogOpen(false)}
+                                  >
+                                    Cancel
+                                  </Button>
+                                  <Button onClick={handleAddNoteSubmit}>
+                                    Add Note
+                                  </Button>
+                                </DialogFooter>
+                              </DialogContent>
+                            </Dialog>
                           </div>
                           
                           <div className={`rounded-lg border ${

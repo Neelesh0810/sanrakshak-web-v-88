@@ -1,14 +1,30 @@
 
-import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
-import { ArrowLeft, Clock, Info, AlertTriangle, MapPin, ExternalLink, Bookmark, Share2 } from 'lucide-react';
+import { ArrowLeft, Clock, Info, AlertTriangle, MapPin, ExternalLink, Share2 } from 'lucide-react';
 import { useTheme } from '../context/ThemeProvider';
+import StatusUpdateActions from '@/components/StatusUpdateActions';
+import { useToast } from "@/hooks/use-toast";
 
 const StatusDetails = () => {
   const { id } = useParams<{ id: string }>();
   const { theme } = useTheme();
+  const navigate = useNavigate();
   const isLight = theme === 'light';
+  const { toast } = useToast();
+  const [subscribed, setSubscribed] = useState(false);
+  
+  // Get the user role to determine where the back button should go
+  const [userRole, setUserRole] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const authUser = localStorage.getItem('authUser');
+    if (authUser) {
+      const user = JSON.parse(authUser);
+      setUserRole(user.role);
+    }
+  }, []);
   
   // Mock status data based on ID
   // In a real app, this would be fetched from an API
@@ -76,6 +92,14 @@ const StatusDetails = () => {
     }
   };
   
+  const handleSubscribe = () => {
+    setSubscribed(true);
+    toast({
+      title: "Subscribed to Updates",
+      description: "You will receive notifications for this alert",
+    });
+  };
+  
   const getPriorityStyles = () => {
     switch (status.priority) {
       case 'high':
@@ -102,6 +126,14 @@ const StatusDetails = () => {
     }
   };
   
+  // Determine back button destination based on user role
+  const getBackDestination = () => {
+    if (userRole === 'ngo' || userRole === 'government') {
+      return '/dashboard';
+    }
+    return '/alerts';
+  };
+  
   return (
     <div className={`min-h-screen ${isLight ? "bg-white" : "bg-black"} text-foreground`}>
       <Header emergency={true} />
@@ -109,9 +141,9 @@ const StatusDetails = () => {
       <main className="pt-20 pb-16">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="mb-6">
-            <Link to="/alerts" className={`flex items-center ${isLight ? "text-gray-600 hover:text-black" : "text-gray-400 hover:text-white"} transition-colors mb-4`}>
+            <Link to={getBackDestination()} className={`flex items-center ${isLight ? "text-gray-600 hover:text-black" : "text-gray-400 hover:text-white"} transition-colors mb-4`}>
               <ArrowLeft size={16} className="mr-2" />
-              <span>Back to Alerts</span>
+              <span>{userRole === 'ngo' || userRole === 'government' ? 'Back to Dashboard' : 'Back to Alerts'}</span>
             </Link>
             
             <div className="flex items-start justify-between">
@@ -120,14 +152,14 @@ const StatusDetails = () => {
                 <h1 className="text-2xl font-bold">{status.title}</h1>
               </div>
               
-              <div className="flex space-x-2">
-                <button className={`p-2 rounded-full ${isLight ? "hover:bg-gray-100" : "hover:bg-white/10"} transition-colors`}>
-                  <Bookmark size={18} />
-                </button>
-                <button className={`p-2 rounded-full ${isLight ? "hover:bg-gray-100" : "hover:bg-white/10"} transition-colors`}>
-                  <Share2 size={18} />
-                </button>
-              </div>
+              <StatusUpdateActions
+                statusId={id || ''}
+                title={status.title}
+                message={status.message}
+                source={status.source}
+                timestamp={status.timestamp}
+                priority={status.priority}
+              />
             </div>
           </div>
           
@@ -255,8 +287,16 @@ const StatusDetails = () => {
                 
                 <div className={`border-t ${isLight ? "border-gray-300" : "border-white/10"} mt-4 pt-4`}>
                   <h3 className="text-sm font-medium mb-2">Subscribe to Updates</h3>
-                  <button className={`w-full py-2 px-4 rounded-lg text-center text-sm ${isLight ? "bg-gray-200 hover:bg-gray-300 text-gray-800" : "bg-white/10 hover:bg-white/15"} transition-colors`}>
-                    Get Notifications
+                  <button 
+                    onClick={handleSubscribe}
+                    disabled={subscribed}
+                    className={`w-full py-2 px-4 rounded-lg text-center text-sm ${
+                      subscribed 
+                        ? (isLight ? "bg-gray-100 text-gray-500" : "bg-white/5 text-gray-400")
+                        : (isLight ? "bg-gray-200 hover:bg-gray-300 text-gray-800" : "bg-white/10 hover:bg-white/15")
+                    } transition-colors`}
+                  >
+                    {subscribed ? "Notifications Enabled" : "Get Notifications"}
                   </button>
                 </div>
               </div>
