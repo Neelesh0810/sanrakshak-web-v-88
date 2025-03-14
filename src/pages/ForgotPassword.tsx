@@ -4,12 +4,15 @@ import { Link } from 'react-router-dom';
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import AnimatedTransition from '@/components/AnimatedTransition';
+import { useTheme } from '../context/ThemeProvider';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { toast } = useToast();
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,14 +40,14 @@ const ForgotPassword = () => {
   };
   
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white flex flex-col">
+    <div className={`min-h-screen ${isLight ? "bg-white" : "bg-black"} text-foreground flex flex-col`}>
       <div className="flex-1 flex items-center justify-center p-4">
         <AnimatedTransition className="w-full max-w-md">
           {!isSubmitted ? (
-            <div className="glass-dark rounded-xl p-6 sm:p-8">
+            <div className={`${isLight ? "border border-gray-300 shadow-soft bg-white" : "glass-dark"} rounded-xl p-6 sm:p-8`}>
               <div className="text-center mb-8">
                 <h1 className="text-2xl font-bold mb-2">Reset Password</h1>
-                <p className="text-gray-600 dark:text-gray-400">Enter your email to receive reset instructions</p>
+                <p className={isLight ? "text-gray-600" : "text-gray-400"}>Enter your email to receive reset instructions</p>
               </div>
               
               <form onSubmit={handleSubmit} className="space-y-5">
@@ -54,7 +57,7 @@ const ForgotPassword = () => {
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Mail size={18} className="text-gray-400" />
+                      <Mail size={18} className={isLight ? "text-gray-500" : "text-gray-400"} />
                     </div>
                     <input
                       id="email"
@@ -63,7 +66,7 @@ const ForgotPassword = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg py-3 pl-10 pr-4 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-1 focus:ring-black/20 dark:focus:ring-white/30 focus:outline-none"
+                      className={`w-full ${isLight ? "bg-white border-gray-300 placeholder:text-gray-400 focus:ring-gray-400" : "bg-black/40 border-white/10 placeholder:text-gray-500 focus:ring-white/30"} border rounded-lg py-3 pl-10 pr-4 focus:ring-1 focus:outline-none`}
                     />
                   </div>
                 </div>
@@ -71,7 +74,7 @@ const ForgotPassword = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full rounded-lg bg-black dark:bg-white text-white dark:text-black font-medium py-3 flex items-center justify-center hover:bg-black/90 dark:hover:bg-white/90 transition-colors disabled:opacity-50"
+                  className={`w-full rounded-lg font-medium py-3 flex items-center justify-center transition-colors disabled:opacity-50 ${isLight ? "bg-black text-white hover:bg-gray-800" : "bg-white text-black hover:bg-white/90"}`}
                 >
                   {isLoading ? (
                     <span className="flex items-center">
@@ -84,7 +87,7 @@ const ForgotPassword = () => {
                 </button>
                 
                 <div className="text-center">
-                  <Link to="/login" className="text-sm text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white inline-flex items-center">
+                  <Link to="/login" className={`text-sm ${isLight ? "text-gray-600 hover:text-black" : "text-gray-400 hover:text-white"} inline-flex items-center`}>
                     <ArrowLeft size={16} className="mr-1" />
                     Back to Sign In
                   </Link>
@@ -92,26 +95,26 @@ const ForgotPassword = () => {
               </form>
             </div>
           ) : (
-            <div className="glass-dark rounded-xl p-6 sm:p-8 text-center">
+            <div className={`${isLight ? "border border-gray-300 shadow-soft bg-white" : "glass-dark"} rounded-xl p-6 sm:p-8 text-center`}>
               <div className="flex justify-center mb-6">
-                <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center">
-                  <CheckCircle size={32} className="text-black dark:text-white" />
+                <div className={`w-16 h-16 rounded-full ${isLight ? "bg-gray-100" : "bg-white/10"} flex items-center justify-center`}>
+                  <CheckCircle size={32} className={isLight ? "text-black" : "text-white"} />
                 </div>
               </div>
               
               <h1 className="text-2xl font-bold mb-2">Check Your Email</h1>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
+              <p className={`${isLight ? "text-gray-600" : "text-gray-400"} mb-6`}>
                 We've sent password reset instructions to:
-                <span className="block mt-2 font-medium text-black dark:text-white">{email}</span>
+                <span className="block mt-2 font-medium">{email}</span>
               </p>
               
               <div className="space-y-4">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className={`text-sm ${isLight ? "text-gray-600" : "text-gray-400"}`}>
                   If you don't see the email, check other places it might be, like your junk, spam, social, or other folders.
                 </p>
                 
                 <div className="pt-2">
-                  <Link to="/login" className="inline-flex items-center text-sm bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/15 px-4 py-2 rounded-lg border border-gray-200 dark:border-white/10 transition-colors">
+                  <Link to="/login" className={`inline-flex items-center text-sm ${isLight ? "bg-gray-100 hover:bg-gray-200 border-gray-200" : "bg-white/10 hover:bg-white/15 border-white/10"} px-4 py-2 rounded-lg border transition-colors`}>
                     <ArrowLeft size={16} className="mr-2" />
                     Return to Sign In
                   </Link>

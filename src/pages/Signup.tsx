@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
@@ -54,7 +53,6 @@ const Signup = () => {
       return;
     }
     
-    // Check if admin code is correct when signing up as admin
     if (role === 'admin' && adminCode !== 'admin123') {
       setError('Invalid admin code');
       setIsLoading(false);
@@ -95,7 +93,6 @@ const Signup = () => {
     users.push(newUser);
     localStorage.setItem('users', JSON.stringify(users));
     
-    // Store auth data first
     localStorage.setItem('authUser', JSON.stringify({
       id: newUser.id,
       email: newUser.email,
@@ -105,7 +102,6 @@ const Signup = () => {
       canVolunteer: newUser.canVolunteer
     }));
     
-    // Then dispatch events
     window.dispatchEvent(new Event('auth-state-changed'));
     window.dispatchEvent(new Event('storage'));
     
@@ -116,7 +112,6 @@ const Signup = () => {
     
     setIsLoading(false);
     
-    // Navigate based on role
     if (role === 'admin') {
       navigate('/admin-dashboard', { replace: true });
     } else {
@@ -322,12 +317,6 @@ const Signup = () => {
                 <span>Already have an account? </span>
                 <Link to="/login" className={isLight ? "text-black hover:underline" : "text-white hover:underline"}>
                   Sign in
-                </Link>
-              </div>
-
-              <div className="text-center pt-2">
-                <Link to="/login" className={`text-sm ${isLight ? "text-black hover:underline" : "text-white hover:underline"}`}>
-                  Sign in as administrator
                 </Link>
               </div>
             </form>
