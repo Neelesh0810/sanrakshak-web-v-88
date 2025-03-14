@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, UserCheck, Building, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import SavedStatusUpdates from './SavedStatusUpdates';
 
 const RoleSwitcher: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -67,14 +68,21 @@ const RoleSwitcher: React.FC = () => {
     return null;
   }
   
+  // Only show SavedStatusUpdates for volunteers
+  const isVolunteer = currentUser.role === 'volunteer';
+  
   return (
     <div className="fixed bottom-4 right-4 z-50">
-      <button
-        className="p-2 rounded-md bg-black/60 hover:bg-black/80 border border-white/10 text-white"
-        onClick={() => document.getElementById('role-switcher-menu')?.classList.toggle('hidden')}
-      >
-        Switch Role
-      </button>
+      <div className="flex space-x-2">
+        {isVolunteer && <SavedStatusUpdates />}
+        
+        <button
+          className="p-2 rounded-md bg-black/60 hover:bg-black/80 border border-white/10 text-white"
+          onClick={() => document.getElementById('role-switcher-menu')?.classList.toggle('hidden')}
+        >
+          Switch Role
+        </button>
+      </div>
       
       <div id="role-switcher-menu" className="hidden absolute bottom-12 right-0 bg-black/80 backdrop-blur-md border border-white/10 rounded-lg overflow-hidden w-48">
         <div className="p-2 text-xs border-b border-white/10">
