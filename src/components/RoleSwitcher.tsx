@@ -9,10 +9,23 @@ const RoleSwitcher: React.FC = () => {
   
   useEffect(() => {
     // Load current user
-    const authUser = localStorage.getItem('authUser');
-    if (authUser) {
-      setCurrentUser(JSON.parse(authUser));
-    }
+    const loadUser = () => {
+      const authUser = localStorage.getItem('authUser');
+      if (authUser) {
+        setCurrentUser(JSON.parse(authUser));
+      }
+    };
+    
+    loadUser();
+    
+    // Listen for auth state changes
+    window.addEventListener('auth-state-changed', loadUser);
+    window.addEventListener('storage', loadUser);
+    
+    return () => {
+      window.removeEventListener('auth-state-changed', loadUser);
+      window.removeEventListener('storage', loadUser);
+    };
   }, []);
   
   const switchRole = (role: 'victim' | 'volunteer' | 'ngo' | 'government') => {
