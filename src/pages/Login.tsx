@@ -129,21 +129,21 @@ const Login = () => {
               </p>
             </div>
             
-            {/* Split Option Login Type Selector */}
-            <div className="mb-6 flex rounded-lg overflow-hidden">
+            {/* Reduced height User/Admin Switcher */}
+            <div className="mb-6 flex rounded-lg overflow-hidden h-9">
               <button 
-                className={`flex-1 py-3 flex items-center justify-center gap-2 transition-colors ${!isAdmin ? 'bg-primary text-black font-medium' : 'bg-black/40 text-gray-400'}`}
+                className={`flex-1 py-1.5 flex items-center justify-center gap-2 transition-colors ${!isAdmin ? 'bg-primary text-black font-medium' : 'bg-black/40 text-gray-400'}`}
                 onClick={() => !isAdmin ? null : toggleAdminMode()}
               >
-                <User size={18} />
+                <User size={16} />
                 <span>User</span>
               </button>
               
               <button 
-                className={`flex-1 py-3 flex items-center justify-center gap-2 transition-colors ${isAdmin ? 'bg-primary text-black font-medium' : 'bg-black/40 text-gray-400'}`}
+                className={`flex-1 py-1.5 flex items-center justify-center gap-2 transition-colors ${isAdmin ? 'bg-primary text-black font-medium' : 'bg-black/40 text-gray-400'}`}
                 onClick={() => isAdmin ? null : toggleAdminMode()}
               >
-                <Shield size={18} />
+                <Shield size={16} />
                 <span>Admin</span>
               </button>
             </div>
@@ -200,10 +200,11 @@ const Login = () => {
                 </div>
               </div>
               
+              {/* Reduced height Sign In Button */}
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full rounded-lg font-medium py-6 flex items-center justify-center transition-colors disabled:opacity-50 bg-white text-black hover:bg-white/90 h-auto"
+                className="w-full rounded-lg font-medium py-2 flex items-center justify-center transition-colors disabled:opacity-50 bg-white text-black hover:bg-white/90 h-9"
               >
                 {isLoading ? (
                   <span className="flex items-center">
