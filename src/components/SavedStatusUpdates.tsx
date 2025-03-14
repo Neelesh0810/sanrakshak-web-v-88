@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Bookmark, X, Info, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Dialog, DialogContent, DialogTitle, DialogHeader, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogHeader, DialogClose, DialogDescription } from '@/components/ui/dialog';
 
 interface SavedStatusUpdate {
   id: string;
@@ -88,6 +88,9 @@ const SavedStatusUpdates: React.FC = () => {
               <Bookmark size={16} className="mr-2" />
               Saved Status Updates
             </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              View your saved status updates for quick access
+            </DialogDescription>
             <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
               <X className="h-4 w-4" />
               <span className="sr-only">Close</span>
