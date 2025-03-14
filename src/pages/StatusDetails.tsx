@@ -10,8 +10,6 @@ const StatusDetails = () => {
   const { theme } = useTheme();
   const isLight = theme === 'light';
   
-  // Mock status data based on ID
-  // In a real app, this would be fetched from an API
   const statusMap: { [key: string]: any } = {
     'status-1': {
       title: 'Power Restoration Progress',
