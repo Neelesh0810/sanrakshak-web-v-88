@@ -58,7 +58,7 @@ const AddNoteDialog = ({ isOpen, onClose, onAddNote }: AddNoteDialogProps) => {
             size="sm"
           >
             <MessageSquare size={16} className="mr-2" />
-            Predefined
+            Select Note
           </Button>
           <Button
             variant={noteType === 'custom' ? 'default' : 'outline'}
@@ -66,7 +66,7 @@ const AddNoteDialog = ({ isOpen, onClose, onAddNote }: AddNoteDialogProps) => {
             size="sm"
           >
             <Edit size={16} className="mr-2" />
-            Custom
+            Custom Note
           </Button>
         </div>
         
