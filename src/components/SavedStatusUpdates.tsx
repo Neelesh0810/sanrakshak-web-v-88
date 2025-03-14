@@ -121,7 +121,7 @@ const SavedStatusUpdates: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-gray-500">Source: {update.source}</span>
                       <Link
-                        to={`/alerts/${update.id}`}
+                        to={`/status/${update.id}`}
                         className="text-xs flex items-center hover:underline"
                         onClick={() => setIsOpen(false)}
                       >
