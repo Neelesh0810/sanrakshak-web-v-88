@@ -6,26 +6,8 @@ import VictimRequestForm from '../components/VictimRequestForm';
 import { PlusCircle, Filter } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import AnimatedTransition from '@/components/AnimatedTransition';
-import useResourceData from '@/hooks/useResourceData';
+import useResourceData, { Resource, ResourceType, ResourceCategory } from '@/hooks/useResourceData';
 import BackButton from '@/components/BackButton';
-
-type ResourceType = 'need' | 'offer';
-type ResourceCategory = 'water' | 'shelter' | 'food' | 'supplies' | 'medical' | 'safety';
-
-interface Resource {
-  id: string;
-  type: ResourceType;
-  category: ResourceCategory;
-  title: string;
-  description: string;
-  location: string;
-  contact?: string;
-  urgent?: boolean;
-  timestamp: number;
-  status?: 'pending' | 'addressing' | 'resolved';
-  assignedTo?: string;
-  people?: number;
-}
 
 const Resources = () => {
   const { resources, addResource, loading } = useResourceData();
@@ -37,7 +19,6 @@ const Resources = () => {
   const [user, setUser] = useState<any>(null);
   
   useEffect(() => {
-    // Check if user is logged in
     const storedUser = localStorage.getItem('authUser');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
@@ -101,7 +82,6 @@ const Resources = () => {
     .filter(resource => filter === 'all' || resource.type === filter)
     .filter(resource => categoryFilter === 'all' || resource.category === categoryFilter)
     .sort((a, b) => {
-      // Sort by urgent first, then by timestamp (newest first)
       if (a.urgent && !b.urgent) return -1;
       if (!a.urgent && b.urgent) return 1;
       return b.timestamp - a.timestamp;
@@ -125,7 +105,6 @@ const Resources = () => {
       setShowForm(true);
     }
     
-    // Close any other open form
     if (user?.role === 'victim') {
       setShowForm(false);
     } else {

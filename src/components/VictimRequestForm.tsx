@@ -5,6 +5,11 @@ import { useToast } from "@/hooks/use-toast";
 
 type ResourceCategory = 'water' | 'shelter' | 'food' | 'supplies' | 'medical' | 'safety';
 
+interface Item {
+  name: string;
+  quantity: number;
+}
+
 interface VictimRequestFormProps {
   onSubmit: (request: {
     title: string;
@@ -17,7 +22,7 @@ interface VictimRequestFormProps {
     contact?: string;
     contactName?: string;
     specialNotes?: string;
-    items: Array<{name: string, quantity: number}>
+    items: Array<Item>
   }) => void;
   onCancel: () => void;
 }
@@ -37,7 +42,7 @@ const VictimRequestForm: React.FC<VictimRequestFormProps> = ({ onSubmit, onCance
   const { toast } = useToast();
   
   // Items to deliver
-  const [items, setItems] = useState<Array<{name: string, quantity: number}>>([
+  const [items, setItems] = useState<Array<Item>>([
     { name: '', quantity: 1 }
   ]);
 
@@ -112,7 +117,11 @@ const VictimRequestForm: React.FC<VictimRequestFormProps> = ({ onSubmit, onCance
   
   const handleItemChange = (index: number, field: 'name' | 'quantity', value: string | number) => {
     const newItems = [...items];
-    newItems[index][field] = value;
+    if (field === 'name') {
+      newItems[index].name = value as string;
+    } else {
+      newItems[index].quantity = value as number;
+    }
     setItems(newItems);
   };
 

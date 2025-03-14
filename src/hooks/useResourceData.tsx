@@ -13,7 +13,10 @@ export interface Resource {
   title: string;
   description: string;
   location: string;
+  locationDetails?: string;
   contact?: string;
+  contactName?: string;
+  specialNotes?: string;
   urgent?: boolean;
   timestamp: number;
   status?: ResourceStatus;
@@ -21,6 +24,7 @@ export interface Resource {
   people?: number;
   userId?: string;
   username?: string;
+  items?: Array<{name: string, quantity: number}>;
 }
 
 export interface ResourceResponse {
