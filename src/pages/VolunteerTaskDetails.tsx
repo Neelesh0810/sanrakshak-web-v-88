@@ -42,6 +42,8 @@ const VolunteerTaskDetails = () => {
         status: 'in-progress',
         priority: 'high',
         createdAt: Date.now() - 7200000, // 2 hours ago
+        assignedAt: '3/14/2025',
+        assignedTime: '8:50:54 PM',
         items: [
           { name: 'Bottled water (1L)', quantity: 12 },
           { name: 'Water purification tablets', quantity: 30 }
@@ -142,7 +144,7 @@ const VolunteerTaskDetails = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-black text-white">
       <Header />
       
       <main className="pt-20 pb-16">
@@ -158,182 +160,148 @@ const VolunteerTaskDetails = () => {
             </div>
             
             <AnimatedTransition>
-              <div className={`rounded-xl border mb-6 ${
-                isLight ? 'bg-white border-gray-200' : 'bg-black/30 border-white/10'
-              }`}>
+              <div className="bg-black rounded-xl mb-6">
                 <div className="p-6">
-                  <div className="flex justify-between items-start">
+                  <div className="flex items-center mb-4">
+                    <CheckCircle size={20} className="mr-3 text-white" />
+                    <h2 className="text-2xl font-bold">{task.title}</h2>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {task.priority === 'high' && (
+                      <span className="text-xs px-3 py-1 rounded-full bg-red-900/30 text-red-400">
+                        High Priority
+                      </span>
+                    )}
+                    
+                    <span className="text-xs px-3 py-1 rounded-full bg-blue-900/30 text-blue-400">
+                      {task.status === 'in-progress' ? 'In Progress' : task.status}
+                    </span>
+                  </div>
+                  
+                  <p className="text-blue-400 mb-8">
+                    {task.description}
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                     <div>
-                      <div className="flex items-center mb-3">
-                        <CheckCircle size={20} className="mr-2 text-primary" />
-                        <h2 className="text-xl font-semibold">{task.title}</h2>
-                      </div>
-                      
-                      <div className="flex items-center mb-4">
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${
-                          task.priority === 'high' 
-                            ? (isLight ? 'bg-red-100 text-red-700' : 'bg-red-900/30 text-red-400')
-                            : (isLight ? 'bg-yellow-100 text-yellow-700' : 'bg-yellow-900/30 text-yellow-400')
-                        }`}>
-                          {task.priority === 'high' ? 'High Priority' : 'Medium Priority'}
-                        </span>
-                        
-                        <span className={`ml-2 text-xs px-2 py-0.5 rounded-full ${
-                          task.status === 'in-progress'
-                            ? (isLight ? 'bg-blue-100 text-blue-700' : 'bg-blue-900/30 text-blue-400')
-                            : (isLight ? 'bg-green-100 text-green-700' : 'bg-green-900/30 text-green-400') 
-                        }`}>
-                          {task.status === 'in-progress' ? 'In Progress' : 'Completed'}
-                        </span>
-                      </div>
-                      
-                      <p className="text-gray-600 dark:text-gray-300 mb-6">
-                        {task.description}
-                      </p>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <div className={`p-4 rounded-lg ${
-                          isLight ? 'bg-gray-50' : 'bg-black/40'
-                        }`}>
-                          <h3 className="font-medium mb-3">Location Details</h3>
-                          <div className="space-y-2">
-                            <div className="flex items-center text-sm">
-                              <MapPin size={14} className="mr-2 opacity-70" />
-                              <span>{task.location}</span>
-                            </div>
-                            {task.locationDetails && (
-                              <p className="text-sm ml-6">{task.locationDetails}</p>
-                            )}
-                          </div>
+                      <h3 className="text-lg font-semibold mb-3">Location Details</h3>
+                      <div className="space-y-3">
+                        <div className="flex items-start">
+                          <MapPin size={16} className="mr-2 mt-0.5 text-gray-400 flex-shrink-0" />
+                          <span>{task.location}</span>
                         </div>
-                        
-                        <div className={`p-4 rounded-lg ${
-                          isLight ? 'bg-gray-50' : 'bg-black/40'
-                        }`}>
-                          <h3 className="font-medium mb-3">Time Information</h3>
-                          <div className="space-y-2">
-                            <div className="flex items-center text-sm">
-                              <Calendar size={14} className="mr-2 opacity-70" />
-                              <span>Assigned: {new Date(task.createdAt).toLocaleDateString()}</span>
-                            </div>
-                            <div className="flex items-center text-sm">
-                              <Clock size={14} className="mr-2 opacity-70" />
-                              <span>Time: {new Date(task.createdAt).toLocaleTimeString()}</span>
-                            </div>
+                        {task.locationDetails && (
+                          <div className="ml-6 text-gray-400">
+                            {task.locationDetails}
                           </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">Time Information</h3>
+                      <div className="space-y-3">
+                        <div className="flex items-start">
+                          <Calendar size={16} className="mr-2 mt-0.5 text-gray-400 flex-shrink-0" />
+                          <span>Assigned: {task.assignedAt || new Date(task.createdAt).toLocaleDateString()}</span>
+                        </div>
+                        <div className="flex items-start">
+                          <Clock size={16} className="mr-2 mt-0.5 text-gray-400 flex-shrink-0" />
+                          <span>Time: {task.assignedTime || new Date(task.createdAt).toLocaleTimeString()}</span>
                         </div>
                       </div>
-                      
-                      {task.items && task.items.length > 0 && (
-                        <div className="mb-6">
-                          <h3 className="font-medium mb-3">Items to Deliver</h3>
-                          <div className={`rounded-lg overflow-hidden border ${
-                            isLight ? 'border-gray-200' : 'border-white/10'
-                          }`}>
-                            <table className="w-full">
-                              <thead className={isLight ? 'bg-gray-50' : 'bg-black/40'}>
-                                <tr>
-                                  <th className="px-4 py-2 text-left text-sm font-medium">Item</th>
-                                  <th className="px-4 py-2 text-right text-sm font-medium">Quantity</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {task.items.map((item: any, index: number) => (
-                                  <tr key={index} className={`${
-                                    isLight
-                                      ? index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-                                      : index % 2 === 0 ? 'bg-black/20' : 'bg-black/40'
-                                  }`}>
-                                    <td className="px-4 py-2 text-sm">{item.name}</td>
-                                    <td className="px-4 py-2 text-sm text-right">{item.quantity}</td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {task.beneficiary && (
-                        <div className="mb-6">
-                          <h3 className="font-medium mb-3">Beneficiary Information</h3>
-                          <div className={`p-4 rounded-lg ${
-                            isLight ? 'bg-gray-50' : 'bg-black/40'
-                          }`}>
-                            <div className="space-y-2">
-                              <div className="flex items-center">
-                                <User size={14} className="mr-2 opacity-70" />
-                                <span>{task.beneficiary.name}</span>
-                              </div>
-                              
-                              {task.beneficiary.contact && (
-                                <div className="flex items-center">
-                                  <Phone size={14} className="mr-2 opacity-70" />
-                                  <span>{task.beneficiary.contact}</span>
-                                </div>
-                              )}
-                              
-                              {task.beneficiary.notes && (
-                                <div className="mt-2 pt-2 border-t border-gray-200 dark:border-white/10">
-                                  <div className="flex items-start">
-                                    <AlertTriangle size={14} className="mr-2 mt-0.5 opacity-70" />
-                                    <span className="text-sm">{task.beneficiary.notes}</span>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {task.notes && task.notes.length > 0 && (
-                        <div>
-                          <div className="flex items-center justify-between mb-3">
-                            <h3 className="font-medium">Activity Log</h3>
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={handleAddNote}
-                            >
-                              <MessageSquare size={14} className="mr-1" />
-                              Add Note
-                            </Button>
-                          </div>
-                          
-                          <div className={`rounded-lg border ${
-                            isLight ? 'border-gray-200' : 'border-white/10'
-                          }`}>
-                            <div className="divide-y divide-gray-100 dark:divide-white/10">
-                              {task.notes.map((note: any, index: number) => (
-                                <div key={index} className="p-3">
-                                  <div className="flex justify-between items-start">
-                                    <span className="font-medium text-sm">{note.user}</span>
-                                    <span className="text-xs text-gray-500">
-                                      {new Date(note.timestamp).toLocaleString()}
-                                    </span>
-                                  </div>
-                                  <p className="mt-1 text-sm">{note.text}</p>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </div>
+                  
+                  {task.items && task.items.length > 0 && (
+                    <div className="mb-8">
+                      <h3 className="text-lg font-semibold mb-3">Items to Deliver</h3>
+                      <div className="overflow-hidden">
+                        <table className="w-full">
+                          <thead className="border-b border-white/10 text-left">
+                            <tr>
+                              <th className="py-2 font-medium">Item</th>
+                              <th className="py-2 font-medium text-right">Quantity</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {task.items.map((item: any, index: number) => (
+                              <tr key={index} className="border-b border-white/5">
+                                <td className="py-3">{item.name}</td>
+                                <td className="py-3 text-right">{item.quantity}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {task.beneficiary && (
+                    <div className="mb-8">
+                      <h3 className="text-lg font-semibold mb-3">Beneficiary Information</h3>
+                      <div className="space-y-3">
+                        <div className="flex items-start">
+                          <User size={16} className="mr-2 mt-0.5 text-gray-400 flex-shrink-0" />
+                          <span>{task.beneficiary.name}</span>
+                        </div>
+                        
+                        {task.beneficiary.contact && (
+                          <div className="flex items-start">
+                            <Phone size={16} className="mr-2 mt-0.5 text-gray-400 flex-shrink-0" />
+                            <span>{task.beneficiary.contact}</span>
+                          </div>
+                        )}
+                        
+                        {task.beneficiary.notes && (
+                          <div className="flex items-start">
+                            <AlertTriangle size={16} className="mr-2 mt-0.5 text-gray-400 flex-shrink-0" />
+                            <span>{task.beneficiary.notes}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {task.notes && task.notes.length > 0 && (
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-lg font-semibold">Activity Log</h3>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={handleAddNote}
+                        >
+                          <MessageSquare size={14} className="mr-1" />
+                          Add Note
+                        </Button>
+                      </div>
+                      
+                      <div className="rounded-lg border border-white/10">
+                        <div className="divide-y divide-white/10">
+                          {task.notes.map((note: any, index: number) => (
+                            <div key={index} className="p-3">
+                              <div className="flex justify-between items-start">
+                                <span className="font-medium text-sm">{note.user}</span>
+                                <span className="text-xs text-gray-400">
+                                  {new Date(note.timestamp).toLocaleString()}
+                                </span>
+                              </div>
+                              <p className="mt-1 text-sm">{note.text}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
-                <div className={`px-6 py-4 border-t ${
-                  isLight ? 'border-gray-100' : 'border-white/10'
-                } flex items-center justify-between`}>
+                <div className="px-6 py-4 border-t border-white/10 flex items-center justify-between">
                   <div>
                     <Link 
                       to={`/chat/${task.beneficiary?.name.replace(/\s+/g, '-').toLowerCase()}`}
-                      className={`px-4 py-2 rounded-lg text-sm ${
-                        isLight 
-                          ? 'bg-gray-100 hover:bg-gray-200 text-gray-900' 
-                          : 'bg-white/10 hover:bg-white/15'
-                      } transition-colors`}
+                      className="px-4 py-2 rounded-lg text-sm bg-white/10 hover:bg-white/15 transition-colors"
                     >
                       <MessageSquare size={14} className="inline-block mr-1.5" />
                       Message Beneficiary
