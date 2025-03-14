@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import Header from '@/components/Header';
 import AnimatedTransition from '@/components/AnimatedTransition';
@@ -27,7 +28,7 @@ const VolunteerTasks = () => {
       if (!resource) return null;
       
       return {
-        id: `task-${response.id}`,
+        id: `task-${response.id}`,  // This is the correct format that matches what we need
         title: resource.title,
         type: 'assistance',
         description: resource.description,

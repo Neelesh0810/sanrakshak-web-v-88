@@ -41,7 +41,7 @@ const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ resourceData })
     return userResponses.slice(0, 2); // Only show the top 2
   }, [responses]);
 
-  // Map response IDs to task IDs for correct navigation
+  // FIX: Changed to match the expected format in VolunteerTaskDetails component
   const getTaskIdForResponse = (responseId: string) => {
     return `task-${responseId}`;
   };
