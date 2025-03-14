@@ -247,13 +247,6 @@ const StatusDetails = () => {
                     Emergency Plan
                   </Link>
                 </div>
-                
-                <div className={`border-t ${isLight ? "border-gray-300" : "border-white/10"} mt-4 pt-4`}>
-                  <h3 className="text-sm font-medium mb-2">Subscribe to Updates</h3>
-                  <button className={`w-full py-2 px-4 rounded-lg text-center text-sm ${isLight ? "bg-gray-200 hover:bg-gray-300 text-gray-800" : "bg-white/10 hover:bg-white/15"} transition-colors`}>
-                    Get Notifications
-                  </button>
-                </div>
               </div>
             </div>
           </div>
