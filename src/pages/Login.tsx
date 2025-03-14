@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
@@ -6,6 +5,7 @@ import AnimatedTransition from '@/components/AnimatedTransition';
 import { Lock, Mail, ArrowRight, Shield, User } from 'lucide-react';
 import BackButton from '@/components/BackButton';
 import { useTheme } from '../context/ThemeProvider';
+import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 
 const Login = () => {
@@ -19,16 +19,13 @@ const Login = () => {
   const { theme } = useTheme();
   const isLight = theme === 'light';
 
-  // Check if user is already logged in
   useEffect(() => {
     const checkAuth = () => {
       const authUser = localStorage.getItem('authUser');
       if (authUser) {
         try {
-          // Verify that the stored data is valid JSON
           const parsedUser = JSON.parse(authUser);
           if (parsedUser && parsedUser.id) {
-            // If admin, go to admin dashboard, otherwise regular dashboard
             if (parsedUser.role === 'admin') {
               navigate('/admin-dashboard', { replace: true });
             } else {
@@ -36,7 +33,6 @@ const Login = () => {
             }
           }
         } catch (e) {
-          // Clear invalid data
           console.error("Invalid authUser data:", e);
           localStorage.removeItem('authUser');
         }
@@ -52,7 +48,6 @@ const Login = () => {
     setError('');
     
     try {
-      // Get users from localStorage
       const usersJson = localStorage.getItem('users') || '[]';
       const users = JSON.parse(usersJson);
       
@@ -67,41 +62,34 @@ const Login = () => {
           return;
         }
         
-        // For admin login, check if user has admin role
         if (isAdmin && user.role !== 'admin') {
           setError('You do not have administrator access.');
           setIsLoading(false);
           return;
         }
         
-        // Store authenticated user in localStorage (without password)
         const authUser = {
           id: user.id,
           email: user.email,
           name: user.name,
-          role: user.role || 'victim', // Default to victim if no role
+          role: user.role || 'victim',
           profileImg: user.profileImg,
           canVolunteer: user.canVolunteer
         };
         
-        // Set the user in localStorage
         localStorage.setItem('authUser', JSON.stringify(authUser));
         
-        // Dispatch events only after setting localStorage
         window.dispatchEvent(new Event('auth-state-changed')); 
         window.dispatchEvent(new Event('storage'));
         
-        // Display success toast
         toast({
           title: "Login Successful",
           description: `Welcome back to ${isAdmin ? 'the admin panel' : 'Relief Connect'}`,
         });
         
-        // Clear form
         setEmail('');
         setPassword('');
         
-        // Navigate to appropriate dashboard
         if (user.role === 'admin') {
           navigate('/admin-dashboard', { replace: true });
         } else {
@@ -120,7 +108,7 @@ const Login = () => {
 
   const toggleAdminMode = () => {
     setIsAdmin(!isAdmin);
-    setError(''); // Clear any previous errors when switching modes
+    setError('');
   };
 
   return (
@@ -140,20 +128,23 @@ const Login = () => {
               </p>
             </div>
             
-            {/* User/Admin Toggle Switch */}
-            <div className="flex items-center justify-center mb-6 space-x-2">
-              <div className="flex items-center space-x-2">
-                <User className={`${isAdmin ? "text-gray-400" : "text-primary"} w-5 h-5`} />
-                <span className={`text-sm ${isAdmin ? "text-gray-400" : "text-foreground"}`}>User</span>
-              </div>
-              <Switch 
-                checked={isAdmin}
-                onCheckedChange={toggleAdminMode}
-                className={`${isAdmin ? "bg-primary" : "bg-gray-300 dark:bg-gray-700"}`}
-              />
-              <div className="flex items-center space-x-2">
-                <Shield className={`${isAdmin ? "text-primary" : "text-gray-400"} w-5 h-5`} />
-                <span className={`text-sm ${isAdmin ? "text-foreground" : "text-gray-400"}`}>Admin</span>
+            <div className="mb-6 bg-gray-900/40 backdrop-blur-sm rounded-lg p-3 border border-white/10">
+              <div className="flex items-center justify-between">
+                <div className={`flex items-center space-x-2 ${!isAdmin ? "text-primary font-medium" : "text-gray-400"}`}>
+                  <User size={18} />
+                  <span>User Login</span>
+                </div>
+                
+                <Switch 
+                  checked={isAdmin}
+                  onCheckedChange={toggleAdminMode}
+                  className={`${isAdmin ? "bg-primary" : "bg-gray-700"} relative inline-flex h-6 w-11 items-center rounded-full`}
+                />
+                
+                <div className={`flex items-center space-x-2 ${isAdmin ? "text-primary font-medium" : "text-gray-400"}`}>
+                  <Shield size={18} />
+                  <span>Admin</span>
+                </div>
               </div>
             </div>
             

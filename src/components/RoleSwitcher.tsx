@@ -42,8 +42,10 @@ const RoleSwitcher: React.FC = () => {
     }
   };
   
-  // Don't render anything if user is admin
-  if (!currentUser || currentUser.role === 'admin') return null;
+  // Don't render anything if user is admin or no user is logged in
+  if (!currentUser || currentUser.role === 'admin') {
+    return null;
+  }
   
   return (
     <div className="fixed bottom-4 right-4 z-50">
