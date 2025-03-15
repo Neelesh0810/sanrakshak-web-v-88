@@ -9,6 +9,7 @@ import useResourceData from '@/hooks/useResourceData';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import ResourceDetailsDialog from '../dialogs/ResourceDetailsDialog';
 import AddResourceDialog from '../dialogs/AddResourceDialog';
+import ResourceManagementDialog from '../ResourceManagementDialog';
 
 interface NGODashboardProps {
   resourceData?: ReturnType<typeof useResourceData>;
@@ -22,6 +23,7 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
   const [selectedResourceId, setSelectedResourceId] = useState<string | null>(null);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [isAddResourceDialogOpen, setIsAddResourceDialogOpen] = useState(false);
+  const [isManageResourcesDialogOpen, setIsManageResourcesDialogOpen] = useState(false);
   
   // Find selected resource
   const selectedResource = useMemo(() => {
@@ -86,6 +88,10 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
     setIsAddResourceDialogOpen(true);
   };
   
+  const handleOpenManageResources = () => {
+    setIsManageResourcesDialogOpen(true);
+  };
+  
   return (
     <div className="container mx-auto px-4">
       <div className="mb-6">
@@ -103,9 +109,12 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
               </div>
               
               <div className="flex space-x-2">
-                <Link to="/resource-management" className="px-4 py-2 rounded-full text-sm bg-white text-black hover:bg-white/90 transition-colors">
+                <button 
+                  onClick={handleOpenManageResources}
+                  className="px-4 py-2 rounded-full text-sm bg-white text-black hover:bg-white/90 transition-colors"
+                >
                   Manage Resources
-                </Link>
+                </button>
                 <Link to="/ngo-reports" className="px-4 py-2 rounded-full text-sm bg-white/10 hover:bg-white/15 transition-colors">
                   View Reports
                 </Link>
@@ -120,10 +129,13 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
           <AnimatedTransition className="mb-6" delay={100}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">Resource Management</h2>
-              <Link to="/resource-management" className="flex items-center text-sm text-gray-400 hover:text-white transition-colors">
+              <button 
+                onClick={handleOpenManageResources}
+                className="flex items-center text-sm text-gray-400 hover:text-white transition-colors"
+              >
                 <span className="mr-1">Manage All</span>
                 <ArrowRight size={14} />
-              </Link>
+              </button>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -378,6 +390,12 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
         isOpen={isAddResourceDialogOpen}
         onClose={() => setIsAddResourceDialogOpen(false)}
         onAddResource={addResource}
+      />
+      
+      {/* Resource Management Dialog */}
+      <ResourceManagementDialog
+        open={isManageResourcesDialogOpen}
+        onOpenChange={setIsManageResourcesDialogOpen}
       />
     </div>
   );
