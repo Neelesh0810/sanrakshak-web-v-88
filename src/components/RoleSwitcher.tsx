@@ -49,29 +49,8 @@ const RoleSwitcher: React.FC = () => {
       duration: 3000,
     });
     
-    // Navigate to the appropriate page based on the role
-    redirectBasedOnRole(role);
-  };
-  
-  const redirectBasedOnRole = (role: string) => {
-    // Check if we're currently on a resources page
-    const currentPath = location.pathname;
-    const isOnResourcesPage = 
-      currentPath.includes('/resources') || 
-      currentPath.includes('/volunteer-resources') || 
-      currentPath.includes('/victim-resources');
-    
-    if (isOnResourcesPage) {
-      // Redirect to the appropriate resources page based on role
-      if (role === 'victim') {
-        navigate('/victim-resources');
-      } else if (role === 'volunteer' || role === 'ngo' || role === 'government') {
-        navigate('/volunteer-resources');
-      }
-    } else {
-      // For all other pages, go to dashboard
-      navigate('/dashboard');
-    }
+    // Always navigate to the dashboard when switching roles
+    navigate('/dashboard');
   };
   
   const getRoleName = (role: string): string => {
