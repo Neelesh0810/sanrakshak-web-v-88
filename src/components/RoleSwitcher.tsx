@@ -2,10 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { User, UserCheck, Building, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 const RoleSwitcher: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   useEffect(() => {
     // Load current user
@@ -41,8 +43,8 @@ const RoleSwitcher: React.FC = () => {
       duration: 3000,
     });
     
-    // Reload the page to reflect changes
-    window.location.reload();
+    // Navigate to dashboard instead of reloading the page
+    navigate('/dashboard');
   };
   
   const getRoleName = (role: string): string => {
