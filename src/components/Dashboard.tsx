@@ -29,7 +29,7 @@ const Dashboard: React.FC = () => {
   
   // Show emergency alert for all users
   const EmergencyAlert = () => (
-    <div className="mb-6 form-container">
+    <div className="mb-6">
       <AnimatedTransition>
         <div className="relative overflow-hidden glass-dark rounded-xl border border-white/10 p-4 sm:p-6">
           <div className="absolute top-4 right-4 z-10">
@@ -83,11 +83,9 @@ const Dashboard: React.FC = () => {
   };
   
   return (
-    <div className="w-full">
-      <div className="content-container">
-        <EmergencyAlert />
-        {renderDashboardByRole()}
-      </div>
+    <div className="container mx-auto px-4">
+      <EmergencyAlert />
+      {renderDashboardByRole()}
     </div>
   );
 };

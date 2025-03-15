@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Droplet, Home, ShoppingBag, Utensils, Heart, Shield } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -65,7 +64,7 @@ const RequestForm: React.FC<RequestFormProps> = ({ onSubmit, onCancel, userRole 
   };
   
   return (
-    <div className="glass-dark border border-white/10 rounded-xl p-5 form-container">
+    <div className="glass-dark border border-white/10 rounded-xl p-5">
       <h2 className="text-xl font-semibold mb-4">
         {isVolunteer ? 'Offer Resources' : (type === 'need' ? 'Request Resources' : 'Offer Resources')}
       </h2>

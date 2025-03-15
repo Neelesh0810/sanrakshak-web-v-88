@@ -83,8 +83,6 @@
   
   body {
     @apply bg-background text-foreground antialiased;
-    min-height: 100vh;
-    width: 100%;
   }
 }
 
@@ -155,19 +153,6 @@
   
   .light-mode {
     @apply bg-white text-black;
-  }
-
-  /* Form layout utilities */
-  .form-container {
-    @apply max-w-md w-full mx-auto;
-  }
-
-  .content-container {
-    @apply container mx-auto px-4;
-  }
-
-  .full-width-section {
-    @apply w-full;
   }
 }
 
