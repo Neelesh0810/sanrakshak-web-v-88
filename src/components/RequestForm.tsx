@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
-import { Button } from './ui/button';
-import CategorySelector, { ResourceCategory } from './CategorySelector';
-import FormField from './FormField';
-import RequestTypeSelector, { ResourceType } from './RequestTypeSelector';
+import { Droplet, Home, ShoppingBag, Utensils, Heart, Shield } from 'lucide-react';
+
+type ResourceCategory = 'water' | 'shelter' | 'food' | 'supplies' | 'medical' | 'safety';
+type ResourceType = 'need' | 'offer';
 
 interface RequestFormProps {
   onSubmit: (request: {
@@ -59,47 +58,145 @@ const RequestForm: React.FC<RequestFormProps> = ({ onSubmit, onCancel, userRole 
       
       <form onSubmit={handleSubmit} className="space-y-4">
         {!isVolunteer && type === 'need' && (
-          <RequestTypeSelector type={type} setType={setType} />
+          <div className="flex">
+            <button
+              type="button"
+              onClick={() => setType('need')}
+              className="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors bg-white text-black"
+            >
+              I Need Help
+            </button>
+          </div>
         )}
         
-        <CategorySelector category={category} setCategory={setCategory} />
+        <div>
+          <label className="block text-sm font-medium mb-1">Category</label>
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              type="button"
+              onClick={() => setCategory('water')}
+              className={`flex flex-col items-center justify-center p-3 rounded-lg border ${
+                category === 'water' 
+                  ? 'border-white bg-white/10' 
+                  : 'border-white/10 hover:border-white/30'
+              }`}
+            >
+              <Droplet size={24} className="mb-1" />
+              <span className="text-xs">Water</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setCategory('shelter')}
+              className={`flex flex-col items-center justify-center p-3 rounded-lg border ${
+                category === 'shelter' 
+                  ? 'border-white bg-white/10' 
+                  : 'border-white/10 hover:border-white/30'
+              }`}
+            >
+              <Home size={24} className="mb-1" />
+              <span className="text-xs">Shelter</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setCategory('food')}
+              className={`flex flex-col items-center justify-center p-3 rounded-lg border ${
+                category === 'food' 
+                  ? 'border-white bg-white/10' 
+                  : 'border-white/10 hover:border-white/30'
+              }`}
+            >
+              <Utensils size={24} className="mb-1" />
+              <span className="text-xs">Food</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setCategory('supplies')}
+              className={`flex flex-col items-center justify-center p-3 rounded-lg border ${
+                category === 'supplies' 
+                  ? 'border-white bg-white/10' 
+                  : 'border-white/10 hover:border-white/30'
+              }`}
+            >
+              <ShoppingBag size={24} className="mb-1" />
+              <span className="text-xs">Supplies</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setCategory('medical')}
+              className={`flex flex-col items-center justify-center p-3 rounded-lg border ${
+                category === 'medical' 
+                  ? 'border-white bg-white/10' 
+                  : 'border-white/10 hover:border-white/30'
+              }`}
+            >
+              <Heart size={24} className="mb-1" />
+              <span className="text-xs">Medical</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setCategory('safety')}
+              className={`flex flex-col items-center justify-center p-3 rounded-lg border ${
+                category === 'safety' 
+                  ? 'border-white bg-white/10' 
+                  : 'border-white/10 hover:border-white/30'
+              }`}
+            >
+              <Shield size={24} className="mb-1" />
+              <span className="text-xs">Safety</span>
+            </button>
+          </div>
+        </div>
         
-        <FormField
-          id="title"
-          label="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-          placeholder="Brief description of what you need/offer"
-        />
+        <div>
+          <label htmlFor="title" className="block text-sm font-medium mb-1">Title</label>
+          <input
+            id="title"
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+            placeholder="Brief description of what you need/offer"
+            className="w-full bg-black/40 border border-white/10 rounded-lg p-3 placeholder:text-gray-500 focus:ring-1 focus:ring-white/30 focus:outline-none"
+          />
+        </div>
         
-        <FormField
-          id="description"
-          label="Details"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-          placeholder="Provide more information about your request"
-          isTextarea
-          rows={3}
-        />
+        <div>
+          <label htmlFor="description" className="block text-sm font-medium mb-1">Details</label>
+          <textarea
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
+            rows={3}
+            placeholder="Provide more information about your request"
+            className="w-full bg-black/40 border border-white/10 rounded-lg p-3 placeholder:text-gray-500 focus:ring-1 focus:ring-white/30 focus:outline-none resize-none"
+          />
+        </div>
         
-        <FormField
-          id="location"
-          label="Location"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          required
-          placeholder="Your location or drop point"
-        />
+        <div>
+          <label htmlFor="location" className="block text-sm font-medium mb-1">Location</label>
+          <input
+            id="location"
+            type="text"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            required
+            placeholder="Your location or drop point"
+            className="w-full bg-black/40 border border-white/10 rounded-lg p-3 placeholder:text-gray-500 focus:ring-1 focus:ring-white/30 focus:outline-none"
+          />
+        </div>
         
-        <FormField
-          id="contact"
-          label="Contact (Optional)"
-          value={contact}
-          onChange={(e) => setContact(e.target.value)}
-          placeholder="Phone number or other contact info"
-        />
+        <div>
+          <label htmlFor="contact" className="block text-sm font-medium mb-1">Contact (Optional)</label>
+          <input
+            id="contact"
+            type="text"
+            value={contact}
+            onChange={(e) => setContact(e.target.value)}
+            placeholder="Phone number or other contact info"
+            className="w-full bg-black/40 border border-white/10 rounded-lg p-3 placeholder:text-gray-500 focus:ring-1 focus:ring-white/30 focus:outline-none"
+          />
+        </div>
         
         {/* Only show urgent checkbox for victims */}
         {!isVolunteer && (
