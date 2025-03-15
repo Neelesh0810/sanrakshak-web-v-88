@@ -5,7 +5,8 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
+  DialogDescription
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import EmergencyContact from './EmergencyContact';
@@ -74,9 +75,12 @@ const EmergencyContactsDialog: React.FC<EmergencyContactsDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-hidden">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-hidden fixed">
         <DialogHeader>
           <DialogTitle>Emergency Contacts</DialogTitle>
+          <DialogDescription>
+            Contact information for emergency services and support.
+          </DialogDescription>
         </DialogHeader>
         
         <ScrollArea className="max-h-[65vh] pr-4">
