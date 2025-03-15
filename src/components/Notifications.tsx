@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Bell, X, CheckCheck, AlertTriangle, Info, MessageSquare, Package } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import NotificationDetailsDialog from './NotificationDetailsDialog';
 
 type NotificationType = 'alert' | 'request' | 'response' | 'system' | 'update';
 
@@ -14,6 +15,8 @@ interface Notification {
   time: number;
   read: boolean;
   link?: string;
+  source?: string;
+  location?: string;
 }
 
 const NotificationIcon = ({ type }: { type: NotificationType }) => {
@@ -34,6 +37,8 @@ const NotificationIcon = ({ type }: { type: NotificationType }) => {
 const Notifications: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const navigate = useNavigate();
   const notificationRef = useRef<HTMLDivElement>(null);
   
@@ -46,7 +51,7 @@ const Notifications: React.FC = () => {
     if (savedNotifications) {
       setNotifications(JSON.parse(savedNotifications));
     } else if (user.id) {
-      // Example notifications
+      // Example notifications with enhanced details
       const initialNotifications: Notification[] = [
         {
           id: '1',
@@ -54,7 +59,9 @@ const Notifications: React.FC = () => {
           title: 'Weather Alert',
           message: 'Flash flood warning for your area. Move to higher ground immediately.',
           time: Date.now() - 1800000, // 30 minutes ago
-          read: false
+          read: false,
+          source: 'Weather Department',
+          location: 'Jabalpur, Central Region'
         },
         {
           id: '2',
@@ -63,7 +70,9 @@ const Notifications: React.FC = () => {
           message: 'Your request for water supplies has been acknowledged.',
           time: Date.now() - 3600000, // 1 hour ago
           read: false,
-          link: '/connect'
+          link: '/connect',
+          source: 'Relief Management Center',
+          location: 'Distribution Center, Jabalpur'
         },
         {
           id: '3',
@@ -72,7 +81,20 @@ const Notifications: React.FC = () => {
           message: 'Mark Johnson has responded to your shelter offer.',
           time: Date.now() - 86400000, // 1 day ago
           read: true,
-          link: '/connect'
+          link: '/connect',
+          source: 'Community Connect Portal',
+          location: 'South Jabalpur'
+        },
+        {
+          id: '4',
+          type: 'update',
+          title: 'Resource Update',
+          message: 'New medical supplies are available at Central Hospital.',
+          time: Date.now() - 43200000, // 12 hours ago
+          read: false,
+          link: '/resources',
+          source: 'Health Department',
+          location: 'Central Hospital, Jabalpur'
         }
       ];
       
@@ -114,10 +136,18 @@ const Notifications: React.FC = () => {
   
   const handleNotificationClick = (notification: Notification) => {
     markAsRead(notification.id);
+    
     if (notification.link) {
-      navigate(notification.link);
+      if (notification.link && notification.message.includes("details")) {
+        // If the notification has details to show
+        setSelectedNotification(notification);
+        setDetailsDialogOpen(true);
+      } else {
+        // Direct navigation
+        navigate(notification.link);
+        setIsOpen(false);
+      }
     }
-    setIsOpen(false);
   };
   
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -227,6 +257,13 @@ const Notifications: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      
+      <NotificationDetailsDialog
+        notification={selectedNotification}
+        open={detailsDialogOpen}
+        onOpenChange={setDetailsDialogOpen}
+        onMarkAsRead={markAsRead}
+      />
     </div>
   );
 };
