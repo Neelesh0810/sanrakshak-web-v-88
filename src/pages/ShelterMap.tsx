@@ -71,14 +71,16 @@ const ShelterMap = () => {
   };
   
   // Function to center map on shelter location
+  // Removed the condition that might prevent this from working
   const handleShowOnMap = () => {
-    if (!selectedShelter) return;
-    
-    setShowRoute(false);
-    setMapCenter({
-      lat: selectedShelter.coordinates.lat,
-      lng: selectedShelter.coordinates.lng
-    });
+    if (selectedShelter) {
+      setShowRoute(false);
+      setMapCenter({
+        lat: selectedShelter.coordinates.lat,
+        lng: selectedShelter.coordinates.lng
+      });
+      console.log("Showing shelter on map", selectedShelter.coordinates);
+    }
   };
 
   // NGO shelter data for Jabalpur
