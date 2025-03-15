@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Droplet, Home, ShoppingBag, Utensils, Heart, Shield } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type ResourceCategory = 'water' | 'shelter' | 'food' | 'supplies' | 'medical' | 'safety';
 type ResourceType = 'need' | 'offer';
@@ -50,6 +51,18 @@ const RequestForm: React.FC<RequestFormProps> = ({ onSubmit, onCancel, userRole 
   
   const isVolunteer = userRole === 'volunteer' || userRole === 'ngo' || userRole === 'government';
   
+  const getCategoryIcon = (cat: ResourceCategory) => {
+    switch (cat) {
+      case 'water': return <Droplet size={18} />;
+      case 'shelter': return <Home size={18} />;
+      case 'food': return <Utensils size={18} />;
+      case 'supplies': return <ShoppingBag size={18} />;
+      case 'medical': return <Heart size={18} />;
+      case 'safety': return <Shield size={18} />;
+      default: return <Droplet size={18} />;
+    }
+  };
+  
   return (
     <div className="glass-dark border border-white/10 rounded-xl p-5">
       <h2 className="text-xl font-semibold mb-4">
@@ -71,80 +84,52 @@ const RequestForm: React.FC<RequestFormProps> = ({ onSubmit, onCancel, userRole 
         
         <div>
           <label className="block text-sm font-medium mb-1">Category</label>
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              type="button"
-              onClick={() => setCategory('water')}
-              className={`flex flex-col items-center justify-center p-3 rounded-lg border ${
-                category === 'water' 
-                  ? 'border-white bg-white/10' 
-                  : 'border-white/10 hover:border-white/30'
-              }`}
-            >
-              <Droplet size={24} className="mb-1" />
-              <span className="text-xs">Water</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setCategory('shelter')}
-              className={`flex flex-col items-center justify-center p-3 rounded-lg border ${
-                category === 'shelter' 
-                  ? 'border-white bg-white/10' 
-                  : 'border-white/10 hover:border-white/30'
-              }`}
-            >
-              <Home size={24} className="mb-1" />
-              <span className="text-xs">Shelter</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setCategory('food')}
-              className={`flex flex-col items-center justify-center p-3 rounded-lg border ${
-                category === 'food' 
-                  ? 'border-white bg-white/10' 
-                  : 'border-white/10 hover:border-white/30'
-              }`}
-            >
-              <Utensils size={24} className="mb-1" />
-              <span className="text-xs">Food</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setCategory('supplies')}
-              className={`flex flex-col items-center justify-center p-3 rounded-lg border ${
-                category === 'supplies' 
-                  ? 'border-white bg-white/10' 
-                  : 'border-white/10 hover:border-white/30'
-              }`}
-            >
-              <ShoppingBag size={24} className="mb-1" />
-              <span className="text-xs">Supplies</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setCategory('medical')}
-              className={`flex flex-col items-center justify-center p-3 rounded-lg border ${
-                category === 'medical' 
-                  ? 'border-white bg-white/10' 
-                  : 'border-white/10 hover:border-white/30'
-              }`}
-            >
-              <Heart size={24} className="mb-1" />
-              <span className="text-xs">Medical</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setCategory('safety')}
-              className={`flex flex-col items-center justify-center p-3 rounded-lg border ${
-                category === 'safety' 
-                  ? 'border-white bg-white/10' 
-                  : 'border-white/10 hover:border-white/30'
-              }`}
-            >
-              <Shield size={24} className="mb-1" />
-              <span className="text-xs">Safety</span>
-            </button>
-          </div>
+          <Select value={category} onValueChange={(value: ResourceCategory) => setCategory(value)}>
+            <SelectTrigger className="w-full bg-black/40 border border-white/10 text-white">
+              <div className="flex items-center">
+                {getCategoryIcon(category)}
+                <SelectValue className="ml-2" />
+              </div>
+            </SelectTrigger>
+            <SelectContent className="bg-black text-white border border-white/10">
+              <SelectItem value="water" className="focus:bg-white/10">
+                <div className="flex items-center">
+                  <Droplet size={18} className="mr-2" />
+                  <span>Water</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="shelter" className="focus:bg-white/10">
+                <div className="flex items-center">
+                  <Home size={18} className="mr-2" />
+                  <span>Shelter</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="food" className="focus:bg-white/10">
+                <div className="flex items-center">
+                  <Utensils size={18} className="mr-2" />
+                  <span>Food</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="supplies" className="focus:bg-white/10">
+                <div className="flex items-center">
+                  <ShoppingBag size={18} className="mr-2" />
+                  <span>Supplies</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="medical" className="focus:bg-white/10">
+                <div className="flex items-center">
+                  <Heart size={18} className="mr-2" />
+                  <span>Medical</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="safety" className="focus:bg-white/10">
+                <div className="flex items-center">
+                  <Shield size={18} className="mr-2" />
+                  <span>Safety</span>
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         
         <div>
@@ -198,7 +183,6 @@ const RequestForm: React.FC<RequestFormProps> = ({ onSubmit, onCancel, userRole 
           />
         </div>
         
-        {/* Only show urgent checkbox for victims */}
         {!isVolunteer && (
           <div className="flex items-center">
             <input
