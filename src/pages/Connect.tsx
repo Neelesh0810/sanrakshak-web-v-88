@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import AnimatedTransition from '../components/AnimatedTransition';
@@ -33,7 +32,6 @@ const Connect = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    // Get current user
     const authUser = localStorage.getItem('authUser');
     if (authUser) {
       const user = JSON.parse(authUser);
@@ -54,12 +52,10 @@ const Connect = () => {
       return;
     }
     
-    // Force volunteer to create offers only
     if (isVolunteer) {
       newRequest.type = 'offer';
     }
     
-    // Check if the user can make this type of request based on their role
     if (newRequest.type === 'need' && currentUser.role !== 'victim') {
       toast({
         title: "Action Not Available",
@@ -96,7 +92,6 @@ const Connect = () => {
     const newMode = actingMode === 'victim' ? 'volunteer' : 'victim';
     setActingMode(newMode);
     
-    // Update localStorage
     const updatedUser = { ...currentUser, role: newMode };
     localStorage.setItem('authUser', JSON.stringify(updatedUser));
     setCurrentUser(updatedUser);
@@ -113,7 +108,6 @@ const Connect = () => {
       ? resources.filter(req => req.userId === currentUser?.id)
       : resources.filter(req => req.type === filter);
       
-  // Get button text based on user role
   const getButtonText = () => {
     if (!currentUser) return "New Request";
     
@@ -156,17 +150,15 @@ const Connect = () => {
                 </button>
               )}
               
-              <button 
-                onClick={() => setShowForm(!showForm)}
-                className="flex items-center px-4 py-2 rounded-full bg-white text-black hover:bg-white/90 transition-colors"
-              >
-                {showForm ? 'Cancel' : (
-                  <>
-                    <Plus size={18} className="mr-1" />
-                    <span>{getButtonText()}</span>
-                  </>
-                )}
-              </button>
+              {!showForm && (
+                <button 
+                  onClick={() => setShowForm(!showForm)}
+                  className="flex items-center px-4 py-2 rounded-full bg-white text-black hover:bg-white/90 transition-colors"
+                >
+                  <Plus size={18} className="mr-1" />
+                  <span>{getButtonText()}</span>
+                </button>
+              )}
             </div>
           </div>
           

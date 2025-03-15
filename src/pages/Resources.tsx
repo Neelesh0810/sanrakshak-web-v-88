@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import Header from '../components/Header';
 import ResourceCard from '../components/ResourceCard';
@@ -19,7 +18,6 @@ const Resources = () => {
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   
-  // Get user's responded request IDs
   const respondedRequestIds = useMemo(() => {
     if (!user?.id) return new Set<string>();
     
@@ -48,7 +46,6 @@ const Resources = () => {
       return;
     }
     
-    // Force the type to be 'offer' for volunteers
     if (isVolunteer) {
       formData.type = 'offer';
     }
@@ -127,7 +124,6 @@ const Resources = () => {
     }
   };
 
-  // Return post button text based on user role
   const getPostButtonText = () => {
     if (!user) return "New Post";
     
@@ -153,14 +149,16 @@ const Resources = () => {
                 <p className="text-gray-400">Request or offer resources in your community</p>
               </div>
               
-              <button
-                onClick={showRequestForm}
-                className="flex items-center space-x-2 bg-white text-black px-4 py-2 rounded-lg hover:bg-white/90 transition-colors"
-                aria-label="Create new post"
-              >
-                <PlusCircle size={18} />
-                <span>{getPostButtonText()}</span>
-              </button>
+              {!showForm && !showVictimForm && (
+                <button
+                  onClick={showRequestForm}
+                  className="flex items-center space-x-2 bg-white text-black px-4 py-2 rounded-lg hover:bg-white/90 transition-colors"
+                  aria-label="Create new post"
+                >
+                  <PlusCircle size={18} />
+                  <span>{getPostButtonText()}</span>
+                </button>
+              )}
             </div>
             
             {showForm ? (
