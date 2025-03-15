@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Bell, CheckCheck, AlertTriangle, Info, MessageSquare, Package, MapPin, Clock, User } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 type NotificationType = 'alert' | 'request' | 'response' | 'system' | 'update';
 
@@ -55,8 +54,6 @@ export const NotificationDetailsDialog: React.FC<NotificationDetailsDialogProps>
   onOpenChange,
   onMarkAsRead
 }) => {
-  const navigate = useNavigate();
-  
   if (!notification) return null;
   
   const formatTime = (timestamp: number) => {
@@ -71,13 +68,6 @@ export const NotificationDetailsDialog: React.FC<NotificationDetailsDialogProps>
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffHours < 24) return `${diffHours}h ago`;
     return `${diffDays}d ago`;
-  };
-  
-  const handleAction = () => {
-    if (notification.link) {
-      navigate(notification.link);
-      onOpenChange(false);
-    }
   };
   
   return (
@@ -133,12 +123,6 @@ export const NotificationDetailsDialog: React.FC<NotificationDetailsDialogProps>
               Mark as read
             </Button>
           </DialogClose>
-          
-          {notification.link && (
-            <Button onClick={handleAction}>
-              View Details
-            </Button>
-          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

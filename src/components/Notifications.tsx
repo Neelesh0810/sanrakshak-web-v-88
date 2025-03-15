@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Bell, X, CheckCheck, AlertTriangle, Info, MessageSquare, Package } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import NotificationDetailsDialog from './NotificationDetailsDialog';
 
 type NotificationType = 'alert' | 'request' | 'response' | 'system' | 'update';
@@ -39,7 +38,6 @@ const Notifications: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
-  const navigate = useNavigate();
   const notificationRef = useRef<HTMLDivElement>(null);
   
   const user = JSON.parse(localStorage.getItem('authUser') || '{}');
@@ -70,7 +68,6 @@ const Notifications: React.FC = () => {
           message: 'Your request for water supplies has been acknowledged.',
           time: Date.now() - 3600000, // 1 hour ago
           read: false,
-          link: '/connect',
           source: 'Relief Management Center',
           location: 'Distribution Center, Jabalpur'
         },
@@ -81,7 +78,6 @@ const Notifications: React.FC = () => {
           message: 'Mark Johnson has responded to your shelter offer.',
           time: Date.now() - 86400000, // 1 day ago
           read: true,
-          link: '/connect',
           source: 'Community Connect Portal',
           location: 'South Jabalpur'
         },
@@ -92,7 +88,6 @@ const Notifications: React.FC = () => {
           message: 'New medical supplies are available at Central Hospital.',
           time: Date.now() - 43200000, // 12 hours ago
           read: false,
-          link: '/resources',
           source: 'Health Department',
           location: 'Central Hospital, Jabalpur'
         }
@@ -135,19 +130,9 @@ const Notifications: React.FC = () => {
   };
   
   const handleNotificationClick = (notification: Notification) => {
+    setSelectedNotification(notification);
+    setDetailsDialogOpen(true);
     markAsRead(notification.id);
-    
-    if (notification.link) {
-      if (notification.link && notification.message.includes("details")) {
-        // If the notification has details to show
-        setSelectedNotification(notification);
-        setDetailsDialogOpen(true);
-      } else {
-        // Direct navigation
-        navigate(notification.link);
-        setIsOpen(false);
-      }
-    }
   };
   
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -238,11 +223,6 @@ const Notifications: React.FC = () => {
                           <p className="text-sm text-gray-300 mt-1 line-clamp-2">
                             {notification.message}
                           </p>
-                          {notification.link && (
-                            <div className="mt-1 text-xs text-gray-400">
-                              Tap to view details
-                            </div>
-                          )}
                         </div>
                       </div>
                     </div>
