@@ -1,4 +1,3 @@
-
 import React, { useMemo, useState, useEffect } from 'react';
 import { Building, ArrowRight, PieChart, Users, Map, Plus } from 'lucide-react';
 import ResourceCard from '../ResourceCard';
@@ -16,38 +15,32 @@ interface NGODashboardProps {
 }
 
 const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
-  // Use passed resourceData or create a new instance
   const { resources, loading, addResource } = resourceData || useResourceData();
   
-  // Dialog state management
   const [selectedResourceId, setSelectedResourceId] = useState<string | null>(null);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [isAddResourceDialogOpen, setIsAddResourceDialogOpen] = useState(false);
   const [isManageResourcesDialogOpen, setIsManageResourcesDialogOpen] = useState(false);
   
-  // Find selected resource
   const selectedResource = useMemo(() => {
     if (!selectedResourceId) return null;
     return resources.find(resource => resource.id === selectedResourceId);
   }, [selectedResourceId, resources]);
   
-  // Filter resources to show urgent needs for NGO assistance
   const urgentNeeds = useMemo(() => {
     return resources
       .filter(resource => resource.type === 'need' && resource.urgent)
-      .sort((a, b) => b.timestamp - a.timestamp) // Newest first
-      .slice(0, 2); // Only show the top 2
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .slice(0, 2);
   }, [resources]);
   
-  // Get resources for the resource management section
   const managedResources = useMemo(() => {
     return resources
       .filter(resource => resource.type === 'offer')
-      .sort((a, b) => b.timestamp - a.timestamp) // Newest first
-      .slice(0, 4); // Limit to 4 for display
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .slice(0, 4);
   }, [resources]);
   
-  // Calculate resource distribution for chart
   const resourceDistribution = useMemo(() => {
     const distribution: Record<string, { count: number, percentage: number }> = {
       water: { count: 0, percentage: 0 },
@@ -58,14 +51,12 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
       safety: { count: 0, percentage: 0 }
     };
     
-    // Count resources by category
     resources.forEach(resource => {
       if (distribution[resource.category]) {
         distribution[resource.category].count++;
       }
     });
     
-    // Calculate percentages
     const totalResources = resources.length;
     if (totalResources > 0) {
       Object.keys(distribution).forEach(key => {
@@ -73,10 +64,9 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
       });
     }
     
-    // Sort by percentage (highest first)
     return Object.entries(distribution)
       .sort(([,a], [,b]) => b.percentage - a.percentage)
-      .slice(0, 4); // Top 4 categories
+      .slice(0, 4);
   }, [resources]);
   
   const handleViewDetails = (id: string) => {
@@ -140,12 +130,10 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {loading ? (
-                // Show loading states
                 Array(4).fill(0).map((_, index) => (
                   <div key={`loading-${index}`} className="animate-pulse rounded-xl p-6 bg-white/5 h-64"></div>
                 ))
               ) : managedResources.length > 0 ? (
-                // Show resources from the form
                 managedResources.map(resource => (
                   <div key={resource.id} className="p-5 border border-white/10 bg-black/30 rounded-xl">
                     <div className="flex justify-between items-start mb-3">
@@ -172,7 +160,6 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
                   </div>
                 ))
               ) : (
-                // Default items as fallback
                 <>
                   <div className="p-5 border border-white/10 bg-black/30 rounded-xl">
                     <div className="flex justify-between items-start mb-3">
@@ -260,7 +247,6 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
             </div>
           </AnimatedTransition>
           
-          {/* Help Requests Section */}
           <AnimatedTransition delay={200}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">Help Requests</h2>
@@ -272,12 +258,10 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
             
             <div className="space-y-4">
               {loading ? (
-                // Show loading states
                 Array(2).fill(0).map((_, index) => (
                   <div key={`loading-${index}`} className="animate-pulse rounded-xl p-6 bg-white/5 h-64"></div>
                 ))
               ) : urgentNeeds.length > 0 ? (
-                // Show urgent needs
                 urgentNeeds.map(resource => (
                   <ResourceCard
                     key={resource.id}
@@ -292,7 +276,6 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
                   />
                 ))
               ) : (
-                // No urgent needs
                 <div className="p-6 border border-white/10 rounded-xl text-center">
                   <p className="text-gray-400">No urgent help requests at the moment.</p>
                 </div>
@@ -301,12 +284,11 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
           </AnimatedTransition>
         </div>
         
-        {/* Impact Dashboard Section */}
         <div>
           <AnimatedTransition className="mb-6" delay={150}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">Impact Dashboard</h2>
-              <Link to="/ngo-reports" className="flex items-center text-sm text-gray-400 hover:text-white transition-colors">
+              <Link to="/reports" className="flex items-center text-sm text-gray-400 hover:text-white transition-colors">
                 <span className="mr-1">Full Report</span>
                 <ArrowRight size={14} />
               </Link>
@@ -377,7 +359,6 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
         </div>
       </div>
       
-      {/* Resource Details Dialog */}
       <ResourceDetailsDialog
         isOpen={isDetailsDialogOpen}
         onClose={() => setIsDetailsDialogOpen(false)}
@@ -385,14 +366,12 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
         resources={resources}
       />
       
-      {/* Add Resource Dialog */}
       <AddResourceDialog
         isOpen={isAddResourceDialogOpen}
         onClose={() => setIsAddResourceDialogOpen(false)}
         onAddResource={addResource}
       />
       
-      {/* Resource Management Dialog */}
       <ResourceManagementDialog
         open={isManageResourcesDialogOpen}
         onOpenChange={setIsManageResourcesDialogOpen}
