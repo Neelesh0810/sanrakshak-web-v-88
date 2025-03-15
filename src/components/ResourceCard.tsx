@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { ArrowRight, Droplet, Home, ShoppingBag, Utensils, Heart, Shield, CheckCircle, AlertTriangle, Info } from 'lucide-react';
@@ -43,19 +42,35 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   const isLight = theme === 'light';
   
   useEffect(() => {
-    const authUser = localStorage.getItem('authUser');
-    if (authUser) {
-      const user = JSON.parse(authUser);
-      setCurrentUser(user);
-      
-      if (!isRequested) {
-        const userResponses = JSON.parse(localStorage.getItem(`responses_${user.id}`) || '[]');
-        const hasAlreadyResponded = userResponses.some((response: any) => response.requestId === requestId);
-        setHasResponded(hasAlreadyResponded);
-      } else {
-        setHasResponded(true);
+    const checkUserResponses = () => {
+      const authUser = localStorage.getItem('authUser');
+      if (authUser) {
+        const user = JSON.parse(authUser);
+        setCurrentUser(user);
+        
+        if (!isRequested && requestId) {
+          const userResponses = JSON.parse(localStorage.getItem(`responses_${user.id}`) || '[]');
+          const hasAlreadyResponded = userResponses.some((response: any) => response.requestId === requestId);
+          setHasResponded(hasAlreadyResponded);
+        } else {
+          setHasResponded(isRequested);
+        }
       }
-    }
+    };
+    
+    checkUserResponses();
+    
+    const handleResponseUpdate = () => {
+      checkUserResponses();
+    };
+    
+    window.addEventListener('response-created', handleResponseUpdate);
+    window.addEventListener('response-updated', handleResponseUpdate);
+    
+    return () => {
+      window.removeEventListener('response-created', handleResponseUpdate);
+      window.removeEventListener('response-updated', handleResponseUpdate);
+    };
   }, [requestId, isRequested]);
   
   useEffect(() => {
@@ -283,7 +298,6 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
         </div>
       </div>
 
-      {/* Resource Details Dialog */}
       <Dialog open={showDetails} onOpenChange={setShowDetails}>
         <DialogContent className={cn(
           "sm:max-w-md",

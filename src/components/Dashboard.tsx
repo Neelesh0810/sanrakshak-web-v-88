@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import VictimDashboard from './dashboards/VictimDashboard';
 import VolunteerDashboard from './dashboards/VolunteerDashboard';
 import NGODashboard from './dashboards/NGODashboard';
@@ -15,8 +15,7 @@ const Dashboard: React.FC = () => {
   const [userRole, setUserRole] = useState<'victim' | 'volunteer' | 'ngo' | 'government' | null>(null);
   const resourceData = useResourceData();
   
-  useEffect(() => {
-    // Get current user from localStorage
+  const fetchUserRole = useCallback(() => {
     const authUser = localStorage.getItem('authUser');
     if (authUser) {
       const user = JSON.parse(authUser);
@@ -25,6 +24,40 @@ const Dashboard: React.FC = () => {
       // Default to victim view for unauthenticated users
       setUserRole('victim');
     }
+  }, []);
+  
+  useEffect(() => {
+    // Get current user from localStorage
+    fetchUserRole();
+    
+    // Setup event listener for auth changes
+    const handleAuthChange = () => {
+      fetchUserRole();
+    };
+    
+    window.addEventListener('auth-changed', handleAuthChange);
+    
+    return () => {
+      window.removeEventListener('auth-changed', handleAuthChange);
+    };
+  }, [fetchUserRole]);
+  
+  // Listen for resource updates to refresh data across components
+  useEffect(() => {
+    const handleResourceUpdate = () => {
+      // This will trigger a refresh in the resourceData hook
+      window.dispatchEvent(new Event('resource-updated'));
+    };
+    
+    window.addEventListener('resource-created', handleResourceUpdate);
+    window.addEventListener('response-created', handleResourceUpdate);
+    window.addEventListener('response-updated', handleResourceUpdate);
+    
+    return () => {
+      window.removeEventListener('resource-created', handleResourceUpdate);
+      window.removeEventListener('response-created', handleResourceUpdate);
+      window.removeEventListener('response-updated', handleResourceUpdate);
+    };
   }, []);
   
   // Show emergency alert for all users
