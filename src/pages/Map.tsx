@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import LocationFinder from '@/components/LocationFinder';
-import { MapPin, Navigation, Compass } from 'lucide-react';
+import { MapPin, Navigation, Compass, Route } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import BackButton from '@/components/BackButton';
 import { useLocation } from 'react-router-dom';
@@ -33,6 +33,7 @@ const Map = () => {
   const [userLocation, setUserLocation] = useState<GeolocationPosition | null>(null);
   const [selectedResource, setSelectedResource] = useState<MapResource | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [showRoute, setShowRoute] = useState(false);
   const { toast } = useToast();
   const location = useLocation();
   const selectedLocationId = location.state?.selectedLocationId;
@@ -67,6 +68,7 @@ const Map = () => {
   const navigateToLocation = (resource: MapResource) => {
     setSelectedResource(resource);
     setDialogOpen(true);
+    setShowRoute(false); // Reset route view when selecting a new location
     toast({
       title: "Location Selected",
       description: `Selected ${resource.name}`,
@@ -135,6 +137,36 @@ const Map = () => {
       const newSrc = `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3668.5294410669823!2d${resource.coordinates.lng}!3d${resource.coordinates.lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2z${encodeURIComponent(resource.name)}!5e0!3m2!1sen!2sin!4v1616661901026!5m2!1sen!2sin`;
       mapIframe.src = newSrc;
     }
+  };
+
+  // Function to show the route on the map
+  const showRouteOnMap = (resource: MapResource) => {
+    if (!userLocation) {
+      toast({
+        title: "Location Required",
+        description: "Your location is needed to show the route. Please enable location services.",
+      });
+      return;
+    }
+
+    const mapIframe = document.getElementById('resource-map') as HTMLIFrameElement;
+    if (mapIframe) {
+      const userLat = userLocation.coords.latitude;
+      const userLng = userLocation.coords.longitude;
+      const destLat = resource.coordinates.lat;
+      const destLng = resource.coordinates.lng;
+      
+      // Update iframe to show the route
+      const newSrc = `https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d58696.41047349456!2d${(userLng + destLng)/2}!3d${(userLat + destLat)/2}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e6!4m5!1s0x0%3A0x0!2zMjPCsDAw4oCZMDAuMCJOIDc5wrAwMOKAmTAwLjAiRQ!3m2!1d${userLat}!2d${userLng}!4m5!1s0x0%3A0x0!2z${encodeURIComponent(resource.name)}!3m2!1d${destLat}!2d${destLng}!5e0!3m2!1sen!2sin!4v1616661901026!5m2!1sen!2sin`;
+      mapIframe.src = newSrc;
+    }
+    
+    setShowRoute(true);
+    
+    toast({
+      title: "Route Displayed",
+      description: `Showing route to ${resource.name}`,
+    });
   };
 
   return (
@@ -238,17 +270,33 @@ const Map = () => {
               ) : 'Loading resource details...'}
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="pt-2">
+          <DialogFooter className="flex flex-col gap-2 sm:flex-row pt-2">
+            {selectedResource && !showRoute && (
+              <Button 
+                onClick={() => showRouteOnMap(selectedResource)}
+                className="w-full flex items-center justify-center"
+                variant="default"
+              >
+                <Route className="mr-2 h-4 w-4" />
+                Show Route
+              </Button>
+            )}
             {selectedResource && (
               <Button 
                 onClick={() => {
-                  focusMapOnLocation(selectedResource);
+                  if (showRoute) {
+                    focusMapOnLocation(selectedResource);
+                    setShowRoute(false);
+                  } else {
+                    focusMapOnLocation(selectedResource);
+                  }
                   setDialogOpen(false);
                 }}
                 className="w-full"
+                variant={showRoute ? "secondary" : "default"}
               >
                 <Navigation className="mr-2 h-4 w-4" />
-                Show on Map
+                {showRoute ? "Hide Route" : "Show on Map"}
               </Button>
             )}
             <DialogClose asChild>
