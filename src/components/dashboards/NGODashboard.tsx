@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { Building, ArrowRight, PieChart, Users, Map, Plus } from 'lucide-react';
 import ResourceCard from '../ResourceCard';
@@ -104,7 +103,7 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
                 <p className="text-sm text-gray-400 mb-3">5,000 bottles ready for distribution</p>
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-gray-500">Updated 30 minutes ago</span>
-                  <Link to="/resource-management/water" className="text-white hover:underline flex items-center">
+                  <Link to="/resource-management/details/water-supplies" className="text-white hover:underline flex items-center">
                     <span>Details</span>
                     <ArrowRight size={12} className="ml-1" />
                   </Link>
@@ -119,7 +118,7 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
                 <p className="text-sm text-gray-400 mb-3">120 meal kits remaining (Critical level)</p>
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-gray-500">Updated 45 minutes ago</span>
-                  <Link to="/resource-management/food" className="text-white hover:underline flex items-center">
+                  <Link to="/resource-management/details/food-supplies" className="text-white hover:underline flex items-center">
                     <span>Details</span>
                     <ArrowRight size={12} className="ml-1" />
                   </Link>
@@ -134,7 +133,7 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
                 <p className="text-sm text-gray-400 mb-3">First aid kits, medications, and basic medical equipment</p>
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-gray-500">Updated 2 hours ago</span>
-                  <Link to="/resource-management/medical" className="text-white hover:underline flex items-center">
+                  <Link to="/resource-management/details/medical-supplies" className="text-white hover:underline flex items-center">
                     <span>Details</span>
                     <ArrowRight size={12} className="ml-1" />
                   </Link>
@@ -149,7 +148,7 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
                 <p className="text-sm text-gray-400 mb-3">3 shelter locations with capacity for 150 more people</p>
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-gray-500">Updated 1 hour ago</span>
-                  <Link to="/resource-management/shelter" className="text-white hover:underline flex items-center">
+                  <Link to="/resource-management/details/shelter-capacity" className="text-white hover:underline flex items-center">
                     <span>Details</span>
                     <ArrowRight size={12} className="ml-1" />
                   </Link>
