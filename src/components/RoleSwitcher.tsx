@@ -2,13 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { User, UserCheck, Building, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const RoleSwitcher: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const location = useLocation();
   
   useEffect(() => {
     // Load current user
@@ -34,23 +33,9 @@ const RoleSwitcher: React.FC = () => {
   const switchRole = (role: 'victim' | 'volunteer' | 'ngo' | 'government') => {
     if (!currentUser) return;
     
-    // Close the menu first
-    document.getElementById('role-switcher-menu')?.classList.add('hidden');
-    
-    // Create a new user object with updated role
     const updatedUser = { ...currentUser, role };
-    
-    // Save to localStorage
     localStorage.setItem('authUser', JSON.stringify(updatedUser));
-    
-    // Update the state
     setCurrentUser(updatedUser);
-    
-    // Force a hard redirect to dashboard
-    window.location.href = '/dashboard';
-    
-    // Dispatch event for other components
-    window.dispatchEvent(new CustomEvent('auth-state-changed'));
     
     toast({
       title: "Role Changed",
@@ -58,7 +43,27 @@ const RoleSwitcher: React.FC = () => {
       duration: 3000,
     });
     
-    console.log("Role switched to", role, "redirecting to dashboard");
+    // Navigate to the appropriate page based on the role
+    redirectBasedOnRole(role);
+  };
+  
+  const redirectBasedOnRole = (role: string) => {
+    // Get the current path
+    const currentPath = window.location.pathname;
+    
+    // If we're on a resource page, redirect to the appropriate version based on role
+    if (currentPath.includes('/resources') || 
+        currentPath.includes('/volunteer-resources') || 
+        currentPath.includes('/victim-resources')) {
+      if (role === 'victim') {
+        navigate('/victim-resources');
+      } else if (role === 'volunteer' || role === 'ngo' || role === 'government') {
+        navigate('/volunteer-resources');
+      }
+    } else {
+      // For all other pages, go to dashboard
+      navigate('/dashboard');
+    }
   };
   
   const getRoleName = (role: string): string => {
