@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import AnimatedTransition from '@/components/AnimatedTransition';
@@ -10,6 +9,15 @@ import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
+export interface MapResource {
+  id: number;
+  name: string;
+  type: string;
+  address: string;
+  distance: number;
+  coordinates: { lat: number; lng: number };
+}
+
 const Map = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [userLocation, setUserLocation] = useState<GeolocationPosition | null>(null);
@@ -17,8 +25,7 @@ const Map = () => {
   const location = useLocation();
   const selectedLocationId = location.state?.selectedLocationId;
   
-  // Resource data for Jabalpur
-  const resources = [
+  const resources: MapResource[] = [
     {
       id: 1,
       name: "Jabalpur Medical Center",
@@ -45,12 +52,10 @@ const Map = () => {
     }
   ];
   
-  // Navigate to specific location on map
   const navigateToLocation = (lat: number, lng: number, name: string) => {
     window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}&query_place_id=${name}`, '_blank');
   };
 
-  // Attempt to get user location on load
   useEffect(() => {
     const getLocation = () => {
       if (navigator.geolocation) {
@@ -61,7 +66,6 @@ const Map = () => {
             console.log("Location acquired:", position);
             
             if (selectedLocationId) {
-              // Find the selected resource
               const selectedResource = resources.find(r => r.id === Number(selectedLocationId));
               if (selectedResource) {
                 toast({
@@ -69,8 +73,7 @@ const Map = () => {
                   description: `Navigating to ${selectedResource.name}`,
                 });
                 
-                // Optional: Auto-navigate to the selected location
-                // navigateToLocation(selectedResource.coordinates.lat, selectedResource.coordinates.lng, selectedResource.name);
+                navigateToLocation(selectedResource.coordinates.lat, selectedResource.coordinates.lng, selectedResource.name);
               }
             }
           },
@@ -92,7 +95,6 @@ const Map = () => {
       }
     };
     
-    // Simulate map loading
     setTimeout(() => {
       getLocation();
     }, 1500);
@@ -158,28 +160,10 @@ const Map = () => {
                     </div>
                   </div>
                 </div>
-                
-                {userLocation && (
-                  <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {resources.map(resource => (
-                      <Card key={resource.id} className="p-4 glass-dark backdrop-blur-sm border border-white/10 bg-black/20">
-                        <h3 className="font-medium mb-2">{resource.name}</h3>
-                        <p className="text-sm text-gray-400 mb-1">{resource.type}</p>
-                        <p className="text-sm text-gray-400 mb-2">{resource.distance} miles away</p>
-                        <Button 
-                          className="w-full mt-2 bg-white/10 hover:bg-white/15 text-white" 
-                          onClick={() => navigateToLocation(resource.coordinates.lat, resource.coordinates.lng, resource.name)}
-                        >
-                          Navigate
-                        </Button>
-                      </Card>
-                    ))}
-                  </div>
-                )}
               </div>
               
               <div>
-                <LocationFinder className="h-full" />
+                <LocationFinder className="h-full" mapResources={resources} />
               </div>
             </div>
           </div>

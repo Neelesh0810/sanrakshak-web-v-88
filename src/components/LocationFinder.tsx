@@ -1,8 +1,10 @@
+
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { MapPin, Compass, Search } from 'lucide-react';
 import { useTheme } from '../context/ThemeProvider';
 import { useNavigate } from 'react-router-dom';
+import { MapResource } from '@/pages/Map';
 
 interface LocationPoint {
   id: string;
@@ -15,6 +17,7 @@ interface LocationPoint {
 
 interface LocationFinderProps {
   className?: string;
+  mapResources?: MapResource[];
 }
 
 const SAMPLE_LOCATIONS: LocationPoint[] = [
@@ -52,7 +55,7 @@ const SAMPLE_LOCATIONS: LocationPoint[] = [
   },
 ];
 
-const LocationFinder: React.FC<LocationFinderProps> = ({ className }) => {
+const LocationFinder: React.FC<LocationFinderProps> = ({ className, mapResources }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentLocation, setCurrentLocation] = useState<GeolocationPosition | null>(null);
   const { theme } = useTheme();
@@ -75,15 +78,39 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className }) => {
     }
   };
 
-  const handleNavigate = (locationId: string) => {
+  const handleNavigate = (locationId: string | number) => {
     navigate('/map', { state: { selectedLocationId: locationId } });
   };
 
-  const filteredLocations = SAMPLE_LOCATIONS.filter(location =>
+  // Use mapResources if provided, otherwise use sample locations
+  const locationsToDisplay = mapResources 
+    ? mapResources.map(resource => ({
+        id: resource.id.toString(),
+        name: resource.name,
+        type: resource.type.toLowerCase() as 'shelter' | 'medical' | 'food' | 'water',
+        distance: `${resource.distance} miles`,
+        address: resource.address,
+        available: true,
+        coordinates: resource.coordinates
+      }))
+    : SAMPLE_LOCATIONS;
+
+  const filteredLocations = locationsToDisplay.filter(location =>
     location.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     location.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
     location.address.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const navigateToResource = (location: any) => {
+    if (location.coordinates) {
+      window.open(
+        `https://www.google.com/maps/search/?api=1&query=${location.coordinates.lat},${location.coordinates.lng}&query_place_id=${location.name}`, 
+        '_blank'
+      );
+    } else {
+      handleNavigate(location.id);
+    }
+  };
 
   return (
     <div className={cn(
@@ -188,7 +215,7 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className }) => {
                           : 'bg-black/30 text-gray-500 cursor-not-allowed')
                   )}
                   disabled={!location.available}
-                  onClick={() => location.available && handleNavigate(location.id)}
+                  onClick={() => location.available && navigateToResource(location)}
                 >
                   Navigate
                 </button>
