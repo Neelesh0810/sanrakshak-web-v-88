@@ -1,8 +1,8 @@
-
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { MapPin, Compass, Search } from 'lucide-react';
 import { useTheme } from '../context/ThemeProvider';
+import { useNavigate } from 'react-router-dom';
 
 interface LocationPoint {
   id: string;
@@ -57,6 +57,7 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className }) => {
   const [currentLocation, setCurrentLocation] = useState<GeolocationPosition | null>(null);
   const { theme } = useTheme();
   const isLight = theme === 'light';
+  const navigate = useNavigate();
 
   const handleGetLocation = () => {
     if (navigator.geolocation) {
@@ -72,6 +73,10 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className }) => {
     } else {
       console.error('Geolocation is not supported by this browser.');
     }
+  };
+
+  const handleNavigate = (locationId: string) => {
+    navigate('/map', { state: { selectedLocationId: locationId } });
   };
 
   const filteredLocations = SAMPLE_LOCATIONS.filter(location =>
@@ -183,6 +188,7 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className }) => {
                           : 'bg-black/30 text-gray-500 cursor-not-allowed')
                   )}
                   disabled={!location.available}
+                  onClick={() => location.available && handleNavigate(location.id)}
                 >
                   Navigate
                 </button>
