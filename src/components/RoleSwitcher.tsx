@@ -37,13 +37,19 @@ const RoleSwitcher: React.FC = () => {
     // Close the menu first
     document.getElementById('role-switcher-menu')?.classList.add('hidden');
     
+    // Create a new user object with updated role
     const updatedUser = { ...currentUser, role };
+    
+    // Save to localStorage
     localStorage.setItem('authUser', JSON.stringify(updatedUser));
     
-    // Use synchronous code for the critical operations
+    // Update the state
     setCurrentUser(updatedUser);
     
-    // Dispatch event after the state is updated
+    // Force a hard redirect to dashboard
+    window.location.href = '/dashboard';
+    
+    // Dispatch event for other components
     window.dispatchEvent(new CustomEvent('auth-state-changed'));
     
     toast({
@@ -52,11 +58,7 @@ const RoleSwitcher: React.FC = () => {
       duration: 3000,
     });
     
-    // Force navigation with React Router directly
-    navigate('/dashboard', { replace: true });
-    
-    // Log for debugging
-    console.log("Role switched, redirecting to dashboard");
+    console.log("Role switched to", role, "redirecting to dashboard");
   };
   
   const getRoleName = (role: string): string => {
