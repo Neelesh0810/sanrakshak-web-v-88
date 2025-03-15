@@ -5,6 +5,14 @@ import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeProvider';
 import { Button } from '@/components/ui/button';
+import { 
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
 
 const ShelterMap = () => {
   const navigate = useNavigate();
@@ -70,41 +78,52 @@ const ShelterMap = () => {
             <span className="text-sm font-medium">Back to Dashboard</span>
           </Button>
           
-          <div className="bg-black/20 border border-white/10 rounded-xl overflow-hidden h-[70vh]">
-            <iframe 
-              src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d117756.07676855968!2d79.94600543036132!3d23.16175785!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1616661901026!5m2!1sen!2sin" 
-              width="100%" 
-              height="100%" 
-              style={{ border: 0 }} 
-              allowFullScreen={true} 
-              loading="lazy" 
-              referrerPolicy="no-referrer-when-downgrade"
-              title="Emergency Shelters Map"
-              className="w-full h-full"
-            />
-          </div>
-          
-          <div className="mt-6">
-            <h2 className="text-xl font-semibold mb-4">Nearby Shelters</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {shelters.map(shelter => (
-                <div key={shelter.id} className="border border-white/10 bg-black/20 rounded-xl p-4">
-                  <h3 className="font-medium mb-2">{shelter.name}</h3>
-                  <p className="text-sm text-gray-400 mb-2">{shelter.address}</p>
-                  <div className="text-xs text-gray-500 mb-3">
-                    <p>Capacity: {shelter.capacity} people</p>
-                    <p>Status: Open ({Math.round((shelter.occupancy / shelter.capacity) * 100)}% full)</p>
-                    <p>Amenities: {shelter.amenities.join(', ')}</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Map column - takes up 2/3 of the available space on desktop */}
+            <div className="md:col-span-2">
+              <div className="bg-black/20 border border-white/10 rounded-xl overflow-hidden h-[70vh]">
+                <iframe 
+                  src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d117756.07676855968!2d79.94600543036132!3d23.16175785!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1616661901026!5m2!1sen!2sin" 
+                  width="100%" 
+                  height="100%" 
+                  style={{ border: 0 }} 
+                  allowFullScreen={true} 
+                  loading="lazy" 
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Emergency Shelters Map"
+                  className="w-full h-full"
+                />
+              </div>
+            </div>
+            
+            {/* Shelters list column - takes up 1/3 of the available space on desktop */}
+            <div className="border border-white/10 bg-black/20 rounded-xl p-4 h-[70vh] overflow-auto">
+              <h2 className="text-xl font-semibold mb-4">Nearby Shelters</h2>
+              
+              <div className="space-y-4">
+                {shelters.map(shelter => (
+                  <div key={shelter.id} className="border border-white/10 bg-black/10 rounded-lg p-3 hover:bg-black/30 transition-colors">
+                    <h3 className="font-medium">{shelter.name}</h3>
+                    <p className="text-sm text-gray-400 mb-2">{shelter.address}</p>
+                    <div className="text-xs text-gray-500 mb-2 space-y-1">
+                      <p>Capacity: {shelter.capacity} people</p>
+                      <p>Status: Open ({Math.round((shelter.occupancy / shelter.capacity) * 100)}% full)</p>
+                      <div className="flex gap-1 flex-wrap mt-1">
+                        {shelter.amenities.map(amenity => (
+                          <span key={amenity} className="inline-block px-2 py-0.5 bg-black/30 rounded-full text-gray-300">{amenity}</span>
+                        ))}
+                      </div>
+                    </div>
+                    <Button 
+                      onClick={() => navigateToLocation(shelter.coordinates.lat, shelter.coordinates.lng, shelter.name)}
+                      size="sm" 
+                      className="w-full mt-2"
+                    >
+                      Navigate
+                    </Button>
                   </div>
-                  <Button 
-                    onClick={() => navigateToLocation(shelter.coordinates.lat, shelter.coordinates.lng, shelter.name)}
-                    size="sm" 
-                    className="w-full"
-                  >
-                    Navigate
-                  </Button>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>
