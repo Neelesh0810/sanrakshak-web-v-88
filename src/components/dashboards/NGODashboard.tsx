@@ -1,5 +1,5 @@
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Building, ArrowRight, PieChart, Users, Map, Plus } from 'lucide-react';
 import ResourceCard from '../ResourceCard';
 import StatusUpdate from '../StatusUpdate';
@@ -35,6 +35,14 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
       .filter(resource => resource.type === 'need' && resource.urgent)
       .sort((a, b) => b.timestamp - a.timestamp) // Newest first
       .slice(0, 2); // Only show the top 2
+  }, [resources]);
+  
+  // Get resources for the resource management section
+  const managedResources = useMemo(() => {
+    return resources
+      .filter(resource => resource.type === 'offer')
+      .sort((a, b) => b.timestamp - a.timestamp) // Newest first
+      .slice(0, 4); // Limit to 4 for display
   }, [resources]);
   
   // Calculate resource distribution for chart
@@ -119,77 +127,114 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-5 border border-white/10 bg-black/30 rounded-xl">
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="font-medium">Water Supplies</h3>
-                  <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full">Available</span>
-                </div>
-                <p className="text-sm text-gray-400 mb-3">5,000 bottles ready for distribution</p>
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-gray-500">Updated 30 minutes ago</span>
-                  <button 
-                    onClick={() => handleViewDetails('water-supplies')}
-                    className="text-white hover:underline flex items-center"
-                  >
-                    <span>Details</span>
-                    <ArrowRight size={12} className="ml-1" />
-                  </button>
-                </div>
-              </div>
-              
-              <div className="p-5 border border-white/10 bg-black/30 rounded-xl">
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="font-medium">Food Supplies</h3>
-                  <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full">Low Stock</span>
-                </div>
-                <p className="text-sm text-gray-400 mb-3">120 meal kits remaining (Critical level)</p>
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-gray-500">Updated 45 minutes ago</span>
-                  <button 
-                    onClick={() => handleViewDetails('food-supplies')}
-                    className="text-white hover:underline flex items-center"
-                  >
-                    <span>Details</span>
-                    <ArrowRight size={12} className="ml-1" />
-                  </button>
-                </div>
-              </div>
-              
-              <div className="p-5 border border-white/10 bg-black/30 rounded-xl">
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="font-medium">Medical Supplies</h3>
-                  <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full">Available</span>
-                </div>
-                <p className="text-sm text-gray-400 mb-3">First aid kits, medications, and basic medical equipment</p>
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-gray-500">Updated 2 hours ago</span>
-                  <button 
-                    onClick={() => handleViewDetails('medical-supplies')}
-                    className="text-white hover:underline flex items-center"
-                  >
-                    <span>Details</span>
-                    <ArrowRight size={12} className="ml-1" />
-                  </button>
-                </div>
-              </div>
-              
-              <div className="p-5 border border-white/10 bg-black/30 rounded-xl">
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="font-medium">Shelter Capacity</h3>
-                  <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full">65% Full</span>
-                </div>
-                <p className="text-sm text-gray-400 mb-3">3 shelter locations with capacity for 150 more people</p>
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-gray-500">Updated 1 hour ago</span>
-                  <button 
-                    onClick={() => handleViewDetails('shelter-capacity')}
-                    className="text-white hover:underline flex items-center"
-                  >
-                    <span>Details</span>
-                    <ArrowRight size={12} className="ml-1" />
-                  </button>
-                </div>
-              </div>
+              {loading ? (
+                // Show loading states
+                Array(4).fill(0).map((_, index) => (
+                  <div key={`loading-${index}`} className="animate-pulse rounded-xl p-6 bg-white/5 h-64"></div>
+                ))
+              ) : managedResources.length > 0 ? (
+                // Show resources from the form
+                managedResources.map(resource => (
+                  <div key={resource.id} className="p-5 border border-white/10 bg-black/30 rounded-xl">
+                    <div className="flex justify-between items-start mb-3">
+                      <h3 className="font-medium">{resource.title}</h3>
+                      <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full capitalize">{resource.category}</span>
+                    </div>
+                    <p className="text-sm text-gray-400 mb-3">
+                      {resource.description.length > 80 
+                        ? `${resource.description.substring(0, 80)}...` 
+                        : resource.description}
+                    </p>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-gray-500">
+                        {new Date(resource.timestamp).toLocaleString()}
+                      </span>
+                      <button 
+                        onClick={() => handleViewDetails(resource.id)}
+                        className="text-white hover:underline flex items-center"
+                      >
+                        <span>Details</span>
+                        <ArrowRight size={12} className="ml-1" />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                // Default items as fallback
+                <>
+                  <div className="p-5 border border-white/10 bg-black/30 rounded-xl">
+                    <div className="flex justify-between items-start mb-3">
+                      <h3 className="font-medium">Water Supplies</h3>
+                      <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full">Available</span>
+                    </div>
+                    <p className="text-sm text-gray-400 mb-3">5,000 bottles ready for distribution</p>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-gray-500">Updated 30 minutes ago</span>
+                      <button 
+                        onClick={() => handleViewDetails('water-supplies')}
+                        className="text-white hover:underline flex items-center"
+                      >
+                        <span>Details</span>
+                        <ArrowRight size={12} className="ml-1" />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="p-5 border border-white/10 bg-black/30 rounded-xl">
+                    <div className="flex justify-between items-start mb-3">
+                      <h3 className="font-medium">Food Supplies</h3>
+                      <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full">Low Stock</span>
+                    </div>
+                    <p className="text-sm text-gray-400 mb-3">120 meal kits remaining (Critical level)</p>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-gray-500">Updated 45 minutes ago</span>
+                      <button 
+                        onClick={() => handleViewDetails('food-supplies')}
+                        className="text-white hover:underline flex items-center"
+                      >
+                        <span>Details</span>
+                        <ArrowRight size={12} className="ml-1" />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="p-5 border border-white/10 bg-black/30 rounded-xl">
+                    <div className="flex justify-between items-start mb-3">
+                      <h3 className="font-medium">Medical Supplies</h3>
+                      <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full">Available</span>
+                    </div>
+                    <p className="text-sm text-gray-400 mb-3">First aid kits, medications, and basic medical equipment</p>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-gray-500">Updated 2 hours ago</span>
+                      <button 
+                        onClick={() => handleViewDetails('medical-supplies')}
+                        className="text-white hover:underline flex items-center"
+                      >
+                        <span>Details</span>
+                        <ArrowRight size={12} className="ml-1" />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="p-5 border border-white/10 bg-black/30 rounded-xl">
+                    <div className="flex justify-between items-start mb-3">
+                      <h3 className="font-medium">Shelter Capacity</h3>
+                      <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full">65% Full</span>
+                    </div>
+                    <p className="text-sm text-gray-400 mb-3">3 shelter locations with capacity for 150 more people</p>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-gray-500">Updated 1 hour ago</span>
+                      <button 
+                        onClick={() => handleViewDetails('shelter-capacity')}
+                        className="text-white hover:underline flex items-center"
+                      >
+                        <span>Details</span>
+                        <ArrowRight size={12} className="ml-1" />
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
             
             <div className="mt-6 text-center">

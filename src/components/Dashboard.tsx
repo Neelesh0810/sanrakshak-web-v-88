@@ -47,6 +47,7 @@ const Dashboard: React.FC = () => {
     const handleResourceUpdate = () => {
       // This will trigger a refresh in the resourceData hook
       window.dispatchEvent(new Event('resource-updated'));
+      console.log('Resource updated in Dashboard component');
     };
     
     window.addEventListener('resource-created', handleResourceUpdate);
