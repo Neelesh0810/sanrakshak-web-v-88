@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Droplet, Home, ShoppingBag, Utensils, Heart, Shield } from 'lucide-react';
 
@@ -58,29 +57,14 @@ const RequestForm: React.FC<RequestFormProps> = ({ onSubmit, onCancel, userRole 
       </h2>
       
       <form onSubmit={handleSubmit} className="space-y-4">
-        {!isVolunteer && (
-          <div className="flex space-x-2">
+        {!isVolunteer && type === 'need' && (
+          <div className="flex">
             <button
               type="button"
               onClick={() => setType('need')}
-              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
-                type === 'need' 
-                  ? 'bg-white text-black' 
-                  : 'bg-white/10 hover:bg-white/15'
-              }`}
+              className="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors bg-white text-black"
             >
               I Need Help
-            </button>
-            <button
-              type="button"
-              onClick={() => setType('offer')}
-              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
-                type === 'offer' 
-                  ? 'bg-white text-black' 
-                  : 'bg-white/10 hover:bg-white/15'
-              }`}
-            >
-              I Can Help
             </button>
           </div>
         )}
