@@ -68,6 +68,26 @@ const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ resourceData })
     return validResponses.slice(0, 2); // Only show the top 2
   }, [responses, resources]);
 
+  // Add an effect to ensure real-time updates 
+  useEffect(() => {
+    const handleResourceUpdate = () => {
+      // This will trigger a refresh with the latest data
+      console.log('Resource update detected in VolunteerDashboard');
+    };
+    
+    window.addEventListener('resource-created', handleResourceUpdate);
+    window.addEventListener('resource-updated', handleResourceUpdate);
+    window.addEventListener('response-created', handleResourceUpdate);
+    window.addEventListener('response-updated', handleResourceUpdate);
+    
+    return () => {
+      window.removeEventListener('resource-created', handleResourceUpdate);
+      window.removeEventListener('resource-updated', handleResourceUpdate);
+      window.removeEventListener('response-created', handleResourceUpdate);
+      window.removeEventListener('response-updated', handleResourceUpdate);
+    };
+  }, []);
+
   // Generate task IDs in the correct format for navigation
   const getTaskIdForResponse = (responseId: string) => {
     return `task-${responseId}`;

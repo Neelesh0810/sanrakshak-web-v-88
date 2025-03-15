@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 
 // Define types for our resources
@@ -101,6 +102,13 @@ const useResourceData = () => {
         ];
       }
       
+      // Sort resources consistently by timestamp and urgency
+      allResources.sort((a, b) => {
+        if (a.urgent && !b.urgent) return -1;
+        if (!a.urgent && b.urgent) return 1;
+        return b.timestamp - a.timestamp;
+      });
+      
       setResources(allResources);
       setLoading(false);
     };
@@ -142,6 +150,7 @@ const useResourceData = () => {
     
     // Listen for custom events for real-time updates within the same tab
     const handleResourceChange = () => {
+      console.log('Resource data change detected, refreshing data');
       loadResources();
       loadResponses();
     };
