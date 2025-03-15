@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import VictimDashboard from './dashboards/VictimDashboard';
 import VolunteerDashboard from './dashboards/VolunteerDashboard';
@@ -45,7 +46,6 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const handleResourceUpdate = () => {
       // This will trigger a refresh in the resourceData hook
-      console.log("Resource updated in Dashboard component");
       window.dispatchEvent(new Event('resource-updated'));
     };
     

@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState, useEffect } from 'react';
 import { Info, ArrowRight } from 'lucide-react';
 import ResourceCard from '../ResourceCard';
@@ -47,22 +48,6 @@ const VictimDashboard: React.FC<VictimDashboardProps> = ({ resourceData }) => {
       })
       .slice(0, 4); // Only show the top 4
   }, [resources]);
-  
-  // Add a listener for resource changes
-  useEffect(() => {
-    const handleResourceChange = () => {
-      // This will re-run the useMemo for availableResources when resources change
-      console.log("Resource created/updated in VictimDashboard");
-    };
-    
-    window.addEventListener('resource-created', handleResourceChange);
-    window.addEventListener('resource-updated', handleResourceChange);
-    
-    return () => {
-      window.removeEventListener('resource-created', handleResourceChange);
-      window.removeEventListener('resource-updated', handleResourceChange);
-    };
-  }, []);
   
   return (
     <div className="container mx-auto px-4">
