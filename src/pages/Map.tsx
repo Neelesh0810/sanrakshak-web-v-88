@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import AnimatedTransition from '@/components/AnimatedTransition';
@@ -8,6 +9,15 @@ import BackButton from '@/components/BackButton';
 import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerClose,
+} from "@/components/ui/drawer";
 
 export interface MapResource {
   id: number;
@@ -21,6 +31,8 @@ export interface MapResource {
 const Map = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [userLocation, setUserLocation] = useState<GeolocationPosition | null>(null);
+  const [selectedResource, setSelectedResource] = useState<MapResource | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const { toast } = useToast();
   const location = useLocation();
   const selectedLocationId = location.state?.selectedLocationId;
@@ -52,8 +64,13 @@ const Map = () => {
     }
   ];
   
-  const navigateToLocation = (lat: number, lng: number, name: string) => {
-    window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}&query_place_id=${name}`, '_blank');
+  const navigateToLocation = (resource: MapResource) => {
+    setSelectedResource(resource);
+    setDrawerOpen(true);
+    toast({
+      title: "Location Selected",
+      description: `Selected ${resource.name}`,
+    });
   };
 
   useEffect(() => {
@@ -73,7 +90,7 @@ const Map = () => {
                   description: `Navigating to ${selectedResource.name}`,
                 });
                 
-                navigateToLocation(selectedResource.coordinates.lat, selectedResource.coordinates.lng, selectedResource.name);
+                navigateToLocation(selectedResource);
               }
             }
           },
@@ -99,6 +116,15 @@ const Map = () => {
       getLocation();
     }, 1500);
   }, [toast, selectedLocationId, resources]);
+
+  const getDirectionsUrl = (destination: MapResource) => {
+    if (userLocation) {
+      const userLat = userLocation.coords.latitude;
+      const userLng = userLocation.coords.longitude;
+      return `https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLng}&destination=${destination.coordinates.lat},${destination.coordinates.lng}&travelmode=driving`;
+    }
+    return `https://www.google.com/maps/search/?api=1&query=${destination.coordinates.lat},${destination.coordinates.lng}`;
+  };
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -163,12 +189,56 @@ const Map = () => {
               </div>
               
               <div>
-                <LocationFinder className="h-full" mapResources={resources} />
+                <LocationFinder 
+                  className="h-full" 
+                  mapResources={resources} 
+                  onNavigate={navigateToLocation}
+                />
               </div>
             </div>
           </div>
         </main>
       </AnimatedTransition>
+
+      <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>{selectedResource?.name || 'Resource Details'}</DrawerTitle>
+            <DrawerDescription>
+              {selectedResource ? (
+                <div className="space-y-2 mt-1">
+                  <div className="flex items-center text-sm">
+                    <MapPin size={16} className="mr-2 text-gray-400" />
+                    <span>{selectedResource.address}</span>
+                  </div>
+                  <div className="flex items-center text-sm">
+                    <Compass size={16} className="mr-2 text-gray-400" />
+                    <span>{selectedResource.distance} miles away</span>
+                  </div>
+                  <div className="rounded-lg border p-2 mt-4 text-sm bg-background/50">
+                    <span className="text-xs uppercase text-muted-foreground font-medium">Type</span>
+                    <div className="font-medium mt-1">{selectedResource.type}</div>
+                  </div>
+                </div>
+              ) : 'Loading resource details...'}
+            </DrawerDescription>
+          </DrawerHeader>
+          <DrawerFooter className="pt-2">
+            {selectedResource && (
+              <Button 
+                onClick={() => window.open(getDirectionsUrl(selectedResource), '_blank')}
+                className="w-full"
+              >
+                <Navigation className="mr-2 h-4 w-4" />
+                Get Directions
+              </Button>
+            )}
+            <DrawerClose asChild>
+              <Button variant="outline">Close</Button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 };

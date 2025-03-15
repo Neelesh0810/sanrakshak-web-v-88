@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { MapPin, Compass, Search } from 'lucide-react';
@@ -18,6 +17,7 @@ interface LocationPoint {
 interface LocationFinderProps {
   className?: string;
   mapResources?: MapResource[];
+  onNavigate?: (resource: MapResource) => void;
 }
 
 const SAMPLE_LOCATIONS: LocationPoint[] = [
@@ -55,7 +55,7 @@ const SAMPLE_LOCATIONS: LocationPoint[] = [
   },
 ];
 
-const LocationFinder: React.FC<LocationFinderProps> = ({ className, mapResources }) => {
+const LocationFinder: React.FC<LocationFinderProps> = ({ className, mapResources, onNavigate }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentLocation, setCurrentLocation] = useState<GeolocationPosition | null>(null);
   const { theme } = useTheme();
@@ -91,7 +91,8 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className, mapResources
         distance: `${resource.distance} miles`,
         address: resource.address,
         available: true,
-        coordinates: resource.coordinates
+        coordinates: resource.coordinates,
+        originalResource: resource
       }))
     : SAMPLE_LOCATIONS;
 
@@ -102,7 +103,9 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className, mapResources
   );
 
   const navigateToResource = (location: any) => {
-    if (location.coordinates) {
+    if (mapResources && onNavigate && location.originalResource) {
+      onNavigate(location.originalResource);
+    } else if (location.coordinates) {
       window.open(
         `https://www.google.com/maps/search/?api=1&query=${location.coordinates.lat},${location.coordinates.lng}&query_place_id=${location.name}`, 
         '_blank'
