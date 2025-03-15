@@ -14,6 +14,7 @@ import {
   LogOut
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeProvider';
+import { Button } from '@/components/ui/button';
 
 interface Resource {
   id: string;
@@ -60,56 +61,60 @@ const AdminDashboard = () => {
       navigate('/login', { replace: true });
     }
 
-    const storedResources = localStorage.getItem('resources');
-    if (storedResources) {
-      const parsedResources = JSON.parse(storedResources).map((res: any) => ({
-        ...res,
-        status: res.status || 'pending'
-      }));
-      setResources(parsedResources);
-    } else {
-      const sampleResources: Resource[] = [
-        {
-          id: '1',
-          type: 'need',
-          category: 'water',
-          title: 'Clean Water Needed',
-          description: 'Family of 4 needs clean drinking water. We have been without for 2 days.',
-          location: 'North District, Block C',
-          urgent: true,
-          timestamp: Date.now() - 3600000,
-          status: 'addressing',
-          assignedTo: 'Water Relief Team'
-        },
-        {
-          id: '2',
-          type: 'need',
-          category: 'food',
-          title: 'Food for children',
-          description: 'Need food supplies for 3 children under 10.',
-          location: 'East Village, House 45',
-          urgent: true,
-          timestamp: Date.now() - 7200000,
-          status: 'pending'
-        },
-        {
-          id: '3',
-          type: 'need',
-          category: 'medical',
-          title: 'Insulin Required',
-          description: 'Diabetic patient needs insulin. Current supply will last only 24 hours.',
-          location: 'South Side Apartments, Building 3',
-          contact: '555-0187',
-          urgent: true,
-          timestamp: Date.now() - 1800000,
-          status: 'resolved',
-          assignedTo: 'Medical Team Alpha'
-        }
-      ];
-      
-      setResources(sampleResources);
-      localStorage.setItem('resources', JSON.stringify(sampleResources));
-    }
+    const fetchResources = () => {
+      const storedResources = localStorage.getItem('resources');
+      if (storedResources) {
+        const parsedResources = JSON.parse(storedResources).map((res: any) => ({
+          ...res,
+          status: res.status || 'pending'
+        }));
+        setResources(parsedResources);
+      } else {
+        const sampleResources: Resource[] = [
+          {
+            id: '1',
+            type: 'need',
+            category: 'water',
+            title: 'Clean Water Needed',
+            description: 'Family of 4 needs clean drinking water. We have been without for 2 days.',
+            location: 'North District, Block C',
+            urgent: true,
+            timestamp: Date.now() - 3600000,
+            status: 'addressing',
+            assignedTo: 'Water Relief Team'
+          },
+          {
+            id: '2',
+            type: 'need',
+            category: 'food',
+            title: 'Food for children',
+            description: 'Need food supplies for 3 children under 10.',
+            location: 'East Village, House 45',
+            urgent: true,
+            timestamp: Date.now() - 7200000,
+            status: 'pending'
+          },
+          {
+            id: '3',
+            type: 'need',
+            category: 'medical',
+            title: 'Insulin Required',
+            description: 'Diabetic patient needs insulin. Current supply will last only 24 hours.',
+            location: 'South Side Apartments, Building 3',
+            contact: '555-0187',
+            urgent: true,
+            timestamp: Date.now() - 1800000,
+            status: 'resolved',
+            assignedTo: 'Medical Team Alpha'
+          }
+        ];
+        
+        setResources(sampleResources);
+        localStorage.setItem('resources', JSON.stringify(sampleResources));
+      }
+    };
+
+    fetchResources();
     
     setIsLoading(false);
   }, [navigate, toast]);
@@ -187,10 +192,7 @@ const AdminDashboard = () => {
     setIsLoading(true);
     
     setTimeout(() => {
-      const storedResources = localStorage.getItem('resources');
-      if (storedResources) {
-        setResources(JSON.parse(storedResources));
-      }
+      fetchResources();
       setIsLoading(false);
       
       toast({
@@ -327,13 +329,14 @@ const AdminDashboard = () => {
                     </select>
                   </div>
                   
-                  <button
+                  <Button
                     onClick={refreshData}
-                    className="flex items-center space-x-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-lg px-3 py-2 transition-colors"
+                    variant="outline"
+                    className="flex items-center space-x-2 bg-white/10 hover:bg-white/20 border border-white/10 transition-colors"
                   >
                     <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
                     <span>Refresh</span>
-                  </button>
+                  </Button>
                 </div>
               </div>
               
