@@ -65,6 +65,7 @@ const Map = () => {
     }
   ];
   
+  // Modified to only open the dialog without changing the map
   const navigateToLocation = (resource: MapResource) => {
     setSelectedResource(resource);
     setDialogOpen(true);
@@ -238,7 +239,6 @@ const Map = () => {
                   mapResources={resources} 
                   onNavigate={(resource) => {
                     navigateToLocation(resource);
-                    focusMapOnLocation(resource);
                   }}
                 />
               </div>
