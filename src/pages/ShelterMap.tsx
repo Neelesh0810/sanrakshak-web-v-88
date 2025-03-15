@@ -1,19 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
-import { ArrowLeft, Navigation } from 'lucide-react';
+import { Navigation } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeProvider';
 import { Button } from '@/components/ui/button';
 import BackButton from '@/components/BackButton';
-import { 
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/ui/table';
 import {
   Dialog,
   DialogContent,
@@ -30,6 +22,7 @@ const ShelterMap = () => {
   const isLight = theme === 'light';
   const [selectedShelter, setSelectedShelter] = useState<any>(null);
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [locationPermissionDenied, setLocationPermissionDenied] = useState(false);
   const [showRoute, setShowRoute] = useState(false);
   const [mapCenter, setMapCenter] = useState({ lat: 23.1636, lng: 79.9548 });
   
@@ -42,18 +35,21 @@ const ShelterMap = () => {
             lat: position.coords.latitude,
             lng: position.coords.longitude
           });
+          setLocationPermissionDenied(false);
         },
         (error) => {
           console.error("Error getting location:", error);
+          setLocationPermissionDenied(true);
         }
       );
     } else {
       console.error("Geolocation is not supported by this browser.");
+      setLocationPermissionDenied(true);
     }
   };
   
   // Get user location when component mounts
-  React.useEffect(() => {
+  useEffect(() => {
     getUserLocation();
   }, []);
 
@@ -118,8 +114,6 @@ const ShelterMap = () => {
   
   // Create map URL for embedded iframe based on current state
   const getMapUrl = () => {
-    let baseUrl = "https://www.google.com/maps/embed?pb=!1m";
-    
     if (showRoute && userLocation && selectedShelter) {
       // URL for directions between two points
       return `https://www.google.com/maps/embed/v1/directions?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8
@@ -208,19 +202,30 @@ const ShelterMap = () => {
                             >
                               Show on Map
                             </Button>
-                            <Button 
-                              onClick={handleShowRoute}
-                              className="flex-1"
-                              disabled={!userLocation}
-                            >
-                              <Navigation className="mr-2 h-4 w-4" />
-                              Show Route
-                            </Button>
+                            {!locationPermissionDenied ? (
+                              <Button 
+                                onClick={handleShowRoute}
+                                className="flex-1"
+                                disabled={!userLocation}
+                              >
+                                <Navigation className="mr-2 h-4 w-4" />
+                                Show Route
+                              </Button>
+                            ) : (
+                              <div className="flex-1 text-sm text-yellow-500 text-center">
+                                Location access denied
+                              </div>
+                            )}
                           </div>
                           
-                          {!userLocation && (
+                          {locationPermissionDenied && (
                             <p className="text-sm text-yellow-500">
-                              Please allow location access to show route directions
+                              Location permission is denied. You can still view the shelter on the map.
+                            </p>
+                          )}
+                          {!userLocation && !locationPermissionDenied && (
+                            <p className="text-sm text-yellow-500">
+                              Getting your location...
                             </p>
                           )}
                         </div>
