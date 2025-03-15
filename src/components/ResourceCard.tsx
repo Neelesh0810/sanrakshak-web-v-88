@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { ArrowRight, Droplet, Home, ShoppingBag, Utensils, Heart, Shield, CheckCircle, AlertTriangle, Info } from 'lucide-react';
@@ -49,6 +50,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
         setCurrentUser(user);
         
         if (requestId) {
+          // This is the key part: load response state from localStorage
           const userResponses = JSON.parse(localStorage.getItem(`responses_${user.id}`) || '[]');
           const hasAlreadyResponded = userResponses.some((response: any) => response.requestId === requestId);
           setHasResponded(hasAlreadyResponded);
@@ -144,6 +146,9 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
       const responseId = Date.now().toString();
       const userResponses = JSON.parse(localStorage.getItem(`responses_${currentUser.id}`) || '[]');
       
+      // Check if a response for this request already exists
+      const existingResponseIndex = userResponses.findIndex((response: any) => response.requestId === requestId);
+      
       const newResponse = {
         id: responseId,
         requestId,
@@ -154,31 +159,34 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
         status: 'pending'
       };
       
-      localStorage.setItem(`responses_${currentUser.id}`, JSON.stringify([newResponse, ...userResponses]));
-      
-      const notifications = JSON.parse(localStorage.getItem(`notifications_${currentUser.id}`) || '[]');
-      
-      const newNotification = {
-        id: Date.now().toString(),
-        type: type === 'need' ? 'response' : 'request',
-        title: type === 'need' ? 'You offered help' : 'You requested resource',
-        message: `You have ${type === 'need' ? 'offered to help with' : 'requested'}: ${title}`,
-        time: Date.now(),
-        read: false,
-        link: '/connect'
-      };
-      
-      localStorage.setItem(`notifications_${currentUser.id}`, JSON.stringify([newNotification, ...notifications]));
-      
-      toast({
-        title: type === 'need' ? "Response Sent" : "Request Sent",
-        description: type === 'need' 
-          ? "Your offer to help has been sent" 
-          : "Your request has been submitted",
-      });
-      
-      window.dispatchEvent(new Event('response-created'));
-      window.dispatchEvent(new Event('resource-updated'));
+      // Only add the response if it doesn't exist already
+      if (existingResponseIndex === -1) {
+        localStorage.setItem(`responses_${currentUser.id}`, JSON.stringify([newResponse, ...userResponses]));
+        
+        const notifications = JSON.parse(localStorage.getItem(`notifications_${currentUser.id}`) || '[]');
+        
+        const newNotification = {
+          id: Date.now().toString(),
+          type: type === 'need' ? 'response' : 'request',
+          title: type === 'need' ? 'You offered help' : 'You requested resource',
+          message: `You have ${type === 'need' ? 'offered to help with' : 'requested'}: ${title}`,
+          time: Date.now(),
+          read: false,
+          link: '/connect'
+        };
+        
+        localStorage.setItem(`notifications_${currentUser.id}`, JSON.stringify([newNotification, ...notifications]));
+        
+        toast({
+          title: type === 'need' ? "Response Sent" : "Request Sent",
+          description: type === 'need' 
+            ? "Your offer to help has been sent" 
+            : "Your request has been submitted",
+        });
+        
+        window.dispatchEvent(new Event('response-created'));
+        window.dispatchEvent(new Event('resource-updated'));
+      }
     }, 1000);
   };
 
