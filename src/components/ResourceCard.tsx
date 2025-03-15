@@ -1,9 +1,12 @@
+
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { ArrowRight, Droplet, Home, ShoppingBag, Utensils, Heart, Shield, CheckCircle, AlertTriangle } from 'lucide-react';
+import { ArrowRight, Droplet, Home, ShoppingBag, Utensils, Heart, Shield, CheckCircle, AlertTriangle, Info } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeProvider';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
+import { Button } from "./ui/button";
 
 interface ResourceCardProps {
   type: 'need' | 'offer';
@@ -33,6 +36,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   const [isRequesting, setIsRequesting] = useState(false);
   const [hasResponded, setHasResponded] = useState(isRequested);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [showDetails, setShowDetails] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { theme } = useTheme();
@@ -217,7 +221,20 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
           {contact && <p className="mt-1">Contact: {contact}</p>}
         </div>
         
-        <div className="flex justify-end">
+        <div className="flex justify-between items-center">
+          <Button
+            onClick={() => setShowDetails(true)}
+            variant="ghost"
+            size="sm"
+            className={cn(
+              "flex items-center text-xs",
+              isLight ? "text-gray-600 hover:text-gray-900" : "text-gray-400 hover:text-white"
+            )}
+          >
+            <Info size={14} className="mr-1.5" />
+            <span>Details</span>
+          </Button>
+          
           {hasResponded ? (
             <button 
               disabled
@@ -265,6 +282,118 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
           )}
         </div>
       </div>
+
+      {/* Resource Details Dialog */}
+      <Dialog open={showDetails} onOpenChange={setShowDetails}>
+        <DialogContent className={cn(
+          "sm:max-w-md",
+          isLight ? "bg-white text-black" : "bg-black border border-white/10 text-white"
+        )}>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <div className={cn(
+                'p-1.5 rounded-full',
+                isLight 
+                  ? (type === 'need' ? 'bg-gray-200' : 'bg-gray-300')
+                  : (type === 'need' ? 'bg-white/10' : 'bg-white/20')
+              )}>
+                {getCategoryIcon()}
+              </div>
+              <span>{title}</span>
+              {urgent && (
+                <span className={cn(
+                  "ml-2 px-2 py-0.5 text-xs font-semibold rounded-full",
+                  isLight ? "bg-red-100 text-red-800" : "bg-red-900/30 text-red-300 border border-red-800/50"
+                )}>
+                  Urgent
+                </span>
+              )}
+            </DialogTitle>
+            <DialogDescription className={cn(
+              "text-sm pt-2",
+              isLight ? "text-gray-600" : "text-gray-400"
+            )}>
+              {type === 'need' ? 'Resource Needed' : 'Resource Offered'}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <h4 className={cn(
+                "text-sm font-medium mb-1",
+                isLight ? "text-gray-900" : "text-gray-200"
+              )}>
+                Description
+              </h4>
+              <p className={cn(
+                "text-sm",
+                isLight ? "text-gray-700" : "text-gray-300"
+              )}>
+                {description}
+              </p>
+            </div>
+            
+            <div>
+              <h4 className={cn(
+                "text-sm font-medium mb-1",
+                isLight ? "text-gray-900" : "text-gray-200"
+              )}>
+                Location
+              </h4>
+              <p className={cn(
+                "text-sm",
+                isLight ? "text-gray-700" : "text-gray-300"
+              )}>
+                {location}
+              </p>
+            </div>
+            
+            {contact && (
+              <div>
+                <h4 className={cn(
+                  "text-sm font-medium mb-1",
+                  isLight ? "text-gray-900" : "text-gray-200"
+                )}>
+                  Contact
+                </h4>
+                <p className={cn(
+                  "text-sm",
+                  isLight ? "text-gray-700" : "text-gray-300"
+                )}>
+                  {contact}
+                </p>
+              </div>
+            )}
+            
+            <div className="flex justify-end pt-2">
+              {!hasResponded && canInteract() && (
+                <Button
+                  onClick={() => {
+                    setShowDetails(false);
+                    handleRequestClick();
+                  }}
+                  className={cn(
+                    "flex items-center",
+                    isLight
+                      ? "bg-black text-white hover:bg-black/90"
+                      : "bg-white/10 hover:bg-white/15"
+                  )}
+                  disabled={isRequesting}
+                >
+                  {isRequesting ? (
+                    <span className="animate-pulse">Processing...</span>
+                  ) : (
+                    <>
+                      <span className="mr-1.5">{type === 'need' ? 'Respond' : 'Request'}</span>
+                      <ArrowRight size={14} />
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
