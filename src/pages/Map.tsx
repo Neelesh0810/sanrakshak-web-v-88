@@ -6,11 +6,14 @@ import LocationFinder from '@/components/LocationFinder';
 import { MapPin, Navigation, Compass } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import BackButton from '@/components/BackButton';
+import { useLocation } from 'react-router-dom';
 
 const Map = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [userLocation, setUserLocation] = useState<GeolocationPosition | null>(null);
   const { toast } = useToast();
+  const location = useLocation();
+  const selectedLocationId = location.state?.selectedLocationId;
   
   // Attempt to get user location on load
   useEffect(() => {
@@ -21,6 +24,13 @@ const Map = () => {
             setUserLocation(position);
             setIsLoading(false);
             console.log("Location acquired:", position);
+            
+            if (selectedLocationId) {
+              toast({
+                title: "Selected Location",
+                description: `Navigating to location ID: ${selectedLocationId}`,
+              });
+            }
           },
           (error) => {
             console.error("Error getting location:", error);
@@ -44,7 +54,7 @@ const Map = () => {
     setTimeout(() => {
       getLocation();
     }, 1500);
-  }, [toast]);
+  }, [toast, selectedLocationId]);
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -73,58 +83,20 @@ const Map = () => {
                       </div>
                     </div>
                   ) : (
-                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                      <div className="text-center p-6 glass-dark rounded-xl max-w-md backdrop-blur-sm">
-                        <Navigation size={48} className="mx-auto mb-4 text-white/70" />
-                        <h3 className="text-xl font-semibold mb-2">Map Placeholder</h3>
-                        <p className="text-gray-300 mb-4">
-                          {userLocation 
-                            ? "Your location has been found. In a real application, a map would be displayed here with nearby resources." 
-                            : "Location services are not enabled. Please allow location access to see resources near you."}
-                        </p>
-                        {userLocation && (
-                          <div className="text-left bg-white/5 p-3 rounded-lg text-sm mb-4">
-                            <p><span className="text-gray-400">Latitude:</span> {userLocation.coords.latitude.toFixed(6)}</p>
-                            <p><span className="text-gray-400">Longitude:</span> {userLocation.coords.longitude.toFixed(6)}</p>
-                            <p><span className="text-gray-400">Accuracy:</span> {userLocation.coords.accuracy.toFixed(1)}m</p>
-                          </div>
-                        )}
-                        <button 
-                          className="px-4 py-2 bg-white text-black rounded-lg font-medium hover:bg-white/90 transition-colors"
-                          onClick={() => {
-                            setIsLoading(true);
-                            setTimeout(() => {
-                              if (navigator.geolocation) {
-                                navigator.geolocation.getCurrentPosition(
-                                  (position) => {
-                                    setUserLocation(position);
-                                    setIsLoading(false);
-                                    toast({
-                                      title: "Location Updated",
-                                      description: "Your location has been refreshed.",
-                                    });
-                                  },
-                                  (error) => {
-                                    console.error("Error getting location:", error);
-                                    setIsLoading(false);
-                                    toast({
-                                      title: "Location Error",
-                                      description: error.message,
-                                    });
-                                  }
-                                );
-                              }
-                            }, 1000);
-                          }}
-                        >
-                          <Compass size={16} className="inline-block mr-2" />
-                          Refresh Location
-                        </button>
-                      </div>
-                    </div>
+                    <iframe 
+                      src="https://www.google.com/maps/embed?pb=!1m16!1m12!1m3!1d12345.67890!2d-73.9654!3d40.7829!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!2m1!1semergency%20shelters!5e0!3m2!1sen!2sus!4v1599123456789!5m2!1sen!2sus" 
+                      width="100%" 
+                      height="100%" 
+                      style={{ border: 0 }} 
+                      allowFullScreen={true} 
+                      loading="lazy" 
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title="Emergency Resources Map"
+                      className="w-full h-full"
+                    />
                   )}
                   
-                  {userLocation && (
+                  {userLocation && !isLoading && (
                     <div className="absolute bottom-4 left-4 glass-dark px-3 py-2 rounded-lg text-sm backdrop-blur-sm">
                       <div className="flex items-center">
                         <MapPin size={16} className="mr-2 text-white/70" />
@@ -144,6 +116,32 @@ const Map = () => {
                     </div>
                   </div>
                 </div>
+                
+                {userLocation && (
+                  <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="glass-dark p-4 rounded-lg backdrop-blur-sm">
+                      <h3 className="font-medium mb-2">Central Shelter</h3>
+                      <p className="text-sm text-gray-400 mb-2">0.8 miles away</p>
+                      <button className="w-full mt-2 bg-white/10 hover:bg-white/15 text-white py-1 px-3 rounded-lg text-sm">
+                        Navigate
+                      </button>
+                    </div>
+                    <div className="glass-dark p-4 rounded-lg backdrop-blur-sm">
+                      <h3 className="font-medium mb-2">Medical Center</h3>
+                      <p className="text-sm text-gray-400 mb-2">1.2 miles away</p>
+                      <button className="w-full mt-2 bg-white/10 hover:bg-white/15 text-white py-1 px-3 rounded-lg text-sm">
+                        Navigate
+                      </button>
+                    </div>
+                    <div className="glass-dark p-4 rounded-lg backdrop-blur-sm">
+                      <h3 className="font-medium mb-2">Water Station</h3>
+                      <p className="text-sm text-gray-400 mb-2">0.5 miles away</p>
+                      <button className="w-full mt-2 bg-white/10 hover:bg-white/15 text-white py-1 px-3 rounded-lg text-sm">
+                        Navigate
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
               
               <div>
