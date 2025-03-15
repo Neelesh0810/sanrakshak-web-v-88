@@ -26,12 +26,12 @@ const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ resourceData })
   const needsResources = useMemo(() => {
     // Get current user to check responses
     const currentUser = JSON.parse(localStorage.getItem('authUser') || '{}');
-    const userResponses = currentUser?.id ? 
-      responses.filter(r => r.type === 'offer') : [];
     
     // Get IDs of requests the user has already responded to
     const respondedRequestIds = new Set(
-      userResponses.map(response => response.requestId)
+      responses
+        .filter(r => r.type === 'offer')
+        .map(response => response.requestId)
     );
     
     return resources

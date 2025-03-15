@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import Header from '../components/Header';
 import ResourceCard from '../components/ResourceCard';
@@ -20,14 +19,12 @@ const Resources = () => {
   const [user, setUser] = useState<any>(null);
   const [respondedRequestIds, setRespondedRequestIds] = useState<Set<string>>(new Set());
   
-  // Fetch responded requests from localStorage
   useEffect(() => {
     const fetchRespondedRequests = () => {
       if (user?.id) {
         const userResponses = JSON.parse(localStorage.getItem(`responses_${user.id}`) || '[]');
         const fastLookupResponses = JSON.parse(localStorage.getItem(`responded_requests_${user.id}`) || '[]');
         
-        // Combine both sources to be sure we have all responses
         const combinedResponses = new Set([
           ...fastLookupResponses,
           ...userResponses.map((response: any) => response.requestId)
@@ -84,6 +81,14 @@ const Resources = () => {
       toast({
         title: "Authentication Required",
         description: "Please sign in to post resources",
+      });
+      return;
+    }
+    
+    if (formData.type === 'need' && (user.role === 'volunteer' || user.role === 'ngo' || user.role === 'government')) {
+      toast({
+        title: "Action Not Available",
+        description: "As a volunteer, you can only offer resources, not request them",
       });
       return;
     }

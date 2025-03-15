@@ -130,11 +130,18 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   const canInteract = () => {
     if (!currentUser) return false;
     
-    if (currentUser.role === 'victim' && type === 'need') return false;
+    // If user is volunteer/ngo/government and trying to interact with a need request
+    if ((currentUser.role === 'volunteer' || currentUser.role === 'ngo' || currentUser.role === 'government') && type === 'need') {
+      return true; // Volunteers can help with needs
+    }
     
-    if (currentUser.role !== 'victim' && type === 'offer') return false;
+    // If user is victim and trying to interact with an offer
+    if (currentUser.role === 'victim' && type === 'offer') {
+      return true; // Victims can request offers
+    }
     
-    return true;
+    // All other combinations are not allowed
+    return false;
   };
 
   const handleRequestClick = () => {
@@ -148,15 +155,15 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
     }
     
     if (!canInteract()) {
-      if (currentUser.role === 'victim' && type === 'need') {
+      if ((currentUser.role === 'volunteer' || currentUser.role === 'ngo' || currentUser.role === 'government') && type === 'offer') {
+        toast({
+          title: "Action Not Available",
+          description: "As a volunteer, you can only respond to needs, not request resources",
+        });
+      } else if (currentUser.role === 'victim' && type === 'need') {
         toast({
           title: "Action Not Available",
           description: "As someone affected, you can only request resources, not respond to needs",
-        });
-      } else if (currentUser.role !== 'victim' && type === 'offer') {
-        toast({
-          title: "Action Not Available",
-          description: "As a helper, you can only respond to needs, not request resources",
         });
       }
       return;
