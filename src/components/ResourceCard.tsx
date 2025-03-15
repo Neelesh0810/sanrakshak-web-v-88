@@ -182,12 +182,6 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
     }, 1000);
   };
 
-  const handleViewDetails = () => {
-    if (requestId) {
-      navigate(`/resource-management/details/${requestId}`);
-    }
-  };
-
   return (
     <div 
       className={cn(
@@ -248,7 +242,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
         
         <div className="flex justify-between items-center">
           <Button
-            onClick={showDetails ? () => setShowDetails(true) : handleViewDetails}
+            onClick={() => setShowDetails(true)}
             variant="ghost"
             size="sm"
             className={cn(

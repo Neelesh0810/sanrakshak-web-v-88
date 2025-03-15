@@ -161,11 +161,6 @@ const useResourceData = () => {
     };
   }, []);
   
-  // Function to get a specific resource by ID
-  const getResourceById = (resourceId: string): Resource | undefined => {
-    return resources.find(resource => resource.id === resourceId);
-  };
-  
   // Function to add a new resource
   const addResource = (newResource: Omit<Resource, 'id' | 'timestamp'>) => {
     const resource: Resource = {
@@ -244,28 +239,6 @@ const useResourceData = () => {
     return updatedResponses.find((r: ResourceResponse) => r.id === responseId);
   };
 
-  // Function to update a resource
-  const updateResource = (resourceId: string, updates: Partial<Resource>) => {
-    // Update in state
-    const updatedResources = resources.map(resource => {
-      if (resource.id === resourceId) {
-        return { ...resource, ...updates };
-      }
-      return resource;
-    });
-    
-    setResources(updatedResources);
-    
-    // Update in localStorage
-    localStorage.setItem('resources', JSON.stringify(updatedResources));
-    localStorage.setItem('resourceRequests', JSON.stringify(updatedResources));
-    
-    // Dispatch event to notify other components
-    window.dispatchEvent(new Event('resource-updated'));
-    
-    return updatedResources.find(r => r.id === resourceId);
-  };
-
   // Function to clean up invalid responses
   const cleanupInvalidResponses = () => {
     const currentUser = JSON.parse(localStorage.getItem('authUser') || '{}');
@@ -310,8 +283,6 @@ const useResourceData = () => {
     addResource,
     addResponse,
     updateResponse,
-    updateResource,
-    getResourceById,
     cleanupInvalidResponses
   };
 };
