@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import { ArrowLeft, MapPin, Navigation, Compass, Route } from 'lucide-react';
@@ -39,7 +38,6 @@ const ShelterMap = () => {
     navigate('/dashboard');
   };
   
-  // Function to handle navigation to a shelter
   const handleNavigateToShelter = (shelter) => {
     setSelectedShelter(shelter);
     setDialogOpen(true);
@@ -52,7 +50,6 @@ const ShelterMap = () => {
   };
 
   useEffect(() => {
-    // Get user's location when component mounts
     const getUserLocation = () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -84,10 +81,9 @@ const ShelterMap = () => {
     getUserLocation();
   }, [toast]);
 
-  // Function to show the shelter on the map
   const handleShowOnMap = () => {
     if (selectedShelter) {
-      const mapIframe = document.getElementById('shelter-map');
+      const mapIframe = document.getElementById('shelter-map') as HTMLIFrameElement;
       if (mapIframe) {
         const newSrc = `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3668.5294410669823!2d${selectedShelter.coordinates.lng}!3d${selectedShelter.coordinates.lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2z${encodeURIComponent(selectedShelter.name)}!5e0!3m2!1sen!2sin!4v1616661901026!5m2!1sen!2sin`;
         mapIframe.src = newSrc;
@@ -103,7 +99,6 @@ const ShelterMap = () => {
     }
   };
 
-  // Function to show the route on the map
   const handleShowRoute = () => {
     if (selectedShelter) {
       if (!userLocation && !locationPermissionDenied) {
@@ -114,20 +109,17 @@ const ShelterMap = () => {
         return;
       }
       
-      const mapIframe = document.getElementById('shelter-map');
+      const mapIframe = document.getElementById('shelter-map') as HTMLIFrameElement;
       if (mapIframe) {
         if (userLocation) {
-          // If we have user location, create a route
           const userLat = userLocation.lat;
           const userLng = userLocation.lng;
           const destLat = selectedShelter.coordinates.lat;
           const destLng = selectedShelter.coordinates.lng;
           
-          // Update iframe to show the route
           const newSrc = `https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d58696.41047349456!2d${(userLng + destLng)/2}!3d${(userLat + destLat)/2}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e6!4m5!1s0x0%3A0x0!2zMjPCsDAw4oCZMDAuMCJOIDc5wrAwMOKAmTAwLjAiRQ!3m2!1d${userLat}!2d${userLng}!4m5!1s0x0%3A0x0!2z${encodeURIComponent(selectedShelter.name)}!3m2!1d${destLat}!2d${destLng}!5e0!3m2!1sen!2sin!4v1616661901026!5m2!1sen!2sin`;
           mapIframe.src = newSrc;
         } else {
-          // If permission denied, at least show shelter location
           const newSrc = `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3668.5294410669823!2d${selectedShelter.coordinates.lng}!3d${selectedShelter.coordinates.lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2z${encodeURIComponent(selectedShelter.name)}!5e0!3m2!1sen!2sin!4v1616661901026!5m2!1sen!2sin`;
           mapIframe.src = newSrc;
         }
@@ -145,7 +137,6 @@ const ShelterMap = () => {
     }
   };
 
-  // NGO shelter data for Jabalpur
   const shelters = [
     {
       id: 1,
@@ -195,7 +186,6 @@ const ShelterMap = () => {
           </Button>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Map column - takes up 2/3 of the available space on desktop */}
             <div className="md:col-span-2">
               <div className="bg-black/20 border border-white/10 rounded-xl overflow-hidden h-[70vh]">
                 <iframe 
@@ -213,7 +203,6 @@ const ShelterMap = () => {
               </div>
             </div>
             
-            {/* Shelters list column - takes up 1/3 of the available space on desktop */}
             <div className="border border-white/10 bg-black/20 rounded-xl p-4 h-[70vh] overflow-auto">
               <h2 className="text-xl font-semibold mb-4">Nearby Shelters</h2>
               
@@ -246,7 +235,6 @@ const ShelterMap = () => {
         </div>
       </main>
 
-      {/* Navigation Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
