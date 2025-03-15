@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
@@ -293,7 +292,6 @@ const ResourceManagementDetails = () => {
                         </div>
                       </div>
                       
-                      {/* Sample additional status updates - in a real app, these would come from a status history */}
                       {resource.status === 'addressing' && (
                         <div className="flex items-start">
                           <div className="mr-3 flex-shrink-0">
@@ -349,7 +347,7 @@ const ResourceManagementDetails = () => {
                           <Badge 
                             variant={
                               resource.status === 'resolved' 
-                                ? 'success' 
+                                ? 'default' 
                                 : resource.status === 'addressing' 
                                   ? 'outline' 
                                   : 'secondary'
