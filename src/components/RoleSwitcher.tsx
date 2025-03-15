@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { User, UserCheck, Building, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -49,8 +48,21 @@ const RoleSwitcher: React.FC = () => {
       duration: 3000,
     });
     
-    // Always navigate to the dashboard when switching roles
-    navigate('/dashboard');
+    // Handle resource pages redirection
+    const currentPath = location.pathname;
+    
+    if (currentPath.includes('/resources') || 
+        currentPath.includes('/victim-resources') || 
+        currentPath.includes('/volunteer-resources')) {
+      
+      // Redirect to the appropriate resource page based on new role
+      if (role === 'victim') {
+        navigate('/victim-resources');
+      } else if (role === 'volunteer' || role === 'ngo' || role === 'government') {
+        navigate('/volunteer-resources');
+      }
+    }
+    // Otherwise, keep the user on the current page
   };
   
   const getRoleName = (role: string): string => {
