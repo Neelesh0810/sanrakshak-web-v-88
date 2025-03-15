@@ -82,7 +82,7 @@
   }
   
   body {
-    @apply bg-background text-foreground antialiased w-full max-w-full overflow-x-hidden;
+    @apply bg-background text-foreground antialiased;
   }
 }
 
@@ -153,21 +153,6 @@
   
   .light-mode {
     @apply bg-white text-black;
-  }
-  
-  /* Full width layout utilities */
-  .full-width {
-    @apply w-full max-w-full px-0;
-  }
-  
-  /* Form sections that need to be centered */
-  .form-container {
-    @apply mx-auto max-w-lg w-full;
-  }
-  
-  /* Content sections with limited width */
-  .content-container {
-    @apply mx-auto max-w-7xl w-full px-4;
   }
 }
 
