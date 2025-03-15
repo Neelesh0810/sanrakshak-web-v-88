@@ -36,6 +36,11 @@ const RoleSwitcher: React.FC = () => {
     
     const updatedUser = { ...currentUser, role };
     localStorage.setItem('authUser', JSON.stringify(updatedUser));
+    
+    // Dispatch a custom event to notify other components about the role change
+    window.dispatchEvent(new CustomEvent('auth-state-changed'));
+    
+    // Update the current user state
     setCurrentUser(updatedUser);
     
     toast({
