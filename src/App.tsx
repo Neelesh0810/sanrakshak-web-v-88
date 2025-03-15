@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -20,6 +19,7 @@ import EmergencyPlan from "./pages/EmergencyPlan";
 import ShelterMap from "./pages/ShelterMap";
 import ChatSection from "./pages/ChatSection";
 import ResourceDetails from "./pages/ResourceDetails";
+import ResourceManagementDetails from "./pages/ResourceManagementDetails";
 import StatusDetails from "./pages/StatusDetails";
 import LandingPage from "./pages/LandingPage";
 import VolunteerTasks from "./pages/VolunteerTasks";
@@ -36,7 +36,6 @@ const queryClient = new QueryClient({
   },
 });
 
-// Ensure users array exists in localStorage
 if (!localStorage.getItem('users')) {
   localStorage.setItem('users', JSON.stringify([]));
 }
@@ -46,27 +45,23 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    // Check if user is authenticated
     const checkAuth = () => {
       setLoading(true);
       try {
         const storedUser = localStorage.getItem('authUser');
         if (storedUser) {
-          // Validate the JSON format
           const parsedUser = JSON.parse(storedUser);
           if (parsedUser && parsedUser.id) {
             setUser(parsedUser);
           } else {
-            localStorage.removeItem('authUser'); // Clear invalid data
+            localStorage.removeItem('authUser');
             setUser(null);
           }
         } else {
-          // Make sure user is set to null if no auth data
-          localStorage.removeItem('authUser'); // Ensure it's removed
+          localStorage.removeItem('authUser');
           setUser(null);
         }
       } catch (e) {
-        // Invalid JSON, clear it
         console.error("Invalid authUser data:", e);
         localStorage.removeItem('authUser');
         setUser(null);
@@ -75,10 +70,8 @@ const App = () => {
       }
     };
     
-    // Call immediately on mount
     checkAuth();
     
-    // Listen for storage and custom auth events
     const handleAuthChange = () => {
       checkAuth();
     };
@@ -86,7 +79,6 @@ const App = () => {
     window.addEventListener('storage', handleAuthChange);
     window.addEventListener('auth-state-changed', handleAuthChange);
     
-    // Check if routes exist on load
     const checkRoutes = () => {
       const currentPath = window.location.pathname;
       if (currentPath !== "/" && ![
@@ -113,16 +105,13 @@ const App = () => {
     };
   }, []);
   
-  // Function to protect routes for regular users
   const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
     if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
     if (!user) return <Navigate to="/login" replace />;
-    // Redirect admin users to admin dashboard
     if (user.role === 'admin') return <Navigate to="/admin-dashboard" replace />;
     return children;
   };
 
-  // Special route for admin access
   const AdminRoute = ({ children }: { children: JSX.Element }) => {
     if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
     if (!user) return <Navigate to="/login" replace />;
@@ -130,11 +119,9 @@ const App = () => {
     return children;
   };
 
-  // Redirect authenticated users away from auth pages
   const AuthRoute = ({ children }: { children: JSX.Element }) => {
     if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
     if (user) {
-      // Redirect admin users to admin dashboard, others to regular dashboard
       return user.role === 'admin' 
         ? <Navigate to="/admin-dashboard" replace /> 
         : <Navigate to="/dashboard" replace />;
@@ -157,19 +144,16 @@ const App = () => {
                 </ProtectedRoute>
               } />
               
-              {/* Admin Route */}
               <Route path="/admin-dashboard" element={
                 <AdminRoute>
                   <AdminDashboard />
                 </AdminRoute>
               } />
               
-              {/* Admin logout route - to avoid showing other admin pages */}
               <Route path="/admin/*" element={
                 <Navigate to="/admin-dashboard" replace />
               } />
               
-              {/* Auth Routes */}
               <Route path="/login" element={
                 <AuthRoute>
                   <Login />
@@ -186,7 +170,6 @@ const App = () => {
                 </AuthRoute>
               } />
               
-              {/* Protected Routes */}
               <Route path="/resources" element={
                 <ProtectedRoute>
                   <Resources />
@@ -195,6 +178,11 @@ const App = () => {
               <Route path="/resources/:id" element={
                 <ProtectedRoute>
                   <ResourceDetails />
+                </ProtectedRoute>
+              } />
+              <Route path="/resource-management/details/:id" element={
+                <ProtectedRoute>
+                  <ResourceManagementDetails />
                 </ProtectedRoute>
               } />
               <Route path="/map" element={
@@ -249,7 +237,6 @@ const App = () => {
                 </ProtectedRoute>
               } />
               
-              {/* 404 Route */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
