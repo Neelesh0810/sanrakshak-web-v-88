@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import Header from '../components/Header';
 import ResourceCard from '../components/ResourceCard';
@@ -17,13 +18,43 @@ const Resources = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
+  const [respondedRequestIds, setRespondedRequestIds] = useState<Set<string>>(new Set());
   
-  const respondedRequestIds = useMemo(() => {
-    if (!user?.id) return new Set<string>();
+  // Fetch responded requests from localStorage
+  useEffect(() => {
+    const fetchRespondedRequests = () => {
+      if (user?.id) {
+        const userResponses = JSON.parse(localStorage.getItem(`responses_${user.id}`) || '[]');
+        const fastLookupResponses = JSON.parse(localStorage.getItem(`responded_requests_${user.id}`) || '[]');
+        
+        // Combine both sources to be sure we have all responses
+        const combinedResponses = new Set([
+          ...fastLookupResponses,
+          ...userResponses.map((response: any) => response.requestId)
+        ]);
+        
+        setRespondedRequestIds(combinedResponses);
+      } else {
+        setRespondedRequestIds(new Set());
+      }
+    };
     
-    const userResponses = JSON.parse(localStorage.getItem(`responses_${user.id}`) || '[]');
-    return new Set(userResponses.map((response: any) => response.requestId));
-  }, [responses, user]);
+    fetchRespondedRequests();
+    
+    const handleResponseUpdate = () => {
+      fetchRespondedRequests();
+    };
+    
+    window.addEventListener('response-created', handleResponseUpdate);
+    window.addEventListener('response-updated', handleResponseUpdate);
+    window.addEventListener('resource-updated', handleResponseUpdate);
+    
+    return () => {
+      window.removeEventListener('response-created', handleResponseUpdate);
+      window.removeEventListener('response-updated', handleResponseUpdate);
+      window.removeEventListener('resource-updated', handleResponseUpdate);
+    };
+  }, [user]);
   
   useEffect(() => {
     const fetchUser = () => {
@@ -40,13 +71,9 @@ const Resources = () => {
     };
     
     window.addEventListener('auth-changed', handleAuthChange);
-    window.addEventListener('response-created', handleAuthChange);
-    window.addEventListener('response-updated', handleAuthChange);
     
     return () => {
       window.removeEventListener('auth-changed', handleAuthChange);
-      window.removeEventListener('response-created', handleAuthChange);
-      window.removeEventListener('response-updated', handleAuthChange);
     };
   }, []);
   

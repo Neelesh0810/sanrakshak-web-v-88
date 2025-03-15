@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import AnimatedTransition from '../components/AnimatedTransition';
@@ -28,16 +29,52 @@ const Connect = () => {
   const [filter, setFilter] = useState('all');
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [actingMode, setActingMode] = useState<string>('');
+  const [respondedRequestIds, setRespondedRequestIds] = useState<Set<string>>(new Set());
   const { toast } = useToast();
   const navigate = useNavigate();
   
+  // Load user data and responded requests
   useEffect(() => {
-    const authUser = localStorage.getItem('authUser');
-    if (authUser) {
-      const user = JSON.parse(authUser);
-      setCurrentUser(user);
-      setActingMode(user.role);
-    }
+    const fetchUserData = () => {
+      const authUser = localStorage.getItem('authUser');
+      if (authUser) {
+        const user = JSON.parse(authUser);
+        setCurrentUser(user);
+        setActingMode(user.role);
+        
+        // Load responded requests
+        const userResponses = JSON.parse(localStorage.getItem(`responses_${user.id}`) || '[]');
+        const fastLookupResponses = JSON.parse(localStorage.getItem(`responded_requests_${user.id}`) || '[]');
+        
+        // Combine both sources
+        const combinedResponses = new Set([
+          ...fastLookupResponses,
+          ...userResponses.map((response: any) => response.requestId)
+        ]);
+        
+        setRespondedRequestIds(combinedResponses);
+      } else {
+        setRespondedRequestIds(new Set());
+      }
+    };
+    
+    fetchUserData();
+    
+    const handleUpdate = () => {
+      fetchUserData();
+    };
+    
+    window.addEventListener('auth-changed', handleUpdate);
+    window.addEventListener('response-created', handleUpdate);
+    window.addEventListener('response-updated', handleUpdate);
+    window.addEventListener('resource-updated', handleUpdate);
+    
+    return () => {
+      window.removeEventListener('auth-changed', handleUpdate);
+      window.removeEventListener('response-created', handleUpdate);
+      window.removeEventListener('response-updated', handleUpdate);
+      window.removeEventListener('resource-updated', handleUpdate);
+    };
   }, []);
   
   const isVolunteer = currentUser?.role === 'volunteer' || currentUser?.role === 'ngo' || currentUser?.role === 'government';
@@ -231,6 +268,7 @@ const Connect = () => {
                     contact={request.contact}
                     urgent={request.urgent}
                     requestId={request.id}
+                    isRequested={currentUser?.id && respondedRequestIds.has(request.id)}
                   />
                 ))
               ) : (

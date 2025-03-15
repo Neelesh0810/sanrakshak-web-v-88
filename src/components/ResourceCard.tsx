@@ -42,6 +42,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   const { theme } = useTheme();
   const isLight = theme === 'light';
   
+  // This effect runs whenever the component mounts or requestId changes
   useEffect(() => {
     const checkUserResponses = () => {
       const authUser = localStorage.getItem('authUser');
@@ -50,7 +51,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
         setCurrentUser(user);
         
         if (requestId) {
-          // This is the key part: load response state from localStorage
+          // Load response state from localStorage
           const userResponses = JSON.parse(localStorage.getItem(`responses_${user.id}`) || '[]');
           const hasAlreadyResponded = userResponses.some((response: any) => response.requestId === requestId);
           setHasResponded(hasAlreadyResponded);
@@ -62,6 +63,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
     
     checkUserResponses();
     
+    // Setup event listeners to update response status when changes happen
     const handleResponseUpdate = () => {
       checkUserResponses();
     };
@@ -69,19 +71,42 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
     window.addEventListener('response-created', handleResponseUpdate);
     window.addEventListener('response-updated', handleResponseUpdate);
     window.addEventListener('resource-updated', handleResponseUpdate);
+    window.addEventListener('auth-changed', handleResponseUpdate);
     
     return () => {
       window.removeEventListener('response-created', handleResponseUpdate);
       window.removeEventListener('response-updated', handleResponseUpdate);
       window.removeEventListener('resource-updated', handleResponseUpdate);
+      window.removeEventListener('auth-changed', handleResponseUpdate);
     };
   }, [requestId, isRequested]);
   
+  // Update hasResponded when isRequested prop changes
   useEffect(() => {
     if (isRequested !== undefined) {
       setHasResponded(isRequested);
     }
   }, [isRequested]);
+  
+  // Also check storage for response status on every page navigation
+  useEffect(() => {
+    const syncResponseState = () => {
+      if (currentUser && requestId) {
+        const userResponses = JSON.parse(localStorage.getItem(`responses_${currentUser.id}`) || '[]');
+        const hasAlreadyResponded = userResponses.some((response: any) => response.requestId === requestId);
+        setHasResponded(hasAlreadyResponded);
+      }
+    };
+    
+    syncResponseState();
+    
+    // Listen for page navigations
+    window.addEventListener('popstate', syncResponseState);
+    
+    return () => {
+      window.removeEventListener('popstate', syncResponseState);
+    };
+  }, [currentUser, requestId]);
   
   const getCategoryIcon = () => {
     switch (category) {
@@ -161,8 +186,10 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
       
       // Only add the response if it doesn't exist already
       if (existingResponseIndex === -1) {
+        // Store in responses collection
         localStorage.setItem(`responses_${currentUser.id}`, JSON.stringify([newResponse, ...userResponses]));
         
+        // Add to notifications
         const notifications = JSON.parse(localStorage.getItem(`notifications_${currentUser.id}`) || '[]');
         
         const newNotification = {
@@ -176,6 +203,13 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
         };
         
         localStorage.setItem(`notifications_${currentUser.id}`, JSON.stringify([newNotification, ...notifications]));
+        
+        // Also store in a dedicated "responded_requests" collection to make lookups faster
+        const respondedRequests = JSON.parse(localStorage.getItem(`responded_requests_${currentUser.id}`) || '[]');
+        if (!respondedRequests.includes(requestId)) {
+          respondedRequests.push(requestId);
+          localStorage.setItem(`responded_requests_${currentUser.id}`, JSON.stringify(respondedRequests));
+        }
         
         toast({
           title: type === 'need' ? "Response Sent" : "Request Sent",
