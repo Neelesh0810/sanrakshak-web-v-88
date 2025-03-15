@@ -240,7 +240,7 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
             <div className="mt-6 text-center">
               <button 
                 onClick={handleAddResource}
-                className="inline-flex items-center px-4 py-2 bg-white/10 hover:bg-white/15 rounded-lg transition-colors"
+                className="inline-flex items-center px-4 py-2 bg-white/10 hover:bg-white/15 rounded-lg transition-colors cursor-pointer"
               >
                 <Plus size={16} className="mr-1" />
                 <span>Add New Resource</span>
