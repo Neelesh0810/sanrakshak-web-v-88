@@ -2,12 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { User, UserCheck, Building, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const RoleSwitcher: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   
   useEffect(() => {
     // Load current user
@@ -48,13 +49,15 @@ const RoleSwitcher: React.FC = () => {
   };
   
   const redirectBasedOnRole = (role: string) => {
-    // Get the current path
-    const currentPath = window.location.pathname;
+    // Check if we're currently on a resources page
+    const currentPath = location.pathname;
+    const isOnResourcesPage = 
+      currentPath.includes('/resources') || 
+      currentPath.includes('/volunteer-resources') || 
+      currentPath.includes('/victim-resources');
     
-    // If we're on a resource page, redirect to the appropriate version based on role
-    if (currentPath.includes('/resources') || 
-        currentPath.includes('/volunteer-resources') || 
-        currentPath.includes('/victim-resources')) {
+    if (isOnResourcesPage) {
+      // Redirect to the appropriate resources page based on role
       if (role === 'victim') {
         navigate('/victim-resources');
       } else if (role === 'volunteer' || role === 'ngo' || role === 'government') {
