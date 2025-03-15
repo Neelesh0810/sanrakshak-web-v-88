@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Package, Droplet, Pizza, Stethoscope, Home, ShoppingBag, Shield } from 'lucide-react';
+import { Package, Droplet, Pizza, Stethoscope, Home, ShoppingBag, Shield, Plus } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ResourceCategory, Resource } from '@/hooks/useResourceData';
 import { toast } from 'sonner';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
 
 interface AddResourceDialogProps {
   isOpen: boolean;
@@ -63,13 +65,24 @@ const resourceTemplates: ResourceTemplate[] = [
 
 const AddResourceDialog: React.FC<AddResourceDialogProps> = ({ isOpen, onClose, onAddResource }) => {
   const [selectedTemplate, setSelectedTemplate] = useState<ResourceTemplate | null>(null);
-  const [step, setStep] = useState<'template' | 'details'>('template');
+  const [step, setStep] = useState<'template' | 'details' | 'custom'>('template');
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     quantity: '',
     location: '',
     contact: '',
+  });
+  
+  const customForm = useForm({
+    defaultValues: {
+      title: '',
+      category: 'supplies' as ResourceCategory,
+      description: '',
+      quantity: '1',
+      location: '',
+      contact: '',
+    }
   });
   
   const resetForm = () => {
@@ -82,6 +95,7 @@ const AddResourceDialog: React.FC<AddResourceDialogProps> = ({ isOpen, onClose, 
       location: '',
       contact: '',
     });
+    customForm.reset();
   };
   
   const handleSelectTemplate = (template: ResourceTemplate) => {
@@ -92,6 +106,11 @@ const AddResourceDialog: React.FC<AddResourceDialogProps> = ({ isOpen, onClose, 
       description: template.description,
     });
     setStep('details');
+  };
+  
+  const handleSelectCustom = () => {
+    setSelectedTemplate(null);
+    setStep('custom');
   };
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -124,8 +143,25 @@ const AddResourceDialog: React.FC<AddResourceDialogProps> = ({ isOpen, onClose, 
     resetForm();
   };
   
+  const handleCustomSubmit = (data: any) => {
+    const resource: Omit<Resource, 'id' | 'timestamp'> = {
+      type: 'offer',
+      category: data.category,
+      title: data.title,
+      description: data.description,
+      location: data.location,
+      contact: data.contact,
+      items: data.quantity ? [{ name: data.title, quantity: parseInt(data.quantity) || 0 }] : undefined,
+    };
+    
+    onAddResource(resource);
+    toast.success('Custom resource added successfully');
+    onClose();
+    resetForm();
+  };
+  
   const handleCancel = () => {
-    if (step === 'details') {
+    if (step === 'details' || step === 'custom') {
       setStep('template');
     } else {
       onClose();
@@ -139,32 +175,179 @@ const AddResourceDialog: React.FC<AddResourceDialogProps> = ({ isOpen, onClose, 
         <DialogHeader>
           <DialogTitle className="text-xl flex items-center gap-2">
             <Package className="h-5 w-5" />
-            {step === 'template' ? 'Add New Resource' : 'Resource Details'}
+            {step === 'template' ? 'Add New Resource' : 
+             step === 'custom' ? 'Create Custom Resource' : 'Resource Details'}
           </DialogTitle>
           <DialogDescription className="text-sm text-gray-400">
             {step === 'template' 
-              ? 'Select the type of resource you want to add' 
+              ? 'Select the type of resource you want to add or create a custom one' 
+              : step === 'custom'
+              ? 'Define your custom resource details'
               : 'Provide details about the resource'}
           </DialogDescription>
         </DialogHeader>
         
         {step === 'template' ? (
-          <div className="grid grid-cols-2 gap-3 mt-2">
-            {resourceTemplates.map((template, index) => (
-              <button
-                key={index}
-                className="p-4 border border-white/10 rounded-lg hover:bg-white/5 transition-colors text-left"
-                onClick={() => handleSelectTemplate(template)}
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="text-white">
-                    {template.icon}
+          <>
+            <div className="grid grid-cols-2 gap-3 mt-2">
+              {resourceTemplates.map((template, index) => (
+                <button
+                  key={index}
+                  className="p-4 border border-white/10 rounded-lg hover:bg-white/5 transition-colors text-left"
+                  onClick={() => handleSelectTemplate(template)}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="text-white">
+                      {template.icon}
+                    </div>
+                    <h3 className="font-medium">{template.title}</h3>
                   </div>
-                  <h3 className="font-medium">{template.title}</h3>
+                  <p className="text-xs text-gray-400">{template.description}</p>
+                </button>
+              ))}
+            </div>
+            
+            <div className="mt-4">
+              <button
+                className="w-full p-4 border border-dashed border-white/20 rounded-lg hover:bg-white/5 transition-colors text-left"
+                onClick={handleSelectCustom}
+              >
+                <div className="flex items-center gap-2">
+                  <div className="text-white">
+                    <Plus className="h-5 w-5" />
+                  </div>
+                  <h3 className="font-medium">Custom Resource</h3>
                 </div>
-                <p className="text-xs text-gray-400">{template.description}</p>
+                <p className="text-xs text-gray-400 mt-1">Create a resource that doesn't fit the templates above</p>
               </button>
-            ))}
+            </div>
+          </>
+        ) : step === 'custom' ? (
+          <div className="mt-2">
+            <Form {...customForm}>
+              <form onSubmit={customForm.handleSubmit(handleCustomSubmit)} className="space-y-4">
+                <FormField
+                  control={customForm.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Resource Title *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter resource title" {...field} required />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={customForm.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category *</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="water">Water</SelectItem>
+                          <SelectItem value="food">Food</SelectItem>
+                          <SelectItem value="medical">Medical</SelectItem>
+                          <SelectItem value="shelter">Shelter</SelectItem>
+                          <SelectItem value="supplies">Supplies</SelectItem>
+                          <SelectItem value="safety">Safety</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={customForm.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Brief description of the resource" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={customForm.control}
+                    name="quantity"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Quantity</FormLabel>
+                        <FormControl>
+                          <Input type="number" min="1" placeholder="Amount available" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <div className="space-y-2">
+                    <Label>Status</Label>
+                    <Select defaultValue="available">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="available">Available</SelectItem>
+                        <SelectItem value="limited">Limited</SelectItem>
+                        <SelectItem value="low">Low Stock</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                <FormField
+                  control={customForm.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Location *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Where is this resource stored/available" {...field} required />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={customForm.control}
+                  name="contact"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Contact Information</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Phone number or email" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <DialogFooter className="mt-6">
+                  <Button variant="outline" onClick={handleCancel} type="button">
+                    Back
+                  </Button>
+                  <Button type="submit">
+                    Add Custom Resource
+                  </Button>
+                </DialogFooter>
+              </form>
+            </Form>
           </div>
         ) : (
           <div className="space-y-4 mt-2">
