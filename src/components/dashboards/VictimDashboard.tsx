@@ -8,6 +8,7 @@ import LocationFinder from '../LocationFinder';
 import AnimatedTransition from '../AnimatedTransition';
 import { Link } from 'react-router-dom';
 import useResourceData from '@/hooks/useResourceData';
+import EmergencyContactsDialog from '../EmergencyContactsDialog';
 
 interface VictimDashboardProps {
   resourceData?: ReturnType<typeof useResourceData>;
@@ -17,6 +18,7 @@ const VictimDashboard: React.FC<VictimDashboardProps> = ({ resourceData }) => {
   // Use passed resourceData or create a new instance
   const { resources, responses, loading } = resourceData || useResourceData();
   const [user, setUser] = useState<any>(null);
+  const [showAllContacts, setShowAllContacts] = useState(false);
   
   // Get current user to check responses
   useEffect(() => {
@@ -156,7 +158,10 @@ const VictimDashboard: React.FC<VictimDashboardProps> = ({ resourceData }) => {
           <AnimatedTransition className="mb-6" delay={150}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">Emergency Contacts</h2>
-              <button className="flex items-center text-sm text-gray-400 hover:text-white transition-colors">
+              <button 
+                onClick={() => setShowAllContacts(true)}
+                className="flex items-center text-sm text-gray-400 hover:text-white transition-colors"
+              >
                 <span className="mr-1">View All</span>
                 <ArrowRight size={14} />
               </button>
@@ -186,6 +191,12 @@ const VictimDashboard: React.FC<VictimDashboardProps> = ({ resourceData }) => {
           </AnimatedTransition>
         </div>
       </div>
+      
+      {/* Emergency Contacts Dialog */}
+      <EmergencyContactsDialog 
+        open={showAllContacts} 
+        onOpenChange={setShowAllContacts} 
+      />
     </div>
   );
 };
