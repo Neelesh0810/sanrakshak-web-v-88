@@ -164,7 +164,7 @@ const GovernmentDashboard: React.FC<GovernmentDashboardProps> = () => {
                   message="Water levels rising. Evacuation in progress. Emergency services deployed."
                   source="Emergency Management"
                   timestamp="35 minutes ago"
-                  priority="critical"
+                  priority="high"
                 />
                 
                 <StatusUpdate
