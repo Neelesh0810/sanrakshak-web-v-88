@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
@@ -129,7 +128,6 @@ const Login = () => {
               </p>
             </div>
             
-            {/* Reduced height User/Admin Switcher */}
             <div className="mb-6 flex rounded-lg overflow-hidden h-9">
               <button 
                 className={`flex-1 py-1.5 flex items-center justify-center gap-2 transition-colors ${!isAdmin ? 'bg-primary text-black font-medium' : 'bg-black/40 text-gray-400'}`}
@@ -200,7 +198,6 @@ const Login = () => {
                 </div>
               </div>
               
-              {/* Reduced height Sign In Button */}
               <Button
                 type="submit"
                 disabled={isLoading}
