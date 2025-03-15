@@ -15,6 +15,43 @@ const ShelterMap = () => {
     navigate('/dashboard');
   };
   
+  // Function to navigate to a specific location on the map
+  const navigateToLocation = (lat: number, lng: number, name: string) => {
+    // Open Google Maps with the specific location
+    window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}&query_place_id=${name}`, '_blank');
+  };
+
+  // NGO shelter data for Jabalpur
+  const shelters = [
+    {
+      id: 1,
+      name: "Anubhuti Foundation",
+      address: "Civil Lines, Jabalpur",
+      capacity: 120,
+      occupancy: 65,
+      amenities: ["Food", "Water", "Medical", "Power"],
+      coordinates: { lat: 23.1636, lng: 79.9548 }
+    },
+    {
+      id: 2,
+      name: "Samarpan Seva Sansthan",
+      address: "Adhartal, Jabalpur",
+      capacity: 180,
+      occupancy: 92,
+      amenities: ["Food", "Water", "Power", "Pet Friendly"],
+      coordinates: { lat: 23.1812, lng: 79.9324 }
+    },
+    {
+      id: 3,
+      name: "Jabalpur Relief Center",
+      address: "Napier Town, Jabalpur",
+      capacity: 250,
+      occupancy: 121,
+      amenities: ["Food", "Water", "Medical", "Wifi"],
+      coordinates: { lat: 23.1572, lng: 79.9429 }
+    }
+  ];
+  
   return (
     <div className="min-h-screen bg-background">
       <Header title="Shelter Map" />
@@ -50,35 +87,24 @@ const ShelterMap = () => {
           <div className="mt-6">
             <h2 className="text-xl font-semibold mb-4">Nearby Shelters</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="border border-white/10 bg-black/20 rounded-xl p-4">
-                <h3 className="font-medium mb-2">Jabalpur High School</h3>
-                <p className="text-sm text-gray-400 mb-2">123 Main Street, Jabalpur</p>
-                <div className="text-xs text-gray-500">
-                  <p>Capacity: 250 people</p>
-                  <p>Status: Open (78% full)</p>
-                  <p>Amenities: Food, Water, Medical, Power</p>
+              {shelters.map(shelter => (
+                <div key={shelter.id} className="border border-white/10 bg-black/20 rounded-xl p-4">
+                  <h3 className="font-medium mb-2">{shelter.name}</h3>
+                  <p className="text-sm text-gray-400 mb-2">{shelter.address}</p>
+                  <div className="text-xs text-gray-500 mb-3">
+                    <p>Capacity: {shelter.capacity} people</p>
+                    <p>Status: Open ({Math.round((shelter.occupancy / shelter.capacity) * 100)}% full)</p>
+                    <p>Amenities: {shelter.amenities.join(', ')}</p>
+                  </div>
+                  <Button 
+                    onClick={() => navigateToLocation(shelter.coordinates.lat, shelter.coordinates.lng, shelter.name)}
+                    size="sm" 
+                    className="w-full"
+                  >
+                    Navigate
+                  </Button>
                 </div>
-              </div>
-              
-              <div className="border border-white/10 bg-black/20 rounded-xl p-4">
-                <h3 className="font-medium mb-2">Jabalpur Community Center</h3>
-                <p className="text-sm text-gray-400 mb-2">456 Oak Avenue, Jabalpur</p>
-                <div className="text-xs text-gray-500">
-                  <p>Capacity: 180 people</p>
-                  <p>Status: Open (45% full)</p>
-                  <p>Amenities: Food, Water, Power</p>
-                </div>
-              </div>
-              
-              <div className="border border-white/10 bg-black/20 rounded-xl p-4">
-                <h3 className="font-medium mb-2">Riverside Church</h3>
-                <p className="text-sm text-gray-400 mb-2">789 River Road, Jabalpur</p>
-                <div className="text-xs text-gray-500">
-                  <p>Capacity: 120 people</p>
-                  <p>Status: Open (92% full)</p>
-                  <p>Amenities: Food, Water, Power, Pet Friendly</p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>

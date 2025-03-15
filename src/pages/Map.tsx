@@ -7,6 +7,8 @@ import { MapPin, Navigation, Compass } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import BackButton from '@/components/BackButton';
 import { useLocation } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
 const Map = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -15,6 +17,39 @@ const Map = () => {
   const location = useLocation();
   const selectedLocationId = location.state?.selectedLocationId;
   
+  // Resource data for Jabalpur
+  const resources = [
+    {
+      id: 1,
+      name: "Jabalpur Medical Center",
+      type: "Medical",
+      address: "Wright Town, Jabalpur",
+      distance: 0.8,
+      coordinates: { lat: 23.1697, lng: 79.9344 }
+    },
+    {
+      id: 2,
+      name: "Ganga Water Station",
+      type: "Water",
+      address: "Madan Mahal, Jabalpur",
+      distance: 1.2,
+      coordinates: { lat: 23.1463, lng: 79.8895 }
+    },
+    {
+      id: 3,
+      name: "Food Distribution Center",
+      type: "Food",
+      address: "Gorabazar, Jabalpur",
+      distance: 0.5,
+      coordinates: { lat: 23.1821, lng: 79.9260 }
+    }
+  ];
+  
+  // Navigate to specific location on map
+  const navigateToLocation = (lat: number, lng: number, name: string) => {
+    window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}&query_place_id=${name}`, '_blank');
+  };
+
   // Attempt to get user location on load
   useEffect(() => {
     const getLocation = () => {
@@ -26,10 +61,17 @@ const Map = () => {
             console.log("Location acquired:", position);
             
             if (selectedLocationId) {
-              toast({
-                title: "Selected Location",
-                description: `Navigating to location ID: ${selectedLocationId}`,
-              });
+              // Find the selected resource
+              const selectedResource = resources.find(r => r.id === Number(selectedLocationId));
+              if (selectedResource) {
+                toast({
+                  title: "Selected Location",
+                  description: `Navigating to ${selectedResource.name}`,
+                });
+                
+                // Optional: Auto-navigate to the selected location
+                // navigateToLocation(selectedResource.coordinates.lat, selectedResource.coordinates.lng, selectedResource.name);
+              }
             }
           },
           (error) => {
@@ -54,7 +96,7 @@ const Map = () => {
     setTimeout(() => {
       getLocation();
     }, 1500);
-  }, [toast, selectedLocationId]);
+  }, [toast, selectedLocationId, resources]);
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -119,27 +161,19 @@ const Map = () => {
                 
                 {userLocation && (
                   <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="glass-dark p-4 rounded-lg backdrop-blur-sm">
-                      <h3 className="font-medium mb-2">Central Shelter</h3>
-                      <p className="text-sm text-gray-400 mb-2">0.8 miles away</p>
-                      <button className="w-full mt-2 bg-white/10 hover:bg-white/15 text-white py-1 px-3 rounded-lg text-sm">
-                        Navigate
-                      </button>
-                    </div>
-                    <div className="glass-dark p-4 rounded-lg backdrop-blur-sm">
-                      <h3 className="font-medium mb-2">Medical Center</h3>
-                      <p className="text-sm text-gray-400 mb-2">1.2 miles away</p>
-                      <button className="w-full mt-2 bg-white/10 hover:bg-white/15 text-white py-1 px-3 rounded-lg text-sm">
-                        Navigate
-                      </button>
-                    </div>
-                    <div className="glass-dark p-4 rounded-lg backdrop-blur-sm">
-                      <h3 className="font-medium mb-2">Water Station</h3>
-                      <p className="text-sm text-gray-400 mb-2">0.5 miles away</p>
-                      <button className="w-full mt-2 bg-white/10 hover:bg-white/15 text-white py-1 px-3 rounded-lg text-sm">
-                        Navigate
-                      </button>
-                    </div>
+                    {resources.map(resource => (
+                      <Card key={resource.id} className="p-4 glass-dark backdrop-blur-sm border border-white/10 bg-black/20">
+                        <h3 className="font-medium mb-2">{resource.name}</h3>
+                        <p className="text-sm text-gray-400 mb-1">{resource.type}</p>
+                        <p className="text-sm text-gray-400 mb-2">{resource.distance} miles away</p>
+                        <Button 
+                          className="w-full mt-2 bg-white/10 hover:bg-white/15 text-white" 
+                          onClick={() => navigateToLocation(resource.coordinates.lat, resource.coordinates.lng, resource.name)}
+                        >
+                          Navigate
+                        </Button>
+                      </Card>
+                    ))}
                   </div>
                 )}
               </div>
