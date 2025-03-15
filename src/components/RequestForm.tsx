@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Droplet, Home, ShoppingBag, Utensils, Heart, Shield } from 'lucide-react';
 
@@ -213,18 +214,21 @@ const RequestForm: React.FC<RequestFormProps> = ({ onSubmit, onCancel, userRole 
           />
         </div>
         
-        <div className="flex items-center">
-          <input
-            id="urgent"
-            type="checkbox"
-            checked={urgent}
-            onChange={(e) => setUrgent(e.target.checked)}
-            className="w-4 h-4 bg-black border-white/30 rounded focus:ring-white"
-          />
-          <label htmlFor="urgent" className="ml-2 text-sm">
-            Mark as urgent
-          </label>
-        </div>
+        {/* Only show urgent checkbox for victims */}
+        {!isVolunteer && (
+          <div className="flex items-center">
+            <input
+              id="urgent"
+              type="checkbox"
+              checked={urgent}
+              onChange={(e) => setUrgent(e.target.checked)}
+              className="w-4 h-4 bg-black border-white/30 rounded focus:ring-white"
+            />
+            <label htmlFor="urgent" className="ml-2 text-sm">
+              Mark as urgent
+            </label>
+          </div>
+        )}
         
         <div className="flex justify-end space-x-3 pt-2">
           <button
