@@ -105,11 +105,6 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className, mapResources
   const navigateToResource = (location: any) => {
     if (mapResources && onNavigate && location.originalResource) {
       onNavigate(location.originalResource);
-    } else if (location.coordinates) {
-      window.open(
-        `https://www.google.com/maps/search/?api=1&query=${location.coordinates.lat},${location.coordinates.lng}&query_place_id=${location.name}`, 
-        '_blank'
-      );
     } else {
       handleNavigate(location.id);
     }

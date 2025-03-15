@@ -10,14 +10,14 @@ import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
-  Drawer,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerDescription,
-  DrawerClose,
-} from "@/components/ui/drawer";
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from "@/components/ui/dialog";
 
 export interface MapResource {
   id: number;
@@ -32,7 +32,7 @@ const Map = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [userLocation, setUserLocation] = useState<GeolocationPosition | null>(null);
   const [selectedResource, setSelectedResource] = useState<MapResource | null>(null);
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast();
   const location = useLocation();
   const selectedLocationId = location.state?.selectedLocationId;
@@ -66,7 +66,7 @@ const Map = () => {
   
   const navigateToLocation = (resource: MapResource) => {
     setSelectedResource(resource);
-    setDrawerOpen(true);
+    setDialogOpen(true);
     toast({
       title: "Location Selected",
       description: `Selected ${resource.name}`,
@@ -126,6 +126,17 @@ const Map = () => {
     return `https://www.google.com/maps/search/?api=1&query=${destination.coordinates.lat},${destination.coordinates.lng}`;
   };
 
+  // Function to focus the map on the selected location
+  const focusMapOnLocation = (resource: MapResource) => {
+    // This would be where you'd update the map's center point 
+    // For the iframe implementation we'll just update the iframe src
+    const mapIframe = document.getElementById('resource-map') as HTMLIFrameElement;
+    if (mapIframe) {
+      const newSrc = `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3668.5294410669823!2d${resource.coordinates.lng}!3d${resource.coordinates.lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2z${encodeURIComponent(resource.name)}!5e0!3m2!1sen!2sin!4v1616661901026!5m2!1sen!2sin`;
+      mapIframe.src = newSrc;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black text-white">
       <Header title="Resource Map" />
@@ -154,6 +165,7 @@ const Map = () => {
                     </div>
                   ) : (
                     <iframe 
+                      id="resource-map"
                       src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d117756.07676855968!2d79.94600543036132!3d23.16175785!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1616661901026!5m2!1sen!2sin" 
                       width="100%" 
                       height="100%" 
@@ -192,7 +204,10 @@ const Map = () => {
                 <LocationFinder 
                   className="h-full" 
                   mapResources={resources} 
-                  onNavigate={navigateToLocation}
+                  onNavigate={(resource) => {
+                    navigateToLocation(resource);
+                    focusMapOnLocation(resource);
+                  }}
                 />
               </div>
             </div>
@@ -200,11 +215,11 @@ const Map = () => {
         </main>
       </AnimatedTransition>
 
-      <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
-        <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle>{selectedResource?.name || 'Resource Details'}</DrawerTitle>
-            <DrawerDescription>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{selectedResource?.name || 'Resource Details'}</DialogTitle>
+            <DialogDescription>
               {selectedResource ? (
                 <div className="space-y-2 mt-1">
                   <div className="flex items-center text-sm">
@@ -221,24 +236,27 @@ const Map = () => {
                   </div>
                 </div>
               ) : 'Loading resource details...'}
-            </DrawerDescription>
-          </DrawerHeader>
-          <DrawerFooter className="pt-2">
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="pt-2">
             {selectedResource && (
               <Button 
-                onClick={() => window.open(getDirectionsUrl(selectedResource), '_blank')}
+                onClick={() => {
+                  focusMapOnLocation(selectedResource);
+                  setDialogOpen(false);
+                }}
                 className="w-full"
               >
                 <Navigation className="mr-2 h-4 w-4" />
-                Get Directions
+                Show on Map
               </Button>
             )}
-            <DrawerClose asChild>
+            <DialogClose asChild>
               <Button variant="outline">Close</Button>
-            </DrawerClose>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
