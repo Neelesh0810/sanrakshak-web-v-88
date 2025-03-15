@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import AnimatedTransition from '../components/AnimatedTransition';
@@ -117,11 +118,11 @@ const Connect = () => {
   };
   
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen full-width-section bg-black text-white">
       <Header />
       
       <main className="pt-20 pb-16 min-h-screen">
-        <div className="container mx-auto px-4">
+        <div className="content-container">
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-3xl font-bold tracking-tight">Connect</h1>
@@ -163,7 +164,7 @@ const Connect = () => {
           </div>
           
           {showForm && (
-            <AnimatedTransition className="mb-8">
+            <AnimatedTransition className="mb-8 flex justify-center">
               <RequestForm 
                 onSubmit={handleAddRequest} 
                 onCancel={() => setShowForm(false)} 
@@ -258,8 +259,8 @@ const Connect = () => {
         </div>
       </main>
       
-      <footer className="py-6 border-t border-white/5 backdrop-blur-sm bg-black/30">
-        <div className="container mx-auto px-4">
+      <footer className="py-6 border-t border-white/5 backdrop-blur-sm bg-black/30 full-width-section">
+        <div className="content-container">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-center md:text-left mb-4 md:mb-0">
               <span className="text-sm text-gray-400">
