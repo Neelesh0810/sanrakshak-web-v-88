@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Package, Droplet, Pizza, Stethoscope, Home, ShoppingBag, Shield, Plus } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -137,8 +136,12 @@ const AddResourceDialog: React.FC<AddResourceDialogProps> = ({ isOpen, onClose, 
       items: formData.quantity ? [{ name: selectedTemplate.title, quantity: parseInt(formData.quantity) || 0 }] : undefined,
     };
     
-    onAddResource(resource);
+    const addedResource = onAddResource(resource);
     toast.success('Resource added successfully');
+    
+    // Dispatch event to notify other components about the new resource
+    window.dispatchEvent(new Event('resource-created'));
+    
     onClose();
     resetForm();
   };
@@ -154,8 +157,12 @@ const AddResourceDialog: React.FC<AddResourceDialogProps> = ({ isOpen, onClose, 
       items: data.quantity ? [{ name: data.title, quantity: parseInt(data.quantity) || 0 }] : undefined,
     };
     
-    onAddResource(resource);
+    const addedResource = onAddResource(resource);
     toast.success('Custom resource added successfully');
+    
+    // Dispatch event to notify other components about the new resource
+    window.dispatchEvent(new Event('resource-created'));
+    
     onClose();
     resetForm();
   };
