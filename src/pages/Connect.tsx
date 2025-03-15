@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import AnimatedTransition from '../components/AnimatedTransition';
@@ -41,6 +42,8 @@ const Connect = () => {
     }
   }, []);
   
+  const isVolunteer = currentUser?.role === 'volunteer' || currentUser?.role === 'ngo' || currentUser?.role === 'government';
+  
   const handleAddRequest = (newRequest: any) => {
     if (!currentUser) {
       toast({
@@ -49,6 +52,11 @@ const Connect = () => {
       });
       navigate('/login');
       return;
+    }
+    
+    // Force volunteer to create offers only
+    if (isVolunteer) {
+      newRequest.type = 'offer';
     }
     
     // Check if the user can make this type of request based on their role
@@ -104,6 +112,15 @@ const Connect = () => {
     : filter === 'my' 
       ? resources.filter(req => req.userId === currentUser?.id)
       : resources.filter(req => req.type === filter);
+      
+  // Get button text based on user role
+  const getButtonText = () => {
+    if (!currentUser) return "New Request";
+    
+    if (currentUser.role === 'victim') return "New Request";
+    
+    return "Offer Resources";
+  };
   
   return (
     <div className="min-h-screen bg-black text-white">
@@ -114,7 +131,9 @@ const Connect = () => {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-3xl font-bold tracking-tight">Connect</h1>
-              <p className="text-gray-400 mt-1">Request or offer resources</p>
+              <p className="text-gray-400 mt-1">
+                {isVolunteer ? "Offer resources to those in need" : "Request or offer resources"}
+              </p>
             </div>
             
             <div className="flex items-center space-x-4">
@@ -144,7 +163,7 @@ const Connect = () => {
                 {showForm ? 'Cancel' : (
                   <>
                     <Plus size={18} className="mr-1" />
-                    <span>New Request</span>
+                    <span>{getButtonText()}</span>
                   </>
                 )}
               </button>
@@ -153,7 +172,11 @@ const Connect = () => {
           
           {showForm && (
             <AnimatedTransition className="mb-8">
-              <RequestForm onSubmit={handleAddRequest} onCancel={() => setShowForm(false)} />
+              <RequestForm 
+                onSubmit={handleAddRequest} 
+                onCancel={() => setShowForm(false)} 
+                userRole={currentUser?.role}
+              />
             </AnimatedTransition>
           )}
           
@@ -225,7 +248,7 @@ const Connect = () => {
                     onClick={() => setShowForm(true)}
                     className="px-4 py-2 rounded-full bg-white/10 hover:bg-white/15 transition-colors"
                   >
-                    Add Request
+                    {getButtonText()}
                   </button>
                 </div>
               )}

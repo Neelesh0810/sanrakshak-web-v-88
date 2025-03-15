@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Droplet, Home, ShoppingBag, Utensils, Heart, Shield } from 'lucide-react';
 
 type ResourceCategory = 'water' | 'shelter' | 'food' | 'supplies' | 'medical' | 'safety';
@@ -16,9 +15,10 @@ interface RequestFormProps {
     urgent?: boolean;
   }) => void;
   onCancel: () => void;
+  userRole?: string;
 }
 
-const RequestForm: React.FC<RequestFormProps> = ({ onSubmit, onCancel }) => {
+const RequestForm: React.FC<RequestFormProps> = ({ onSubmit, onCancel, userRole = 'victim' }) => {
   const [type, setType] = useState<ResourceType>('need');
   const [category, setCategory] = useState<ResourceCategory>('water');
   const [title, setTitle] = useState('');
@@ -26,6 +26,14 @@ const RequestForm: React.FC<RequestFormProps> = ({ onSubmit, onCancel }) => {
   const [location, setLocation] = useState('');
   const [contact, setContact] = useState('');
   const [urgent, setUrgent] = useState(false);
+  
+  useEffect(() => {
+    if (userRole === 'volunteer' || userRole === 'ngo' || userRole === 'government') {
+      setType('offer');
+    } else {
+      setType('need');
+    }
+  }, [userRole]);
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,37 +48,41 @@ const RequestForm: React.FC<RequestFormProps> = ({ onSubmit, onCancel }) => {
     });
   };
   
+  const isVolunteer = userRole === 'volunteer' || userRole === 'ngo' || userRole === 'government';
+  
   return (
     <div className="glass-dark border border-white/10 rounded-xl p-5">
       <h2 className="text-xl font-semibold mb-4">
-        {type === 'need' ? 'Request Resources' : 'Offer Resources'}
+        {isVolunteer ? 'Offer Resources' : (type === 'need' ? 'Request Resources' : 'Offer Resources')}
       </h2>
       
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="flex space-x-2">
-          <button
-            type="button"
-            onClick={() => setType('need')}
-            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
-              type === 'need' 
-                ? 'bg-white text-black' 
-                : 'bg-white/10 hover:bg-white/15'
-            }`}
-          >
-            I Need Help
-          </button>
-          <button
-            type="button"
-            onClick={() => setType('offer')}
-            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
-              type === 'offer' 
-                ? 'bg-white text-black' 
-                : 'bg-white/10 hover:bg-white/15'
-            }`}
-          >
-            I Can Help
-          </button>
-        </div>
+        {!isVolunteer && (
+          <div className="flex space-x-2">
+            <button
+              type="button"
+              onClick={() => setType('need')}
+              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                type === 'need' 
+                  ? 'bg-white text-black' 
+                  : 'bg-white/10 hover:bg-white/15'
+              }`}
+            >
+              I Need Help
+            </button>
+            <button
+              type="button"
+              onClick={() => setType('offer')}
+              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                type === 'offer' 
+                  ? 'bg-white text-black' 
+                  : 'bg-white/10 hover:bg-white/15'
+              }`}
+            >
+              I Can Help
+            </button>
+          </div>
+        )}
         
         <div>
           <label className="block text-sm font-medium mb-1">Category</label>

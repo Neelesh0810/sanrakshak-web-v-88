@@ -37,6 +37,8 @@ const Resources = () => {
     }
   }, []);
   
+  const isVolunteer = user?.role === 'volunteer' || user?.role === 'ngo' || user?.role === 'government';
+  
   const handleFormSubmit = (formData: any) => {
     if (!user) {
       toast({
@@ -44,6 +46,11 @@ const Resources = () => {
         description: "Please sign in to post resources",
       });
       return;
+    }
+    
+    // Force the type to be 'offer' for volunteers
+    if (isVolunteer) {
+      formData.type = 'offer';
     }
     
     addResource({
@@ -113,15 +120,20 @@ const Resources = () => {
   const showRequestForm = () => {
     if (user?.role === 'victim') {
       setShowVictimForm(true);
-    } else {
-      setShowForm(true);
-    }
-    
-    if (user?.role === 'victim') {
       setShowForm(false);
     } else {
+      setShowForm(true);
       setShowVictimForm(false);
     }
+  };
+
+  // Return post button text based on user role
+  const getPostButtonText = () => {
+    if (!user) return "New Post";
+    
+    if (user.role === 'victim') return "Request Help";
+    
+    return "Offer Resources";
   };
   
   return (
@@ -147,7 +159,7 @@ const Resources = () => {
                 aria-label="Create new post"
               >
                 <PlusCircle size={18} />
-                <span>{user?.role === 'victim' ? 'Request Help' : 'New Post'}</span>
+                <span>{getPostButtonText()}</span>
               </button>
             </div>
             
@@ -155,7 +167,8 @@ const Resources = () => {
               <div className="mb-8">
                 <RequestForm 
                   onSubmit={handleFormSubmit} 
-                  onCancel={() => setShowForm(false)} 
+                  onCancel={() => setShowForm(false)}
+                  userRole={user?.role} 
                 />
               </div>
             ) : showVictimForm ? (
