@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import VictimDashboard from './dashboards/VictimDashboard';
 import VolunteerDashboard from './dashboards/VolunteerDashboard';
@@ -20,13 +21,16 @@ const Dashboard: React.FC = () => {
       const user = JSON.parse(authUser);
       setUserRole(user.role);
     } else {
+      // Default to victim view for unauthenticated users
       setUserRole('victim');
     }
   }, []);
   
   useEffect(() => {
+    // Get current user from localStorage
     fetchUserRole();
     
+    // Setup event listener for auth changes
     const handleAuthChange = () => {
       fetchUserRole();
     };
@@ -38,8 +42,10 @@ const Dashboard: React.FC = () => {
     };
   }, [fetchUserRole]);
   
+  // Listen for resource updates to refresh data across components
   useEffect(() => {
     const handleResourceUpdate = () => {
+      // This will trigger a refresh in the resourceData hook
       window.dispatchEvent(new Event('resource-updated'));
     };
     
@@ -54,6 +60,7 @@ const Dashboard: React.FC = () => {
     };
   }, []);
   
+  // Show emergency alert for all users
   const EmergencyAlert = () => (
     <div className="mb-6">
       <AnimatedTransition>
@@ -102,7 +109,7 @@ const Dashboard: React.FC = () => {
       case 'ngo':
         return <NGODashboard resourceData={resourceData} />;
       case 'government':
-        return <GovernmentDashboard resourceData={resourceData} />;
+        return <GovernmentDashboard />;
       default:
         return <VictimDashboard resourceData={resourceData} />;
     }
