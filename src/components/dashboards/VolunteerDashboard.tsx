@@ -24,8 +24,22 @@ const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ resourceData })
   
   // Filter resources to only show needs (that volunteers can help with)
   const needsResources = useMemo(() => {
+    // Get current user to check responses
+    const currentUser = JSON.parse(localStorage.getItem('authUser') || '{}');
+    const userResponses = currentUser?.id ? 
+      responses.filter(r => r.type === 'offer') : [];
+    
+    // Get IDs of requests the user has already responded to
+    const respondedRequestIds = new Set(
+      userResponses.map(response => response.requestId)
+    );
+    
     return resources
-      .filter(resource => resource.type === 'need')
+      .filter(resource => 
+        // Only show needs (not offers) that haven't been responded to by this user
+        resource.type === 'need' && 
+        !respondedRequestIds.has(resource.id)
+      )
       .sort((a, b) => {
         // Sort by urgent first, then by timestamp (newest first)
         if (a.urgent && !b.urgent) return -1;
@@ -33,7 +47,7 @@ const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ resourceData })
         return b.timestamp - a.timestamp;
       })
       .slice(0, 4); // Only show the top 4
-  }, [resources]);
+  }, [resources, responses]);
   
   // Get active responses for the current user
   const activeResponses = useMemo(() => {

@@ -15,6 +15,7 @@ interface ResourceCardProps {
   urgent?: boolean;
   className?: string;
   requestId?: string;
+  isRequested?: boolean;
 }
 
 const ResourceCard: React.FC<ResourceCardProps> = ({
@@ -27,9 +28,10 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   urgent = false,
   className,
   requestId = '',
+  isRequested = false,
 }) => {
   const [isRequesting, setIsRequesting] = useState(false);
-  const [isRequested, setIsRequested] = useState(false);
+  const [hasResponded, setHasResponded] = useState(isRequested);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -42,14 +44,19 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
       const user = JSON.parse(authUser);
       setCurrentUser(user);
       
-      const userResponses = JSON.parse(localStorage.getItem(`responses_${user.id}`) || '[]');
-      const hasResponded = userResponses.some((response: any) => response.requestId === requestId);
-      
-      if (hasResponded) {
-        setIsRequested(true);
+      if (!isRequested) {
+        const userResponses = JSON.parse(localStorage.getItem(`responses_${user.id}`) || '[]');
+        const hasAlreadyResponded = userResponses.some((response: any) => response.requestId === requestId);
+        setHasResponded(hasAlreadyResponded);
+      } else {
+        setHasResponded(true);
       }
     }
-  }, [requestId]);
+  }, [requestId, isRequested]);
+  
+  useEffect(() => {
+    setHasResponded(isRequested);
+  }, [isRequested]);
   
   const getCategoryIcon = () => {
     switch (category) {
@@ -109,7 +116,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
     
     setTimeout(() => {
       setIsRequesting(false);
-      setIsRequested(true);
+      setHasResponded(true);
       
       const responseId = Date.now().toString();
       const userResponses = JSON.parse(localStorage.getItem(`responses_${currentUser.id}`) || '[]');
@@ -211,7 +218,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
         </div>
         
         <div className="flex justify-end">
-          {isRequested ? (
+          {hasResponded ? (
             <button 
               disabled
               className={cn(

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useMemo } from 'react';
 import Header from '../components/Header';
 import ResourceCard from '../components/ResourceCard';
 import RequestForm from '../components/RequestForm';
@@ -10,13 +11,24 @@ import useResourceData, { Resource, ResourceType, ResourceCategory } from '@/hoo
 import BackButton from '@/components/BackButton';
 
 const Resources = () => {
-  const { resources, addResource, loading } = useResourceData();
+  const { resources, responses, addResource, loading } = useResourceData();
   const [showForm, setShowForm] = useState(false);
   const [showVictimForm, setShowVictimForm] = useState(false);
   const [filter, setFilter] = useState<'need' | 'offer' | 'all'>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
+  
+  // Get user's responded request IDs
+  const respondedRequestIds = useMemo(() => {
+    if (!user?.id) return new Set<string>();
+    
+    return new Set(
+      responses
+        .filter(response => response.type === 'offer')
+        .map(response => response.requestId)
+    );
+  }, [responses, user]);
   
   useEffect(() => {
     const storedUser = localStorage.getItem('authUser');
@@ -225,6 +237,8 @@ const Resources = () => {
                     location={resource.location}
                     contact={resource.contact}
                     urgent={resource.urgent}
+                    requestId={resource.id}
+                    isRequested={user?.id && respondedRequestIds.has(resource.id)}
                   />
                 </div>
               ))}
