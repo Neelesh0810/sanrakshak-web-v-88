@@ -1,5 +1,5 @@
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Info, ArrowRight } from 'lucide-react';
 import ResourceCard from '../ResourceCard';
 import StatusUpdate from '../StatusUpdate';
@@ -15,7 +15,24 @@ interface VictimDashboardProps {
 
 const VictimDashboard: React.FC<VictimDashboardProps> = ({ resourceData }) => {
   // Use passed resourceData or create a new instance
-  const { resources, loading } = resourceData || useResourceData();
+  const { resources, responses, loading } = resourceData || useResourceData();
+  const [user, setUser] = useState<any>(null);
+  
+  // Get current user to check responses
+  useEffect(() => {
+    const storedUser = localStorage.getItem('authUser');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+  
+  // Get a set of all resource IDs that the current user has already responded to
+  const respondedRequestIds = useMemo(() => {
+    if (!user?.id) return new Set<string>();
+    
+    const userResponses = JSON.parse(localStorage.getItem(`responses_${user.id}`) || '[]');
+    return new Set(userResponses.map((response: any) => response.requestId));
+  }, [user, responses]);
   
   // Filter resources to only show offers (available to victims)
   const availableResources = useMemo(() => {
@@ -92,6 +109,7 @@ const VictimDashboard: React.FC<VictimDashboardProps> = ({ resourceData }) => {
                     contact={resource.contact}
                     urgent={resource.urgent}
                     requestId={resource.id}
+                    isRequested={user?.id && respondedRequestIds.has(resource.id)}
                   />
                 ))
               ) : (

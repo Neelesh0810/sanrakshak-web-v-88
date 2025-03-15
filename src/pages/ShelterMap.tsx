@@ -4,6 +4,7 @@ import Header from '../components/Header';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeProvider';
+import { Button } from '@/components/ui/button';
 
 const ShelterMap = () => {
   const navigate = useNavigate();
@@ -20,16 +21,17 @@ const ShelterMap = () => {
       
       <main className="pt-20 pb-16 min-h-screen">
         <div className="container mx-auto px-4">
-          <button 
+          <Button 
             onClick={handleGoBack}
-            className={`mb-4 flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-colors ${
+            variant="ghost"
+            className={`mb-4 flex items-center gap-1.5 ${
               isLight ? 'hover:bg-gray-100' : 'hover:bg-white/10'
             }`}
             aria-label="Go back to dashboard"
           >
             <ArrowLeft size={16} />
             <span className="text-sm font-medium">Back to Dashboard</span>
-          </button>
+          </Button>
           
           <div className="bg-black/20 border border-white/10 rounded-xl overflow-hidden h-[70vh]">
             <iframe 

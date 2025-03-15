@@ -48,7 +48,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
         const user = JSON.parse(authUser);
         setCurrentUser(user);
         
-        if (!isRequested && requestId) {
+        if (requestId) {
           const userResponses = JSON.parse(localStorage.getItem(`responses_${user.id}`) || '[]');
           const hasAlreadyResponded = userResponses.some((response: any) => response.requestId === requestId);
           setHasResponded(hasAlreadyResponded);
@@ -66,15 +66,19 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
     
     window.addEventListener('response-created', handleResponseUpdate);
     window.addEventListener('response-updated', handleResponseUpdate);
+    window.addEventListener('resource-updated', handleResponseUpdate);
     
     return () => {
       window.removeEventListener('response-created', handleResponseUpdate);
       window.removeEventListener('response-updated', handleResponseUpdate);
+      window.removeEventListener('resource-updated', handleResponseUpdate);
     };
   }, [requestId, isRequested]);
   
   useEffect(() => {
-    setHasResponded(isRequested);
+    if (isRequested !== undefined) {
+      setHasResponded(isRequested);
+    }
   }, [isRequested]);
   
   const getCategoryIcon = () => {

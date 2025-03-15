@@ -21,18 +21,33 @@ const Resources = () => {
   const respondedRequestIds = useMemo(() => {
     if (!user?.id) return new Set<string>();
     
-    return new Set(
-      responses
-        .filter(response => response.type === 'offer')
-        .map(response => response.requestId)
-    );
+    const userResponses = JSON.parse(localStorage.getItem(`responses_${user.id}`) || '[]');
+    return new Set(userResponses.map((response: any) => response.requestId));
   }, [responses, user]);
   
   useEffect(() => {
-    const storedUser = localStorage.getItem('authUser');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
+    const fetchUser = () => {
+      const storedUser = localStorage.getItem('authUser');
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    };
+    
+    fetchUser();
+    
+    const handleAuthChange = () => {
+      fetchUser();
+    };
+    
+    window.addEventListener('auth-changed', handleAuthChange);
+    window.addEventListener('response-created', handleAuthChange);
+    window.addEventListener('response-updated', handleAuthChange);
+    
+    return () => {
+      window.removeEventListener('auth-changed', handleAuthChange);
+      window.removeEventListener('response-created', handleAuthChange);
+      window.removeEventListener('response-updated', handleAuthChange);
+    };
   }, []);
   
   const isVolunteer = user?.role === 'volunteer' || user?.role === 'ngo' || user?.role === 'government';
