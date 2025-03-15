@@ -115,7 +115,7 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
                 >
                   Manage Resources
                 </button>
-                <Link to="/ngo-reports" className="px-4 py-2 rounded-full text-sm bg-white/10 hover:bg-white/15 transition-colors">
+                <Link to="/reports" className="px-4 py-2 rounded-full text-sm bg-white/10 hover:bg-white/15 transition-colors">
                   View Reports
                 </Link>
               </div>
