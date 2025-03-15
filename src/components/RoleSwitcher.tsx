@@ -49,8 +49,10 @@ const RoleSwitcher: React.FC = () => {
       duration: 3000,
     });
     
-    // Always redirect to dashboard when switching roles
-    navigate('/dashboard');
+    // Force a redirect to dashboard
+    setTimeout(() => {
+      navigate('/dashboard', { replace: true });
+    }, 100);
   };
   
   const getRoleName = (role: string): string => {
