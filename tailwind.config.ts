@@ -19,7 +19,7 @@ export default {
         'md': '768px',
         'lg': '1024px',
         'xl': '1280px',
-        '2xl': '100%'  // Changed to 100% for full width
+        '2xl': '100%'  // This ensures full width on larger screens
       }
     },
     extend: {
