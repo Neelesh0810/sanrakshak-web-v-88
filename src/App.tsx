@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,7 +10,8 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import Resources from "./pages/Resources";
+import VolunteerResources from "./pages/VolunteerResources";
+import VictimResources from "./pages/VictimResources";
 import Map from "./pages/Map";
 import Alerts from "./pages/Alerts";
 import Profile from "./pages/Profile";
@@ -129,6 +131,22 @@ const App = () => {
     return children;
   };
 
+  const ResourceRouteRedirect = () => {
+    if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    if (!user) return <Navigate to="/login" replace />;
+    
+    // Redirect to the appropriate resource page based on user role
+    if (user.role === 'victim') {
+      return <Navigate to="/victim-resources" replace />;
+    } else if (user.role === 'volunteer' || user.role === 'ngo' || user.role === 'government') {
+      return <Navigate to="/volunteer-resources" replace />;
+    } else if (user.role === 'admin') {
+      return <Navigate to="/admin-dashboard" replace />;
+    }
+    
+    return <Navigate to="/dashboard" replace />;
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
@@ -176,11 +194,21 @@ const App = () => {
                 </ProtectedRoute>
               } />
               
-              <Route path="/resources" element={
+              {/* Legacy resources route that redirects based on user role */}
+              <Route path="/resources" element={<ResourceRouteRedirect />} />
+              
+              {/* New role-specific resource routes */}
+              <Route path="/volunteer-resources" element={
                 <ProtectedRoute>
-                  <Resources />
+                  <VolunteerResources />
                 </ProtectedRoute>
               } />
+              <Route path="/victim-resources" element={
+                <ProtectedRoute>
+                  <VictimResources />
+                </ProtectedRoute>
+              } />
+              
               <Route path="/resources/:id" element={
                 <ProtectedRoute>
                   <ResourceDetails />
