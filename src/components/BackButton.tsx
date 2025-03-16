@@ -19,9 +19,12 @@ const BackButton: React.FC<BackButtonProps> = ({ className }) => {
     const returnTo = searchParams.get('returnTo');
     if (returnTo) {
       navigate(`/${returnTo}`);
+    } else if (window.history.length > 2) {
+      // Only go back in history if there's somewhere to go back to
+      navigate(-1);
     } else {
-      // Navigate to dashboard instead of landing page
-      navigate('/dashboard');
+      // If no history or we're at the start, go to landing page
+      navigate('/');
     }
   };
   
