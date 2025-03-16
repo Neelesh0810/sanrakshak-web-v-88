@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BarChart, Building2, Users, FileText, AlertTriangle, UserCheck, Building } from 'lucide-react';
 import StatusUpdate from '../StatusUpdate';
@@ -103,6 +104,7 @@ const GovernmentDashboard: React.FC<GovernmentDashboardProps> = () => {
                   location="Central District"
                   lastActive="2 hours ago"
                   skills={["First Aid", "Search & Rescue", "Logistics"]}
+                  userId="volunteer-1"
                 />
                 
                 <UserProfile
@@ -111,6 +113,7 @@ const GovernmentDashboard: React.FC<GovernmentDashboardProps> = () => {
                   contactInfo="local@redcross.org"
                   location="Multiple Districts"
                   lastActive="30 minutes ago"
+                  userId="ngo-1"
                 />
                 
                 <UserProfile
@@ -120,6 +123,7 @@ const GovernmentDashboard: React.FC<GovernmentDashboardProps> = () => {
                   location="North District"
                   lastActive="4 hours ago"
                   skills={["Medical", "Transportation", "Communication"]}
+                  userId="volunteer-2"
                 />
                 
                 <UserProfile
@@ -128,13 +132,14 @@ const GovernmentDashboard: React.FC<GovernmentDashboardProps> = () => {
                   contactInfo="help@crf.org"
                   location="South District"
                   lastActive="1 hour ago"
+                  userId="ngo-2"
                 />
               </div>
               
               <div className="mt-4 text-center">
-                <button className="px-4 py-2 rounded-full text-sm bg-white/10 hover:bg-white/15 transition-colors">
+                <Link to="/all-helpers" className="px-4 py-2 rounded-full text-sm bg-white/10 hover:bg-white/15 transition-colors inline-block">
                   View All Registered Helpers
-                </button>
+                </Link>
               </div>
             </CardContent>
           </Card>
