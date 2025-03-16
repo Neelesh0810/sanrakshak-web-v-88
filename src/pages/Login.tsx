@@ -9,7 +9,6 @@ import { Eye, EyeOff, Shield } from 'lucide-react';
 import Header from '../components/Header';
 import AnimatedTransition from '../components/AnimatedTransition';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import BackButton from "@/components/BackButton";
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -103,11 +102,10 @@ const Login = () => {
     // Dispatch event to notify other components
     window.dispatchEvent(new Event('auth-changed'));
     
-    // Redirect based on user role (with replace: true to prevent back navigation to login)
     if (loggedInUser.role === 'admin') {
-      navigate('/admin-dashboard', { replace: true });
+      navigate('/admin-dashboard');
     } else {
-      navigate('/dashboard', { replace: true });
+      navigate('/dashboard');
     }
   };
 
@@ -118,11 +116,7 @@ const Login = () => {
       <main className="pt-20 pb-16 min-h-screen">
         <div className="container mx-auto px-4 max-w-md">
           <AnimatedTransition>
-            <div className="relative bg-black/20 rounded-xl border border-white/10 p-8">
-              <div className="absolute top-4 left-4">
-                <BackButton />
-              </div>
-              
+            <div className="bg-black/20 rounded-xl border border-white/10 p-8">
               <h1 className="text-3xl font-bold text-center mb-6">Login</h1>
               
               <Tabs defaultValue="user" onValueChange={setLoginType} className="w-full mb-6">

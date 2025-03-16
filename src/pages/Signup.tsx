@@ -9,7 +9,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Mail, KeyRound, User, Phone, MapPin, Shield, Building } from 'lucide-react';
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import BackButton from "@/components/BackButton";
 
 const Signup = () => {
   const [name, setName] = useState('');
@@ -89,15 +88,20 @@ const Signup = () => {
       description: "You have successfully signed up.",
     });
     
-    // Update the user in the users array with more details
-    const usersStr = localStorage.getItem('users');
-    const allUsers = usersStr ? JSON.parse(usersStr) : [];
+    if (role === 'admin') {
+      navigate('/admin-dashboard');
+    } else {
+      navigate('/dashboard');
+    }
+    setLoading(false);
     
-    // Find if user exists in the array and update it
-    const userExists = allUsers.some((u: any) => u.id === newUser.id);
-    
-    if (!userExists) {
-      allUsers.push({
+    const isSignupSuccessful = true;
+
+    if (isSignupSuccessful) {
+      const usersStr = localStorage.getItem('users');
+      const users = usersStr ? JSON.parse(usersStr) : [];
+      
+      users.push({
         id: newUser.id,
         name: newUser.name,
         role: newUser.role,
@@ -108,25 +112,14 @@ const Signup = () => {
         needsHelp: newUser.role === 'victim' ? ['Newly Registered'] : []
       });
       
-      localStorage.setItem('users', JSON.stringify(allUsers));
+      localStorage.setItem('users', JSON.stringify(users));
+      
+      window.dispatchEvent(new Event('auth-changed'));
     }
-    
-    // Redirect based on user role
-    if (role === 'admin') {
-      navigate('/admin-dashboard', { replace: true });
-    } else {
-      navigate('/dashboard', { replace: true });
-    }
-    
-    setLoading(false);
   };
   
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="absolute top-4 left-4">
-        <BackButton />
-      </div>
-      
       <Card className="w-full max-w-md bg-black/30 border border-white/10">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>
