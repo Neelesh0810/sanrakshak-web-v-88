@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import StatusUpdate from '@/components/StatusUpdate';
+import BackButton from '@/components/BackButton';
 
 const CommandCenter = () => {
   return (
@@ -12,6 +13,9 @@ const CommandCenter = () => {
       <Header />
       <div className="container mx-auto px-4 py-8">
         <AnimatedTransition>
+          <div className="mb-4">
+            <BackButton />
+          </div>
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2">Command Center</h1>
             <p className="text-gray-400">Central hub for disaster response coordination and resource management</p>

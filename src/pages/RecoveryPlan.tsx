@@ -4,6 +4,7 @@ import { HardHat, Hammer, LifeBuoy, House, CheckCircle, Clock, AlertTriangle, Us
 import Header from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AnimatedTransition from '@/components/AnimatedTransition';
+import BackButton from '@/components/BackButton';
 
 const RecoveryPlan = () => {
   return (
@@ -11,6 +12,9 @@ const RecoveryPlan = () => {
       <Header />
       <div className="container mx-auto px-4 py-8">
         <AnimatedTransition>
+          <div className="mb-4">
+            <BackButton />
+          </div>
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2">Disaster Recovery Plan</h1>
             <p className="text-gray-400">Comprehensive strategy for rebuilding and recovery efforts</p>
