@@ -2,12 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { User, UserCheck, Building, Shield, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const RoleSwitcher: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   
   useEffect(() => {
     // Load current user
@@ -43,8 +44,11 @@ const RoleSwitcher: React.FC = () => {
       duration: 3000,
     });
     
-    // Navigate directly to dashboard instead of redirecting based on current page
-    navigate('/dashboard');
+    // Always navigate to dashboard to ensure proper dashboard is loaded for the new role
+    navigate('/dashboard', { replace: true });
+    
+    // Dispatch an event to notify other components of the role change
+    window.dispatchEvent(new Event('auth-changed'));
   };
   
   const getRoleName = (role: string): string => {
