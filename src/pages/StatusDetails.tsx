@@ -13,6 +13,7 @@ const StatusDetails = () => {
   const { toast } = useToast();
   const isLight = theme === 'light';
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapError, setMapError] = useState(false);
   
   // Jabalpur coordinates
   const defaultCenter = {
@@ -85,31 +86,57 @@ const StatusDetails = () => {
   useEffect(() => {
     // Create and load iframe with proper Google Maps embed URL
     const loadMap = () => {
-      const mapContainer = document.getElementById('map-container');
-      if (mapContainer) {
-        const coordinates = status.coordinates;
-        const mapSrc = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBtLRkfZb_SQHkRxsLYgQWs04vT1WLKNSE&q=${coordinates.lat},${coordinates.lng}&zoom=14&maptype=roadmap`;
-        
-        const iframe = document.createElement('iframe');
-        iframe.style.width = '100%';
-        iframe.style.height = '250px';
-        iframe.style.border = '0';
-        iframe.style.borderRadius = '8px';
-        iframe.setAttribute('allowfullscreen', 'true');
-        iframe.setAttribute('loading', 'lazy');
-        iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
-        iframe.setAttribute('src', mapSrc);
-        iframe.onload = () => setMapLoaded(true);
-        
-        // Clear any existing content
-        mapContainer.innerHTML = '';
-        mapContainer.appendChild(iframe);
+      try {
+        const mapContainer = document.getElementById('map-container');
+        if (mapContainer) {
+          const coordinates = status.coordinates;
+          
+          // Use Google Maps Static API instead of embed for better compatibility
+          const staticMapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${coordinates.lat},${coordinates.lng}&zoom=14&size=600x300&maptype=roadmap&markers=color:red%7C${coordinates.lat},${coordinates.lng}&key=AIzaSyBtLRkfZb_SQHkRxsLYgQWs04vT1WLKNSE`;
+          
+          const img = document.createElement('img');
+          img.style.width = '100%';
+          img.style.height = '250px';
+          img.style.borderRadius = '8px';
+          img.style.objectFit = 'cover';
+          img.setAttribute('alt', 'Map location');
+          img.src = staticMapUrl;
+          
+          img.onload = () => {
+            setMapLoaded(true);
+            setMapError(false);
+          };
+          
+          img.onerror = () => {
+            console.error("Failed to load map image");
+            setMapError(true);
+            setMapLoaded(false);
+            toast({
+              title: "Map Error",
+              description: "Could not load the location map. Please try again later.",
+              variant: "destructive"
+            });
+          };
+          
+          // Clear any existing content
+          mapContainer.innerHTML = '';
+          mapContainer.appendChild(img);
+        }
+      } catch (error) {
+        console.error("Error loading map:", error);
+        setMapError(true);
+        setMapLoaded(false);
+        toast({
+          title: "Map Error",
+          description: "Could not load the location map. Please try again later.",
+          variant: "destructive"
+        });
       }
     };
     
     // Load the map
     loadMap();
-  }, [id, status]);
+  }, [id, status, toast]);
   
   const getPriorityStyles = () => {
     switch (status.priority) {
@@ -202,10 +229,17 @@ const StatusDetails = () => {
                 </div>
                 
                 <div id="map-container" className={`mb-4 overflow-hidden rounded-lg border ${isLight ? "border-gray-300" : "border-white/10"} h-[250px]`}>
-                  {!mapLoaded && (
+                  {!mapLoaded && !mapError && (
                     <div className={`flex items-center justify-center h-full ${isLight ? "bg-gray-100" : "bg-black/40"}`}>
                       <p className={`text-center ${isLight ? "text-gray-700" : "text-gray-400"}`}>
                         Loading map...
+                      </p>
+                    </div>
+                  )}
+                  {mapError && (
+                    <div className={`flex items-center justify-center h-full ${isLight ? "bg-gray-100" : "bg-black/40"}`}>
+                      <p className={`text-center ${isLight ? "text-gray-700" : "text-gray-400"}`}>
+                        Unable to load map. Please try again later.
                       </p>
                     </div>
                   )}
