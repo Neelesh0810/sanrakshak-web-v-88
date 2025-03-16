@@ -34,29 +34,27 @@ const RoleSwitcher: React.FC = () => {
   const switchRole = (role: 'victim' | 'volunteer' | 'ngo' | 'government') => {
     if (!currentUser) return;
     
+    // Update user in localStorage
     const updatedUser = { ...currentUser, role };
     localStorage.setItem('authUser', JSON.stringify(updatedUser));
     setCurrentUser(updatedUser);
     
+    // Notify user
     toast({
       title: "Role Changed",
       description: `You are now viewing as: ${getRoleName(role)}`,
       duration: 3000,
     });
     
-    // Ensure dashboard is fully refreshed regardless of current location
-    if (location.pathname === '/dashboard') {
-      // If already on dashboard, force a full component refresh
-      window.dispatchEvent(new Event('role-changed'));
-      
-      // Force a refresh of the entire dashboard by adding a timestamp to URL
-      // This will cause React Router to see it as a new route
-      const timestamp = Date.now();
-      navigate(`/dashboard?t=${timestamp}`, { replace: true });
-    } else {
-      // Navigate to dashboard with replace to avoid back button issues
-      navigate('/dashboard', { replace: true });
-    }
+    // Trigger role change event for components to pick up
+    window.dispatchEvent(new Event('role-changed'));
+    
+    // Force navigation to refresh the dashboard completely
+    // Always use replace: true to avoid back button issues
+    navigate('/dashboard', { replace: true });
+    
+    // Close the role switcher menu
+    document.getElementById('role-switcher-menu')?.classList.add('hidden');
   };
   
   const getRoleName = (role: string): string => {
