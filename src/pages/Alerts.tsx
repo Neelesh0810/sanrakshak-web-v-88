@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import { AlertTriangle, Bell, Clock, Filter, BellOff } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import BackButton from '@/components/BackButton';
+import { useTheme } from '@/context/ThemeProvider';
 
 interface Alert {
   id: string;
@@ -22,20 +22,19 @@ const Alerts = () => {
   const [readFilter, setReadFilter] = useState<'all' | 'unread'>('all');
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   
   useEffect(() => {
-    // Check if user is logged in
     const storedUser = localStorage.getItem('authUser');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
     
-    // Load alerts from localStorage or use sample data
     const storedAlerts = localStorage.getItem('alerts');
     if (storedAlerts) {
       setAlerts(JSON.parse(storedAlerts));
     } else {
-      // Sample alerts
       const sampleAlerts: Alert[] = [
         {
           id: '1',
@@ -43,7 +42,7 @@ const Alerts = () => {
           message: 'Flash flood warning issued for southern areas. Avoid low-lying areas and prepare for possible evacuation.',
           severity: 'critical',
           source: 'Emergency Management Agency',
-          timestamp: Date.now() - 1800000, // 30 minutes ago
+          timestamp: Date.now() - 1800000,
           read: false
         },
         {
@@ -52,7 +51,7 @@ const Alerts = () => {
           message: 'Medical supplies will be distributed at Central Hospital from 2-6pm today. Bring ID.',
           severity: 'info',
           source: 'Health Department',
-          timestamp: Date.now() - 7200000, // 2 hours ago
+          timestamp: Date.now() - 7200000,
           read: false
         },
         {
@@ -61,7 +60,7 @@ const Alerts = () => {
           message: 'Main Street remains closed due to debris. Use alternate routes via North Avenue.',
           severity: 'warning',
           source: 'Transportation Department',
-          timestamp: Date.now() - 10800000, // 3 hours ago
+          timestamp: Date.now() - 10800000,
           read: true
         },
         {
@@ -70,7 +69,7 @@ const Alerts = () => {
           message: 'Power has been restored to 70% of affected areas. Estimated full restoration by tomorrow evening.',
           severity: 'info',
           source: 'Utility Company',
-          timestamp: Date.now() - 14400000, // 4 hours ago
+          timestamp: Date.now() - 14400000,
           read: true
         },
         {
@@ -79,7 +78,7 @@ const Alerts = () => {
           message: 'Water may be contaminated in Zone 3. Boil water before consumption or use bottled water until further notice.',
           severity: 'critical',
           source: 'Water Authority',
-          timestamp: Date.now() - 36000000, // 10 hours ago
+          timestamp: Date.now() - 36000000,
           read: false
         }
       ];
@@ -149,17 +148,23 @@ const Alerts = () => {
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'critical':
-        return 'bg-white text-black';
+        return isLight 
+          ? 'bg-red-100 text-red-700'
+          : 'bg-white text-black';
       case 'warning':
-        return 'bg-white/70 text-black';
+        return isLight
+          ? 'bg-amber-100 text-amber-700'
+          : 'bg-white/70 text-black';
       case 'info':
       default:
-        return 'bg-white/30 text-white';
+        return isLight
+          ? 'bg-blue-100 text-blue-700'
+          : 'bg-white/30 text-white';
     }
   };
   
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       <Header title="Emergency Alerts" />
       
       <AnimatedTransition>
@@ -172,13 +177,17 @@ const Alerts = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
               <div>
                 <h1 className="text-2xl font-bold mb-2">Emergency Alerts</h1>
-                <p className="text-gray-400">Stay informed about critical situations and updates</p>
+                <p className={`${isLight ? 'text-gray-600' : 'text-gray-400'} mb-2`}>Stay informed about critical situations and updates</p>
               </div>
               
               <button
                 onClick={markAllAsRead}
                 disabled={!user || alerts.every(alert => alert.read)}
-                className="flex items-center space-x-2 bg-white/10 px-4 py-2 rounded-lg hover:bg-white/15 transition-colors disabled:opacity-50 border border-white/10"
+                className={`flex items-center space-x-2 ${
+                  isLight 
+                    ? 'bg-gray-100 hover:bg-gray-200 border border-gray-200' 
+                    : 'bg-white/10 hover:bg-white/15 border border-white/10'
+                } px-4 py-2 rounded-lg transition-colors disabled:opacity-50`}
               >
                 <Bell size={18} />
                 <span>Mark All as Read</span>
@@ -187,7 +196,7 @@ const Alerts = () => {
             
             <div className="mb-6 flex flex-col sm:flex-row gap-3">
               <div className="flex items-center space-x-2">
-                <Filter size={16} className="text-gray-400" />
+                <Filter size={16} className={`${isLight ? 'text-gray-500' : 'text-gray-400'}`} />
                 <span className="text-sm">Filter:</span>
               </div>
               
@@ -196,8 +205,8 @@ const Alerts = () => {
                   onClick={() => setFilter('all')}
                   className={`px-3 py-1 rounded-full text-sm border ${
                     filter === 'all' 
-                      ? 'bg-white text-black' 
-                      : 'bg-white/10 hover:bg-white/15 border-white/10'
+                      ? isLight ? 'bg-black text-white' : 'bg-white text-black' 
+                      : isLight ? 'bg-gray-100 hover:bg-gray-200 border-gray-200' : 'bg-white/10 hover:bg-white/15 border-white/10'
                   }`}
                 >
                   All
@@ -206,8 +215,8 @@ const Alerts = () => {
                   onClick={() => setFilter('critical')}
                   className={`px-3 py-1 rounded-full text-sm border ${
                     filter === 'critical' 
-                      ? 'bg-white text-black' 
-                      : 'bg-white/10 hover:bg-white/15 border-white/10'
+                      ? isLight ? 'bg-black text-white' : 'bg-white text-black' 
+                      : isLight ? 'bg-gray-100 hover:bg-gray-200 border-gray-200' : 'bg-white/10 hover:bg-white/15 border-white/10'
                   }`}
                 >
                   Critical
@@ -216,8 +225,8 @@ const Alerts = () => {
                   onClick={() => setFilter('warning')}
                   className={`px-3 py-1 rounded-full text-sm border ${
                     filter === 'warning' 
-                      ? 'bg-white text-black' 
-                      : 'bg-white/10 hover:bg-white/15 border-white/10'
+                      ? isLight ? 'bg-black text-white' : 'bg-white text-black' 
+                      : isLight ? 'bg-gray-100 hover:bg-gray-200 border-gray-200' : 'bg-white/10 hover:bg-white/15 border-white/10'
                   }`}
                 >
                   Warning
@@ -226,8 +235,8 @@ const Alerts = () => {
                   onClick={() => setFilter('info')}
                   className={`px-3 py-1 rounded-full text-sm border ${
                     filter === 'info' 
-                      ? 'bg-white text-black' 
-                      : 'bg-white/10 hover:bg-white/15 border-white/10'
+                      ? isLight ? 'bg-black text-white' : 'bg-white text-black' 
+                      : isLight ? 'bg-gray-100 hover:bg-gray-200 border-gray-200' : 'bg-white/10 hover:bg-white/15 border-white/10'
                   }`}
                 >
                   Info
@@ -239,8 +248,8 @@ const Alerts = () => {
                   onClick={() => setReadFilter('all')}
                   className={`px-3 py-1 rounded-full text-sm border ${
                     readFilter === 'all' 
-                      ? 'bg-white text-black' 
-                      : 'bg-white/10 hover:bg-white/15 border-white/10'
+                      ? isLight ? 'bg-black text-white' : 'bg-white text-black' 
+                      : isLight ? 'bg-gray-100 hover:bg-gray-200 border-gray-200' : 'bg-white/10 hover:bg-white/15 border-white/10'
                   }`}
                 >
                   All
@@ -249,8 +258,8 @@ const Alerts = () => {
                   onClick={() => setReadFilter('unread')}
                   className={`px-3 py-1 rounded-full text-sm border ${
                     readFilter === 'unread' 
-                      ? 'bg-white text-black' 
-                      : 'bg-white/10 hover:bg-white/15 border-white/10'
+                      ? isLight ? 'bg-black text-white' : 'bg-white text-black' 
+                      : isLight ? 'bg-gray-100 hover:bg-gray-200 border-gray-200' : 'bg-white/10 hover:bg-white/15 border-white/10'
                   }`}
                 >
                   Unread Only
@@ -262,10 +271,14 @@ const Alerts = () => {
               {filteredAlerts.map(alert => (
                 <div 
                   key={alert.id}
-                  className={`glass-dark rounded-xl p-4 transition-all relative ${!alert.read ? 'bg-white/5' : ''}`}
+                  className={`${
+                    isLight 
+                      ? 'bg-white border-gray-200 shadow-sm' 
+                      : 'glass-dark'
+                  } rounded-xl p-4 transition-all relative ${!alert.read ? (isLight ? 'bg-gray-50' : 'bg-white/5') : ''}`}
                 >
                   {!alert.read && (
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full"></div>
+                    <div className={`absolute -top-1 -right-1 w-3 h-3 ${isLight ? 'bg-blue-500' : 'bg-white'} rounded-full`}></div>
                   )}
                   
                   <div className="flex flex-col md:flex-row md:items-center gap-3">
@@ -275,7 +288,7 @@ const Alerts = () => {
                     
                     <div className="flex-1">
                       <h3 className="font-semibold text-lg">{alert.title}</h3>
-                      <p className="text-gray-300 mt-1">{alert.message}</p>
+                      <p className={`${isLight ? 'text-gray-600' : 'text-gray-300'} mt-1`}>{alert.message}</p>
                       
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 text-sm text-gray-400">
                         <span className="flex items-center">
@@ -292,7 +305,11 @@ const Alerts = () => {
                     {!alert.read && (
                       <button
                         onClick={() => markAsRead(alert.id)}
-                        className="self-end md:self-center bg-white/10 hover:bg-white/15 transition-colors rounded-lg px-3 py-1.5 text-sm flex items-center border border-white/10"
+                        className={`self-end md:self-center ${
+                          isLight 
+                            ? 'bg-gray-100 hover:bg-gray-200 border-gray-200' 
+                            : 'bg-white/10 hover:bg-white/15 border border-white/10'
+                        } transition-colors rounded-lg px-3 py-1.5 text-sm flex items-center`}
                       >
                         <BellOff size={14} className="mr-1" />
                         Mark as Read
@@ -303,16 +320,22 @@ const Alerts = () => {
               ))}
               
               {filteredAlerts.length === 0 && (
-                <div className="text-center py-12 border border-white/5 rounded-xl bg-transparent shadow-none">
-                  <Bell size={48} className="mx-auto mb-4 text-gray-500" />
+                <div className={`text-center py-12 border rounded-xl ${
+                  isLight ? 'bg-gray-50 border-gray-200' : 'bg-black/20 border-white/5'
+                }`}>
+                  <Bell size={48} className={`mx-auto mb-4 ${isLight ? 'text-gray-400' : 'text-gray-500'}`} />
                   <h3 className="text-xl font-semibold mb-2">No Alerts</h3>
-                  <p className="text-gray-400 mb-4">There are no alerts matching your current filters.</p>
+                  <p className={`${isLight ? 'text-gray-600' : 'text-gray-400'} mb-4`}>
+                    There are no alerts matching your current filters.
+                  </p>
                   <button
                     onClick={() => {
                       setFilter('all');
                       setReadFilter('all');
                     }}
-                    className="px-4 py-2 bg-white/10 rounded-lg text-sm hover:bg-white/15 transition-colors border border-white/10"
+                    className={`inline-flex items-center px-4 py-2 rounded-lg ${
+                      isLight ? 'bg-black text-white' : 'bg-white text-black'
+                    }`}
                   >
                     Clear Filters
                   </button>
