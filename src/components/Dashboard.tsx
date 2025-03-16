@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import VictimDashboard from './dashboards/VictimDashboard';
 import VolunteerDashboard from './dashboards/VolunteerDashboard';
@@ -25,12 +24,17 @@ const Dashboard: React.FC = () => {
       setUserRole(user.role);
       console.info('Rendering dashboard for role:', user.role);
       
+      // We'll keep this commented out as we want to stay on the dashboard page
+      // and not redirect to resources pages
+      
+      /* 
       // Redirect to appropriate resource page based on role
       if (user.role === 'victim') {
         navigate('/victim-resources');
       } else if (['volunteer', 'ngo', 'government'].includes(user.role)) {
         navigate('/volunteer-resources');
       }
+      */
     } else {
       // Default to victim view for unauthenticated users
       setUserRole('victim');

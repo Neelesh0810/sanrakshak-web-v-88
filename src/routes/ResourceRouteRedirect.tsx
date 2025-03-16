@@ -37,6 +37,7 @@ const ResourceRouteRedirect = () => {
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   if (!user) return <Navigate to="/login" replace />;
   
+  // This part ensures resources are still routed correctly
   if (user.role === 'victim') {
     return <Navigate to="/victim-resources" replace />;
   } else if (user.role === 'volunteer' || user.role === 'ngo' || user.role === 'government') {
