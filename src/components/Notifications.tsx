@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Bell, X, CheckCheck, AlertTriangle, Info, MessageSquare, Package } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import NotificationDetailsDialog from './NotificationDetailsDialog';
+import { useTheme } from '../context/ThemeProvider';
 
 type NotificationType = 'alert' | 'request' | 'response' | 'system' | 'update';
 
@@ -39,6 +40,8 @@ const Notifications: React.FC = () => {
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   
   const user = JSON.parse(localStorage.getItem('authUser') || '{}');
   
@@ -173,15 +176,15 @@ const Notifications: React.FC = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-0 mt-2 w-80 sm:w-96 bg-black border border-white/10 shadow-xl rounded-xl z-50 overflow-hidden"
+            className={`absolute right-0 mt-2 w-80 sm:w-96 ${isLight ? "bg-white border border-gray-300" : "bg-black border border-white/10"} shadow-xl rounded-xl z-50 overflow-hidden`}
           >
-            <div className="p-4 border-b border-white/10 flex justify-between items-center">
+            <div className={`p-4 ${isLight ? "border-b border-gray-200" : "border-b border-white/10"} flex justify-between items-center`}>
               <h3 className="font-medium">Notifications</h3>
               <div className="flex items-center space-x-2">
                 {unreadCount > 0 && (
                   <button 
                     onClick={markAllAsRead}
-                    className="text-xs flex items-center text-gray-400 hover:text-white"
+                    className={`text-xs flex items-center ${isLight ? "text-gray-600 hover:text-gray-900" : "text-gray-400 hover:text-white"}`}
                   >
                     <CheckCheck size={14} className="mr-1" />
                     Mark all as read
@@ -189,7 +192,7 @@ const Notifications: React.FC = () => {
                 )}
                 <button 
                   onClick={() => setIsOpen(false)}
-                  className="p-1 rounded-full hover:bg-white/10"
+                  className={`p-1 rounded-full ${isLight ? "hover:bg-gray-100" : "hover:bg-white/10"}`}
                 >
                   <X size={16} />
                 </button>
@@ -203,24 +206,26 @@ const Notifications: React.FC = () => {
                     <div 
                       key={notification.id}
                       onClick={() => handleNotificationClick(notification)}
-                      className={`p-4 border-b border-white/5 hover:bg-white/5 cursor-pointer transition-colors ${
-                        !notification.read ? 'bg-white/5' : ''
+                      className={`p-4 ${isLight ? "border-b border-gray-200 hover:bg-gray-50" : "border-b border-white/5 hover:bg-white/5"} cursor-pointer transition-colors ${
+                        !notification.read ? (isLight ? "bg-gray-50" : "bg-white/5") : ''
                       }`}
                     >
                       <div className="flex items-start">
                         <div className={`p-2 rounded-full mr-3 ${
-                          notification.type === 'alert' ? 'bg-white/20' : 'bg-white/10'
+                          notification.type === 'alert' 
+                            ? (isLight ? "bg-red-100" : "bg-white/20") 
+                            : (isLight ? "bg-gray-100" : "bg-white/10")
                         }`}>
                           <NotificationIcon type={notification.type} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-start">
                             <h4 className="font-medium text-sm">{notification.title}</h4>
-                            <span className="text-xs text-gray-400 whitespace-nowrap ml-2">
+                            <span className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"} whitespace-nowrap ml-2`}>
                               {formatTime(notification.time)}
                             </span>
                           </div>
-                          <p className="text-sm text-gray-300 mt-1 line-clamp-2">
+                          <p className={`text-sm ${isLight ? "text-gray-600" : "text-gray-300"} mt-1 line-clamp-2`}>
                             {notification.message}
                           </p>
                         </div>
@@ -230,7 +235,7 @@ const Notifications: React.FC = () => {
                 </div>
               ) : (
                 <div className="py-6 text-center">
-                  <p className="text-gray-400 text-sm">No notifications yet</p>
+                  <p className={`${isLight ? "text-gray-500" : "text-gray-400"} text-sm`}>No notifications yet</p>
                 </div>
               )}
             </div>
