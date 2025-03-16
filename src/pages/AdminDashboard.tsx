@@ -12,13 +12,10 @@ import {
   RefreshCw,
   AlertCircle,
   LogOut,
-  FileBarChart2,
-  Settings
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeProvider';
 import { Button } from '@/components/ui/button';
 import ReportsSection from '@/components/ReportsSection';
-import ResourceManagementDialog from '@/components/ResourceManagementDialog';
 
 interface Resource {
   id: string;
@@ -43,7 +40,6 @@ const AdminDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [showReports, setShowReports] = useState(false);
-  const [showManageDialog, setShowManageDialog] = useState(false);
   
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -302,150 +298,113 @@ const AdminDashboard = () => {
               </div>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-              <div className="lg:col-span-2">
-                <div className="glass-dark rounded-xl p-6 mb-6">
-                  <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-6">
-                    <h2 className="text-xl font-semibold">Resource Requests</h2>
-                    
-                    <div className="flex flex-wrap gap-3 items-center">
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-                        <input
-                          type="text"
-                          placeholder="Search requests..."
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className="pl-9 pr-4 py-2 bg-black/40 border border-white/10 rounded-lg focus:ring-1 focus:ring-white/30 focus:outline-none w-full md:w-60"
-                        />
-                      </div>
-                      
-                      <div className="flex items-center space-x-2">
-                        <Filter size={16} className="text-gray-400" />
-                        <select
-                          value={categoryFilter}
-                          onChange={(e) => setCategoryFilter(e.target.value)}
-                          className="bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-white/20"
-                        >
-                          <option value="all">All Categories</option>
-                          <option value="water">Water</option>
-                          <option value="shelter">Shelter</option>
-                          <option value="food">Food</option>
-                          <option value="supplies">Supplies</option>
-                          <option value="medical">Medical</option>
-                          <option value="safety">Safety</option>
-                        </select>
-                      </div>
-                      
-                      <Button
-                        onClick={refreshData}
-                        variant="outline"
-                        className="flex items-center space-x-2 bg-white/10 hover:bg-white/20 border border-white/10 transition-colors"
-                      >
-                        <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
-                        <span>Refresh</span>
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <Tabs defaultValue="all" className="w-full">
-                    <TabsList className="mb-4">
-                      <TabsTrigger value="all" onClick={() => setStatusFilter('all')}>
-                        All Requests
-                      </TabsTrigger>
-                      <TabsTrigger value="pending" onClick={() => setStatusFilter('pending')}>
-                        <Clock size={14} className="mr-1" />
-                        Pending
-                      </TabsTrigger>
-                      <TabsTrigger value="addressing" onClick={() => setStatusFilter('addressing')}>
-                        <FileCheck size={14} className="mr-1" />
-                        Addressing
-                      </TabsTrigger>
-                      <TabsTrigger value="resolved" onClick={() => setStatusFilter('resolved')}>
-                        <CheckCircle2 size={14} className="mr-1" />
-                        Resolved
-                      </TabsTrigger>
-                    </TabsList>
-                    
-                    <TabsContent value="all" className="mt-0">
-                      <RequestsTable 
-                        resources={filteredResources} 
-                        onAssign={handleAssignRequest}
-                        onStatusChange={updateResourceStatus}
-                        getCategoryLabel={getCategoryLabel}
-                      />
-                    </TabsContent>
-                    
-                    <TabsContent value="pending" className="mt-0">
-                      <RequestsTable 
-                        resources={filteredResources.filter(r => r.status === 'pending')} 
-                        onAssign={handleAssignRequest}
-                        onStatusChange={updateResourceStatus}
-                        getCategoryLabel={getCategoryLabel}
-                      />
-                    </TabsContent>
-                    
-                    <TabsContent value="addressing" className="mt-0">
-                      <RequestsTable 
-                        resources={filteredResources.filter(r => r.status === 'addressing')} 
-                        onAssign={handleAssignRequest}
-                        onStatusChange={updateResourceStatus}
-                        getCategoryLabel={getCategoryLabel}
-                      />
-                    </TabsContent>
-                    
-                    <TabsContent value="resolved" className="mt-0">
-                      <RequestsTable 
-                        resources={filteredResources.filter(r => r.status === 'resolved')} 
-                        onAssign={handleAssignRequest}
-                        onStatusChange={updateResourceStatus}
-                        getCategoryLabel={getCategoryLabel}
-                      />
-                    </TabsContent>
-                  </Tabs>
-                </div>
-              </div>
-
-              <div className="lg:col-span-1">
-                <div className="glass-dark rounded-xl p-6 mb-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold">Resource Management</h2>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <Button 
-                      variant="outline" 
-                      className="w-full justify-start bg-white/5 border-white/10"
-                      onClick={() => setShowManageDialog(true)}
-                    >
-                      <Settings size={18} className="mr-2" />
-                      Manage All
-                    </Button>
-                    
-                    <Button 
-                      variant="outline" 
-                      className="w-full justify-start bg-white/5 border-white/10"
-                      onClick={() => setShowReports(!showReports)}
-                    >
-                      <FileBarChart2 size={18} className="mr-2" />
-                      View Reports
-                    </Button>
-                  </div>
-                </div>
+            <div className="glass-dark rounded-xl p-6 mb-6">
+              <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold">Resource Requests</h2>
                 
-                {showReports && (
-                  <ReportsSection />
-                )}
+                <div className="flex flex-wrap gap-3 items-center">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                    <input
+                      type="text"
+                      placeholder="Search requests..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-9 pr-4 py-2 bg-black/40 border border-white/10 rounded-lg focus:ring-1 focus:ring-white/30 focus:outline-none w-full md:w-60"
+                    />
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Filter size={16} className="text-gray-400" />
+                    <select
+                      value={categoryFilter}
+                      onChange={(e) => setCategoryFilter(e.target.value)}
+                      className="bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-white/20"
+                    >
+                      <option value="all">All Categories</option>
+                      <option value="water">Water</option>
+                      <option value="shelter">Shelter</option>
+                      <option value="food">Food</option>
+                      <option value="supplies">Supplies</option>
+                      <option value="medical">Medical</option>
+                      <option value="safety">Safety</option>
+                    </select>
+                  </div>
+                  
+                  <Button
+                    onClick={refreshData}
+                    variant="outline"
+                    className="flex items-center space-x-2 bg-white/10 hover:bg-white/20 border border-white/10 transition-colors"
+                  >
+                    <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
+                    <span>Refresh</span>
+                  </Button>
+                </div>
               </div>
+              
+              <Tabs defaultValue="all" className="w-full">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="all" onClick={() => setStatusFilter('all')}>
+                    All Requests
+                  </TabsTrigger>
+                  <TabsTrigger value="pending" onClick={() => setStatusFilter('pending')}>
+                    <Clock size={14} className="mr-1" />
+                    Pending
+                  </TabsTrigger>
+                  <TabsTrigger value="addressing" onClick={() => setStatusFilter('addressing')}>
+                    <FileCheck size={14} className="mr-1" />
+                    Addressing
+                  </TabsTrigger>
+                  <TabsTrigger value="resolved" onClick={() => setStatusFilter('resolved')}>
+                    <CheckCircle2 size={14} className="mr-1" />
+                    Resolved
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="all" className="mt-0">
+                  <RequestsTable 
+                    resources={filteredResources} 
+                    onAssign={handleAssignRequest}
+                    onStatusChange={updateResourceStatus}
+                    getCategoryLabel={getCategoryLabel}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="pending" className="mt-0">
+                  <RequestsTable 
+                    resources={filteredResources.filter(r => r.status === 'pending')} 
+                    onAssign={handleAssignRequest}
+                    onStatusChange={updateResourceStatus}
+                    getCategoryLabel={getCategoryLabel}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="addressing" className="mt-0">
+                  <RequestsTable 
+                    resources={filteredResources.filter(r => r.status === 'addressing')} 
+                    onAssign={handleAssignRequest}
+                    onStatusChange={updateResourceStatus}
+                    getCategoryLabel={getCategoryLabel}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="resolved" className="mt-0">
+                  <RequestsTable 
+                    resources={filteredResources.filter(r => r.status === 'resolved')} 
+                    onAssign={handleAssignRequest}
+                    onStatusChange={updateResourceStatus}
+                    getCategoryLabel={getCategoryLabel}
+                  />
+                </TabsContent>
+              </Tabs>
             </div>
+            
+            {showReports && (
+              <ReportsSection />
+            )}
           </div>
         </main>
       </AnimatedTransition>
-      
-      <ResourceManagementDialog
-        open={showManageDialog}
-        onOpenChange={setShowManageDialog}
-      />
     </div>
   );
 };

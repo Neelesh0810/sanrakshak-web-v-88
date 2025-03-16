@@ -4,11 +4,23 @@ import Header from '../components/Header';
 import { Clock, Info, AlertTriangle, MapPin, ExternalLink, Bookmark, Share2 } from 'lucide-react';
 import { useTheme } from '../context/ThemeProvider';
 import BackButton from '../components/BackButton';
+import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 
 const StatusDetails = () => {
   const { id } = useParams<{ id: string }>();
   const { theme } = useTheme();
   const isLight = theme === 'light';
+  
+  // Jabalpur coordinates
+  const defaultCenter = {
+    lat: 23.1815,
+    lng: 79.9864
+  };
+  
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || "AIzaSyD1tUOXPaAr6eVZlBXJfZlvKtBmAQHD5xY" // Fallback key - replace with your actual key
+  });
   
   const statusMap: { [key: string]: any } = {
     'status-1': {
@@ -22,8 +34,8 @@ const StatusDetails = () => {
       updated: 'June 15, 2023 - 10:25 AM',
       priority: 'high',
       coordinates: {
-        lat: 34.052235,
-        lng: -118.243683
+        lat: 23.1815,
+        lng: 79.9864
       }
     },
     'status-2': {
@@ -37,8 +49,8 @@ const StatusDetails = () => {
       updated: 'June 15, 2023 - 8:15 AM',
       priority: 'medium',
       coordinates: {
-        lat: 34.052235,
-        lng: -118.243683
+        lat: 23.1815,
+        lng: 79.9864
       }
     },
     'status-3': {
@@ -52,8 +64,8 @@ const StatusDetails = () => {
       updated: 'June 15, 2023 - 6:30 AM',
       priority: 'low',
       coordinates: {
-        lat: 34.052235,
-        lng: -118.243683
+        lat: 23.1815,
+        lng: 79.9864
       }
     }
   };
@@ -68,10 +80,7 @@ const StatusDetails = () => {
     timestamp: 'Unknown',
     updated: 'Unknown',
     priority: 'medium',
-    coordinates: {
-      lat: 0,
-      lng: 0
-    }
+    coordinates: defaultCenter
   };
   
   const getPriorityStyles = () => {
@@ -98,6 +107,12 @@ const StatusDetails = () => {
       default:
         return <Info size={20} className={`mr-2 ${isLight ? "text-gray-800" : "text-gray-300"}`} />;
     }
+  };
+  
+  const mapContainerStyle = {
+    width: '100%',
+    height: '250px',
+    borderRadius: '8px'
   };
   
   return (
@@ -164,14 +179,108 @@ const StatusDetails = () => {
                   <span>Location Information</span>
                 </div>
                 
-                <div className={`${isLight ? "bg-gray-100 border border-gray-300" : "bg-black/40 border border-white/5"} rounded-lg h-56 flex items-center justify-center mb-4`}>
-                  <div className="text-center">
-                    <p className={isLight ? "text-gray-700" : "text-gray-400"}>Map view would be displayed here</p>
-                    <p className={`text-xs ${isLight ? "text-gray-600" : "text-gray-500"} mt-1`}>
-                      Coordinates: {status.coordinates.lat}, {status.coordinates.lng}
-                    </p>
+                {isLoaded ? (
+                  <div className="mb-4 overflow-hidden rounded-lg border border-white/10">
+                    <GoogleMap
+                      mapContainerStyle={mapContainerStyle}
+                      center={status.coordinates}
+                      zoom={13}
+                      options={{
+                        styles: isLight ? [] : [
+                          { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+                          { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+                          { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+                          {
+                            featureType: "administrative.locality",
+                            elementType: "labels.text.fill",
+                            stylers: [{ color: "#d59563" }],
+                          },
+                          {
+                            featureType: "poi",
+                            elementType: "labels.text.fill",
+                            stylers: [{ color: "#d59563" }],
+                          },
+                          {
+                            featureType: "poi.park",
+                            elementType: "geometry",
+                            stylers: [{ color: "#263c3f" }],
+                          },
+                          {
+                            featureType: "poi.park",
+                            elementType: "labels.text.fill",
+                            stylers: [{ color: "#6b9a76" }],
+                          },
+                          {
+                            featureType: "road",
+                            elementType: "geometry",
+                            stylers: [{ color: "#38414e" }],
+                          },
+                          {
+                            featureType: "road",
+                            elementType: "geometry.stroke",
+                            stylers: [{ color: "#212a37" }],
+                          },
+                          {
+                            featureType: "road",
+                            elementType: "labels.text.fill",
+                            stylers: [{ color: "#9ca5b3" }],
+                          },
+                          {
+                            featureType: "road.highway",
+                            elementType: "geometry",
+                            stylers: [{ color: "#746855" }],
+                          },
+                          {
+                            featureType: "road.highway",
+                            elementType: "geometry.stroke",
+                            stylers: [{ color: "#1f2835" }],
+                          },
+                          {
+                            featureType: "road.highway",
+                            elementType: "labels.text.fill",
+                            stylers: [{ color: "#f3d19c" }],
+                          },
+                          {
+                            featureType: "transit",
+                            elementType: "geometry",
+                            stylers: [{ color: "#2f3948" }],
+                          },
+                          {
+                            featureType: "transit.station",
+                            elementType: "labels.text.fill",
+                            stylers: [{ color: "#d59563" }],
+                          },
+                          {
+                            featureType: "water",
+                            elementType: "geometry",
+                            stylers: [{ color: "#17263c" }],
+                          },
+                          {
+                            featureType: "water",
+                            elementType: "labels.text.fill",
+                            stylers: [{ color: "#515c6d" }],
+                          },
+                          {
+                            featureType: "water",
+                            elementType: "labels.text.stroke",
+                            stylers: [{ color: "#17263c" }],
+                          },
+                        ]
+                      }}
+                    >
+                      <Marker position={status.coordinates} />
+                    </GoogleMap>
                   </div>
-                </div>
+                ) : (
+                  <div className={`${isLight ? "bg-gray-100 border border-gray-300" : "bg-black/40 border border-white/5"} rounded-lg h-56 flex items-center justify-center mb-4`}>
+                    <div className="text-center">
+                      <p className={isLight ? "text-gray-700" : "text-gray-400"}>Loading map...</p>
+                      <p className={`text-xs ${isLight ? "text-gray-600" : "text-gray-500"} mt-1`}>
+                        Coordinates: {status.coordinates.lat}, {status.coordinates.lng}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
               
               <div className={`${isLight ? "bg-white border border-gray-300 shadow-soft" : "bg-black/30 border border-white/10"} rounded-xl p-6`}>
