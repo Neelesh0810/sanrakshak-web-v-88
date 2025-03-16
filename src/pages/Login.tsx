@@ -23,7 +23,10 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Prevent default form submission
     e.preventDefault();
     
     const storedUsers = localStorage.getItem('users');
@@ -59,6 +62,7 @@ const Login = () => {
       }
     }
     
+    // Save authenticated user to localStorage
     localStorage.setItem('authUser', JSON.stringify(loggedInUser));
     
     toast({
@@ -102,6 +106,8 @@ const Login = () => {
     
     // Dispatch event to notify other components
     window.dispatchEvent(new Event('auth-changed'));
+    
+    console.log("Login successful, redirecting to:", loggedInUser.role === 'admin' ? '/admin-dashboard' : '/dashboard');
     
     // Redirect based on user role (with replace: true to prevent back navigation to login)
     if (loggedInUser.role === 'admin') {

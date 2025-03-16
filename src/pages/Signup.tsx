@@ -28,6 +28,8 @@ const Signup = () => {
     e.preventDefault();
     setLoading(true);
     
+    console.log("Signup form submitted");
+    
     if (!name || !email || !password) {
       toast({
         title: "Missing fields",
@@ -76,12 +78,15 @@ const Signup = () => {
       canVolunteer,
     };
     
+    // Save user to localStorage for authentication
     localStorage.setItem('authUser', JSON.stringify(newUser));
     
+    // Add user to users array
     const users = JSON.parse(localStorage.getItem('users') || '[]');
     users.push(newUser);
     localStorage.setItem('users', JSON.stringify(users));
     
+    // Notify other components that auth state has changed
     window.dispatchEvent(new Event('auth-changed'));
     
     toast({
@@ -111,7 +116,9 @@ const Signup = () => {
       localStorage.setItem('users', JSON.stringify(allUsers));
     }
     
-    // Redirect based on user role
+    console.log("Signup successful, redirecting to:", role === 'admin' ? '/admin-dashboard' : '/dashboard');
+    
+    // Redirect based on user role with replace: true to prevent back navigation
     if (role === 'admin') {
       navigate('/admin-dashboard', { replace: true });
     } else {
