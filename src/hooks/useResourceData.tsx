@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 
 // Define types for our resources
@@ -40,6 +41,30 @@ const useResourceData = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [responses, setResponses] = useState<ResourceResponse[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userLocation, setUserLocation] = useState<string>('Jabalpur');
+
+  // Get user's location for dummy data
+  useEffect(() => {
+    const getLocation = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            // For demo purposes, we'll still use Jabalpur locations but could use real location data
+            setUserLocation('Jabalpur');
+          },
+          (error) => {
+            console.log("Location permission denied or error, using default location");
+            setUserLocation('Jabalpur');
+          }
+        );
+      } else {
+        console.log("Geolocation not supported, using default location");
+        setUserLocation('Jabalpur');
+      }
+    };
+    
+    getLocation();
+  }, []);
 
   // Load resources from localStorage
   useEffect(() => {
@@ -73,9 +98,12 @@ const useResourceData = () => {
         }
       }
       
-      // If no resources found, create initial data
-      if (allResources.length === 0) {
-        allResources = [
+      // If no resources found or no offer type resources, create initial data
+      const offerResources = allResources.filter(r => r.type === 'offer');
+      
+      if (allResources.length === 0 || offerResources.length === 0) {
+        // Create dummy resources with more detailed location information
+        const dummyResources: Resource[] = [
           {
             id: '1',
             type: 'need',
@@ -83,6 +111,7 @@ const useResourceData = () => {
             title: 'Clean Drinking Water',
             description: 'Urgently need bottled water for family of 4, including infant.',
             location: 'Madan Mahal, Jabalpur',
+            locationDetails: 'Near Madan Mahal Fort, South Block',
             urgent: true,
             timestamp: Date.now() - 3600000,
             status: 'pending'
@@ -94,11 +123,75 @@ const useResourceData = () => {
             title: 'Temporary Housing Available',
             description: 'Can accommodate up to 3 people in spare rooms. Has generator and supplies.',
             location: 'Civil Lines, Jabalpur',
-            contact: '555-123-4567',
+            locationDetails: 'Lane 3, Near City Hospital',
+            contact: '9876543210',
+            contactName: 'Priya Sharma',
             timestamp: Date.now() - 7200000,
+            status: 'pending'
+          },
+          {
+            id: '3',
+            type: 'offer',
+            category: 'food',
+            title: 'Hot Meals Available',
+            description: 'Providing hot vegetarian meals three times daily for affected families.',
+            location: 'Napier Town, Jabalpur',
+            locationDetails: 'Community Center, Block B',
+            contact: '9988776655',
+            contactName: 'Vikram Singh',
+            specialNotes: 'Please bring your own containers if possible',
+            timestamp: Date.now() - 5400000,
+            status: 'pending'
+          },
+          {
+            id: '4',
+            type: 'offer',
+            category: 'medical',
+            title: 'Medical Supplies & First Aid',
+            description: 'Distributing essential medicines, bandages, and first aid supplies. Doctor available for consultation.',
+            location: 'Garha, Jabalpur',
+            locationDetails: 'Near Railway Colony',
+            contact: '8765432109',
+            contactName: 'Dr. Rajesh Kumar',
+            urgent: true,
+            timestamp: Date.now() - 2700000,
+            status: 'pending'
+          },
+          {
+            id: '5',
+            type: 'offer',
+            category: 'supplies',
+            title: 'Blankets and Clothing',
+            description: 'Offering warm blankets, children\'s clothing, and basic hygiene supplies for displaced families.',
+            location: 'Adhartal, Jabalpur',
+            locationDetails: 'Community Hall, Near Lake View',
+            contact: '7654321098',
+            contactName: 'Sunita Patel',
+            timestamp: Date.now() - 9000000,
+            status: 'pending'
+          },
+          {
+            id: '6',
+            type: 'offer',
+            category: 'safety',
+            title: 'Temporary Power Supply',
+            description: 'Generator available for charging phones and essential medical equipment. Available 8am-8pm.',
+            location: 'Katanga, Jabalpur',
+            locationDetails: 'Market Square',
+            contact: '9876123450',
+            contactName: 'Amit Verma',
+            timestamp: Date.now() - 10800000,
             status: 'pending'
           }
         ];
+        
+        if (allResources.length === 0) {
+          allResources = dummyResources;
+        } else {
+          // Just add the offer resources if there are no offers
+          const dummyOffers = dummyResources.filter(r => r.type === 'offer');
+          allResources = [...allResources, ...dummyOffers];
+        }
       }
       
       // Sort resources consistently by timestamp and urgency
@@ -167,7 +260,7 @@ const useResourceData = () => {
       window.removeEventListener('response-updated', handleResourceChange);
       window.removeEventListener('response-created', handleResourceChange);
     };
-  }, []);
+  }, [userLocation]);
   
   // Function to add a new resource
   const addResource = (newResource: Omit<Resource, 'id' | 'timestamp'>) => {
