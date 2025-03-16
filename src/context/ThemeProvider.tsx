@@ -11,38 +11,19 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // Change default theme to 'light'
+  // Always default to light theme
   const [theme, setTheme] = useState<Theme>('light');
 
   useEffect(() => {
-    // Check if user has saved theme preference
-    const storedTheme = localStorage.getItem('theme');
-    if (storedTheme === 'light' || storedTheme === 'dark') {
-      setTheme(storedTheme);
-    } else {
-      // If no preference, default to light
-      setTheme('light');
-      localStorage.setItem('theme', 'light');
-    }
+    // Force light theme as default
+    setTheme('light');
+    localStorage.setItem('theme', 'light');
 
-    // Check if user has settings with darkMode preference
-    const storedUser = localStorage.getItem('authUser');
-    if (storedUser) {
-      try {
-        const user = JSON.parse(storedUser);
-        const settingsKey = `settings_${user.id}`;
-        const storedSettings = localStorage.getItem(settingsKey);
-        
-        if (storedSettings) {
-          const settings = JSON.parse(storedSettings);
-          if (settings.darkMode !== undefined) {
-            setTheme(settings.darkMode ? 'dark' : 'light');
-          }
-        }
-      } catch (error) {
-        console.error("Error parsing user data or settings:", error);
-      }
-    }
+    // Apply the theme immediately
+    document.documentElement.classList.remove('dark-mode');
+    document.documentElement.classList.add('light-mode');
+    document.body.classList.remove('dark-mode');
+    document.body.classList.add('light-mode');
   }, []);
 
   useEffect(() => {

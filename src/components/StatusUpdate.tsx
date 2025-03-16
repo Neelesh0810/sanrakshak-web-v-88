@@ -30,7 +30,7 @@ const StatusUpdate: React.FC<StatusUpdateProps> = ({
   const getPriorityStyles = () => {
     switch (priority) {
       case 'high':
-        return isLight ? 'border-l-4 border-red-500' : 'border-l-4 border-white';
+        return 'border-l-4 border-red-500';
       case 'medium':
         return isLight ? 'border-l-4 border-gray-800' : 'border-l-4 border-gray-400';
       case 'low':
