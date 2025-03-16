@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import ResourceCard from '../components/ResourceCard';
@@ -212,7 +213,7 @@ const VolunteerResources = () => {
                     contact={resource.contact}
                     urgent={resource.urgent}
                     requestId={resource.id}
-                    isRequested={user?.id && respondedRequestIds.has(resource.id)}
+                    isRequested={resource.type === 'need' && user?.id && respondedRequestIds.has(resource.id)}
                   />
                 </div>
               ))}
