@@ -24,9 +24,8 @@ const Signup = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Signup form submitted, preventing default");
     setLoading(true);
     
     if (!name || !email || !password) {
@@ -56,87 +55,70 @@ const Signup = () => {
       return;
     }
     
-    try {
-      // Check if user with same email already exists
-      const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
-      if (existingUsers.find((user: any) => user.email === email)) {
-        toast({
-          title: "Email already exists",
-          description: "Please use a different email address.",
-        });
-        setLoading(false);
-        return;
-      }
-      
-      // Create new user object
-      const newUser = {
-        id: `user-${Date.now()}`,
-        name,
-        email,
-        phone,
-        location,
-        password,
-        role,
-        canVolunteer,
-      };
-      console.log("Creating new user:", newUser);
-      
-      // Save user to localStorage for authentication
-      localStorage.setItem('authUser', JSON.stringify(newUser));
-      
-      // Add user to users array
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      users.push(newUser);
-      localStorage.setItem('users', JSON.stringify(users));
-      
-      // Notify other components that auth state has changed
-      window.dispatchEvent(new Event('auth-changed'));
-      
+    const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    if (existingUsers.find((user: any) => user.email === email)) {
       toast({
-        title: "Signup successful",
-        description: "Your account has been created successfully.",
+        title: "Email already exists",
+        description: "Please use a different email address.",
       });
-      
-      // Update the user in the users array with more details
-      const usersStr = localStorage.getItem('users');
-      const allUsers = usersStr ? JSON.parse(usersStr) : [];
-      
-      // Find if user exists in the array and update it
-      const userExists = allUsers.some((u: any) => u.id === newUser.id);
-      
-      if (!userExists) {
-        allUsers.push({
-          id: newUser.id,
-          name: newUser.name,
-          role: newUser.role,
-          contactInfo: newUser.email || newUser.phone || 'No contact info',
-          location: newUser.location || 'Unknown location',
-          lastActive: 'just now',
-          skills: ['volunteer', 'ngo', 'government'].includes(newUser.role) ? ['New Volunteer'] : [],
-          needsHelp: newUser.role === 'victim' ? ['Newly Registered'] : []
-        });
-        
-        localStorage.setItem('users', JSON.stringify(allUsers));
-      }
-      
-      // Determine redirect path based on user role
-      const redirectPath = role === 'admin' ? '/admin-dashboard' : '/dashboard';
-      console.log("Signup successful, redirecting to:", redirectPath);
-      
-      // Use a slight delay to ensure state updates before navigation
-      setTimeout(() => {
-        navigate(redirectPath, { replace: true });
-      }, 100);
-      
-    } catch (error) {
-      console.error("Error during signup:", error);
-      toast({
-        title: "Signup failed",
-        description: "An error occurred. Please try again.",
-      });
-    } finally {
       setLoading(false);
+      return;
     }
+    
+    const newUser = {
+      id: `user-${Date.now()}`,
+      name,
+      email,
+      phone,
+      location,
+      password,
+      role,
+      canVolunteer,
+    };
+    
+    localStorage.setItem('authUser', JSON.stringify(newUser));
+    
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    users.push(newUser);
+    localStorage.setItem('users', JSON.stringify(users));
+    
+    window.dispatchEvent(new Event('auth-changed'));
+    
+    toast({
+      title: "Signup successful",
+      description: "You have successfully signed up.",
+    });
+    
+    // Update the user in the users array with more details
+    const usersStr = localStorage.getItem('users');
+    const allUsers = usersStr ? JSON.parse(usersStr) : [];
+    
+    // Find if user exists in the array and update it
+    const userExists = allUsers.some((u: any) => u.id === newUser.id);
+    
+    if (!userExists) {
+      allUsers.push({
+        id: newUser.id,
+        name: newUser.name,
+        role: newUser.role,
+        contactInfo: newUser.email || newUser.phone || 'No contact info',
+        location: newUser.location || 'Unknown location',
+        lastActive: 'just now',
+        skills: ['volunteer', 'ngo', 'government'].includes(newUser.role) ? ['New Volunteer'] : [],
+        needsHelp: newUser.role === 'victim' ? ['Newly Registered'] : []
+      });
+      
+      localStorage.setItem('users', JSON.stringify(allUsers));
+    }
+    
+    // Redirect based on user role
+    if (role === 'admin') {
+      navigate('/admin-dashboard', { replace: true });
+    } else {
+      navigate('/dashboard', { replace: true });
+    }
+    
+    setLoading(false);
   };
   
   return (
