@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Buildings, Map, Bell, ChevronRight, Clock, Calendar, Activity, Users, Search } from 'lucide-react';
+import { Building, Map, Bell, ChevronRight, Clock, Calendar, Activity, Users, Search } from 'lucide-react';
 import UserProfile from '../UserProfile';
 import StatusUpdate from '../StatusUpdate';
 import AnimatedTransition from '../AnimatedTransition';
@@ -18,21 +18,17 @@ const VictimDashboard: React.FC<VictimDashboardProps> = ({
   const [registeredUsers, setRegisteredUsers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Fetch actual registered users from localStorage
   useEffect(() => {
     const fetchUsers = () => {
       try {
-        // Get all users from localStorage
         const users = JSON.parse(localStorage.getItem('users') || '[]');
         
-        // Filter based on user preference
         let filteredUsers = users;
         if (userFilter === 'volunteers') {
           filteredUsers = users.filter((user: any) => user.role === 'volunteer');
         } else if (userFilter === 'ngos') {
           filteredUsers = users.filter((user: any) => user.role === 'ngo');
         } else {
-          // For 'all', still only show volunteers and NGOs
           filteredUsers = users.filter((user: any) => 
             user.role === 'volunteer' || user.role === 'ngo'
           );
@@ -41,7 +37,6 @@ const VictimDashboard: React.FC<VictimDashboardProps> = ({
         setRegisteredUsers(filteredUsers);
       } catch (error) {
         console.error('Error fetching users:', error);
-        // Fallback to empty array
         setRegisteredUsers([]);
       } finally {
         setIsLoading(false);
@@ -50,7 +45,6 @@ const VictimDashboard: React.FC<VictimDashboardProps> = ({
     
     fetchUsers();
     
-    // Listen for auth changes to update user list
     const handleAuthChange = () => {
       fetchUsers();
     };
@@ -99,7 +93,7 @@ const VictimDashboard: React.FC<VictimDashboardProps> = ({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between">
               <div className="mb-4 sm:mb-0 sm:mr-6">
                 <div className="flex items-center mb-2">
-                  <Buildings size={18} className="mr-2 text-white" />
+                  <Building size={18} className="mr-2 text-white" />
                   <h2 className="text-xl font-semibold">Available Resources</h2>
                 </div>
                 <p className="text-gray-300 text-sm mb-3">
