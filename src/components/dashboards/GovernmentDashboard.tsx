@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { BarChart, Building2, Users, FileText, AlertTriangle, UserCheck, BuildingCommunity } from 'lucide-react';
+import { BarChart, Building2, Users, FileText, AlertTriangle, UserCheck, Building } from 'lucide-react';
 import StatusUpdate from '../StatusUpdate';
 import AnimatedTransition from '../AnimatedTransition';
 import { Link } from 'react-router-dom';

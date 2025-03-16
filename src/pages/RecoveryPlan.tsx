@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { HardHat, Hammer, LifeBuoy, HouseLine, CheckCircle, Clock, AlertTriangle, Users } from 'lucide-react';
+import { HardHat, Hammer, LifeBuoy, House, CheckCircle, Clock, AlertTriangle, Users } from 'lucide-react';
 import Header from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AnimatedTransition from '@/components/AnimatedTransition';
@@ -120,7 +120,7 @@ const RecoveryPlan = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <HouseLine className="mr-2 h-5 w-5" />
+                  <House className="mr-2 h-5 w-5" />
                   Housing & Shelter
                 </CardTitle>
               </CardHeader>
@@ -152,7 +152,7 @@ const RecoveryPlan = () => {
                   
                   <div className="flex items-center justify-between p-3 border border-white/10 rounded-lg bg-white/5">
                     <div className="flex items-center">
-                      <HouseLine className="h-4 w-4 mr-2 text-green-500" />
+                      <House className="h-4 w-4 mr-2 text-green-500" />
                       <span>Homes Restored</span>
                     </div>
                     <span className="text-xl font-semibold">128</span>
