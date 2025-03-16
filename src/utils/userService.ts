@@ -22,6 +22,18 @@ export const getAllUsers = (): User[] => {
   }
 };
 
+// Get a specific user by ID
+export const getUserById = (userId: string): User | null => {
+  try {
+    const users = getAllUsers();
+    const user = users.find(u => u.id === userId);
+    return user || null;
+  } catch (error) {
+    console.error('Error getting user by ID:', error);
+    return null;
+  }
+};
+
 // Get current timestamp in the required format
 export const getCurrentTimestamp = (): string => {
   const now = new Date();

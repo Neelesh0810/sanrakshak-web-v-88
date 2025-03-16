@@ -1,8 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import { ArrowLeft, Send, Paperclip, Image, MapPin, Mic, Phone, Video } from 'lucide-react';
+import { getAllUsers } from '../utils/userService';
+import BackButton from '../components/BackButton';
 
 interface Message {
   id: string;
@@ -17,12 +19,13 @@ const ChatSection = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [contact, setContact] = useState<any>(null);
+  const navigate = useNavigate();
   
   useEffect(() => {
     // Get contact info based on contactId
     const getContactInfo = () => {
-      // In a real app, this would be an API call
-      const contactMap: {[key: string]: any} = {
+      // Check if contactId is a UUID or one of the predefined contacts
+      const predefinedContacts: {[key: string]: any} = {
         'emergency-1': {
           name: 'Emergency Response',
           role: 'Coordination Center',
@@ -40,38 +43,34 @@ const ChatSection = () => {
           role: 'Shelter Manager',
           phone: '555-456-7890',
           isOnline: false,
-        },
-        'volunteer-1': {
-          name: 'Sarah Johnson',
-          role: 'Volunteer',
-          phone: 'sarah.j@example.com',
-          isOnline: true,
-        },
-        'volunteer-2': {
-          name: 'Michael Chen',
-          role: 'Volunteer',
-          phone: 'm.chen@example.com',
-          isOnline: true,
-        },
-        'ngo-1': {
-          name: 'Red Cross Chapter',
-          role: 'NGO',
-          phone: 'local@redcross.org',
-          isOnline: true,
-        },
-        'ngo-2': {
-          name: 'Community Relief Foundation',
-          role: 'NGO',
-          phone: 'help@crf.org',
-          isOnline: true,
         }
       };
       
-      setContact(contactMap[contactId || ''] || { 
-        name: 'Unknown Contact',
-        role: 'No information available',
-        isOnline: false,
-      });
+      // Check if it's a predefined contact
+      if (predefinedContacts[contactId || '']) {
+        setContact(predefinedContacts[contactId || '']);
+        return;
+      }
+      
+      // Check if it's a user from userService
+      const allUsers = getAllUsers();
+      const userContact = allUsers.find(user => user.id === contactId);
+      
+      if (userContact) {
+        setContact({
+          name: userContact.name,
+          role: userContact.role,
+          phone: userContact.contactInfo,
+          isOnline: userContact.lastActive === 'just now' || userContact.lastActive.includes('minute'),
+        });
+      } else {
+        // Fallback for unknown contacts
+        setContact({ 
+          name: "Unknown Contact",
+          role: "No information available",
+          isOnline: false,
+        });
+      }
     };
     
     // Get message history or create empty conversation
@@ -148,6 +147,33 @@ const ChatSection = () => {
     }, 2000);
   };
   
+  const handleGoBack = () => {
+    // Get current user role from localStorage
+    const currentUser = localStorage.getItem('authUser');
+    let role = '';
+    
+    if (currentUser) {
+      try {
+        const user = JSON.parse(currentUser);
+        role = user.role;
+      } catch (e) {
+        console.error("Error parsing user data", e);
+      }
+    }
+    
+    // Redirect based on user role
+    if (role === 'ngo') {
+      navigate('/dashboard');
+    } else if (role === 'volunteer') {
+      navigate('/dashboard');
+    } else if (role === 'government') {
+      navigate('/dashboard');
+    } else {
+      // Default fallback
+      navigate('/dashboard');
+    }
+  };
+  
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
       <Header emergency={true} />
@@ -156,9 +182,9 @@ const ChatSection = () => {
         <div className="border-b border-white/10 bg-black/50 backdrop-blur-md">
           <div className="container mx-auto px-4">
             <div className="flex items-center py-3">
-              <Link to="/" className="mr-4">
+              <button onClick={handleGoBack} className="mr-4">
                 <ArrowLeft size={20} />
-              </Link>
+              </button>
               
               <div className="flex-grow">
                 <h2 className="font-medium">{contact?.name}</h2>
