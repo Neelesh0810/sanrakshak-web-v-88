@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -137,7 +136,6 @@ const App = () => {
     if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
     if (!user) return <Navigate to="/login" replace />;
     
-    // Redirect to the appropriate resource page based on user role
     if (user.role === 'victim') {
       return <Navigate to="/victim-resources" replace />;
     } else if (user.role === 'volunteer' || user.role === 'ngo' || user.role === 'government') {
@@ -196,10 +194,8 @@ const App = () => {
                 </ProtectedRoute>
               } />
               
-              {/* Legacy resources route that redirects based on user role */}
               <Route path="/resources" element={<ResourceRouteRedirect />} />
               
-              {/* New role-specific resource routes */}
               <Route path="/volunteer-resources" element={
                 <ProtectedRoute>
                   <VolunteerResources />
@@ -268,7 +264,6 @@ const App = () => {
                 </ProtectedRoute>
               } />
               
-              {/* New recovery plan and command center routes */}
               <Route path="/recovery-plan" element={
                 <ProtectedRoute>
                   <RecoveryPlan />

@@ -7,7 +7,7 @@ import GovernmentDashboard from './dashboards/GovernmentDashboard';
 import { Info, Map, Users, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AnimatedTransition from './AnimatedTransition';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import useResourceData from '@/hooks/useResourceData';
 
 const Dashboard: React.FC = () => {
@@ -16,6 +16,7 @@ const Dashboard: React.FC = () => {
   const [dashboardKey, setDashboardKey] = useState(Date.now());
   const resourceData = useResourceData();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   
   const fetchUserRole = useCallback(() => {
     const authUser = localStorage.getItem('authUser');
@@ -23,12 +24,19 @@ const Dashboard: React.FC = () => {
       const user = JSON.parse(authUser);
       setUserRole(user.role);
       console.info('Rendering dashboard for role:', user.role);
+      
+      // Redirect to appropriate resource page based on role
+      if (user.role === 'victim') {
+        navigate('/victim-resources');
+      } else if (['volunteer', 'ngo', 'government'].includes(user.role)) {
+        navigate('/volunteer-resources');
+      }
     } else {
       // Default to victim view for unauthenticated users
       setUserRole('victim');
       console.warn('No role specified, defaulting to Victim dashboard');
     }
-  }, []);
+  }, [navigate]);
   
   useEffect(() => {
     // Get current user from localStorage
