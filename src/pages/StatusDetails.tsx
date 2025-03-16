@@ -12,6 +12,7 @@ const StatusDetails = () => {
   const { toast } = useToast();
   const isLight = theme === 'light';
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapError, setMapError] = useState(false);
   
   // Status data mapping
   const statusMap: { [key: string]: any } = {
@@ -109,6 +110,23 @@ const StatusDetails = () => {
     lat: status.coordinates.lat + 0.005,
     lng: status.coordinates.lng - 0.003
   };
+
+  useEffect(() => {
+    // Reset map state when component mounts or id changes
+    setMapLoaded(false);
+    setMapError(false);
+  }, [id]);
+
+  // Function to handle map load error
+  const handleMapError = () => {
+    setMapError(true);
+    setMapLoaded(false);
+    toast({
+      title: "Map Error",
+      description: "Unable to load the map. Please try again later.",
+      variant: "destructive",
+    });
+  };
   
   return (
     <div className={`min-h-screen ${isLight ? "bg-white" : "bg-black"} text-foreground`}>
@@ -174,79 +192,44 @@ const StatusDetails = () => {
                   <span>Location Information</span>
                 </div>
                 
-                {/* Enhanced static map visualization */}
-                <div className={`mb-4 overflow-hidden rounded-lg border ${isLight ? "border-gray-300" : "border-white/10"} h-[250px]`}>
-                  <div className={`relative w-full h-full ${isLight ? "bg-gray-100" : "bg-black/40"}`}>
-                    {/* Interactive map visualization */}
-                    <div className="absolute inset-0">
-                      <div className={`w-full h-full ${isLight ? "bg-blue-50" : "bg-blue-900/20"} relative`}>
-                        {/* Road network simulation */}
-                        <div className={`absolute top-1/4 left-0 right-0 h-0.5 ${isLight ? "bg-gray-300" : "bg-gray-700"}`}></div>
-                        <div className={`absolute top-3/4 left-0 right-0 h-0.5 ${isLight ? "bg-gray-300" : "bg-gray-700"}`}></div>
-                        <div className={`absolute left-1/4 top-0 bottom-0 w-0.5 ${isLight ? "bg-gray-300" : "bg-gray-700"}`}></div>
-                        <div className={`absolute left-3/4 top-0 bottom-0 w-0.5 ${isLight ? "bg-gray-300" : "bg-gray-700"}`}></div>
-                        
-                        {/* Affected area visualization */}
-                        <div className={`absolute top-1/3 left-1/3 right-1/3 bottom-1/3 rounded-full ${
-                          status.priority === 'high' 
-                            ? `${isLight ? "bg-red-200/70" : "bg-red-900/30"} border ${isLight ? "border-red-300" : "border-red-700"}`
-                            : status.priority === 'medium'
-                              ? `${isLight ? "bg-orange-200/70" : "bg-orange-900/30"} border ${isLight ? "border-orange-300" : "border-orange-700"}`
-                              : `${isLight ? "bg-blue-200/70" : "bg-blue-900/30"} border ${isLight ? "border-blue-300" : "border-blue-700"}`
-                        } flex items-center justify-center`}>
-                          <div className={`text-xs ${isLight ? "text-gray-600" : "text-gray-300"}`}>
-                            Affected Area
-                          </div>
-                        </div>
-                        
-                        {/* Incident location marker */}
-                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                          <div className={`animate-pulse h-3 w-3 rounded-full ${
-                            status.priority === 'high' 
-                              ? "bg-red-500" 
-                              : status.priority === 'medium' 
-                                ? "bg-orange-500" 
-                                : "bg-blue-500"
-                          }`}></div>
-                          <MapPin className={`h-8 w-8 -mt-7 -ml-4 ${
-                            status.priority === 'high' 
-                              ? "text-red-500" 
-                              : status.priority === 'medium' 
-                                ? "text-orange-500" 
-                                : "text-blue-500"
-                          }`} />
-                        </div>
-                        
-                        {/* User location marker */}
-                        <div className="absolute top-[40%] left-[45%]">
-                          <div className="relative">
-                            <div className="animate-ping h-2 w-2 rounded-full bg-blue-500 absolute"></div>
-                            <div className="h-2 w-2 rounded-full bg-blue-500"></div>
-                          </div>
-                          <div className="bg-blue-500 h-4 w-4 rounded-full -mt-3 -ml-1 flex items-center justify-center">
-                            <div className="h-2 w-2 rounded-full bg-white"></div>
-                          </div>
-                        </div>
-                        
-                        {/* Distance line between user and incident */}
-                        <div className="absolute top-[45%] left-[44%] w-[6%] h-[5%] border-t border-blue-500 border-dashed transform rotate-[30deg]"></div>
-
-                        {/* Compass indicator */}
-                        <div className="absolute top-4 right-4 h-12 w-12 rounded-full bg-black/20 backdrop-blur-sm flex items-center justify-center">
-                          <Compass className="h-8 w-8 text-white/80" />
-                        </div>
+                {/* Google Maps integration */}
+                <div className={`mb-4 overflow-hidden rounded-lg border ${isLight ? "border-gray-300" : "border-white/10"} h-[250px] relative`}>
+                  {!mapLoaded && !mapError && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm z-10">
+                      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+                    </div>
+                  )}
+                  
+                  {mapError ? (
+                    <div className={`w-full h-full flex items-center justify-center ${isLight ? "bg-gray-100" : "bg-black/40"}`}>
+                      <div className="text-center px-4">
+                        <AlertTriangle className="mx-auto h-8 w-8 text-orange-500 mb-2" />
+                        <p className="text-sm">Unable to load map. Please check your connection and try again.</p>
                       </div>
                     </div>
-                    
-                    {/* Map info overlay */}
-                    <div className="absolute bottom-3 left-3 right-3 flex justify-between">
-                      <div className={`px-2 py-1 rounded ${isLight ? "bg-white/90" : "bg-black/60"} text-xs backdrop-blur-sm`}>
-                        {status.coordinates.lat.toFixed(4)}, {status.coordinates.lng.toFixed(4)}
-                      </div>
-                      <div className={`px-2 py-1 rounded ${isLight ? "bg-white/90" : "bg-black/60"} text-xs backdrop-blur-sm flex items-center`}>
-                        <Navigation className="h-3 w-3 mr-1" />
-                        <span>0.8mi away</span>
-                      </div>
+                  ) : (
+                    <iframe 
+                      src={`https://www.google.com/maps/embed/v1/view?key=AIzaSyBtLRkfZb_SQHkRxsLYgQWs04vT1WLKNSE&center=${status.coordinates.lat},${status.coordinates.lng}&zoom=15&maptype=${isLight ? 'roadmap' : 'satellite'}`}
+                      width="100%" 
+                      height="100%" 
+                      style={{ border: 0 }} 
+                      allowFullScreen={false} 
+                      loading="lazy" 
+                      referrerPolicy="no-referrer-when-downgrade"
+                      onLoad={() => setMapLoaded(true)}
+                      onError={handleMapError}
+                      title="Location Map"
+                    />
+                  )}
+                  
+                  {/* Map coordinates overlay */}
+                  <div className="absolute bottom-3 left-3 right-3 flex justify-between z-20 pointer-events-none">
+                    <div className={`px-2 py-1 rounded ${isLight ? "bg-white/90" : "bg-black/60"} text-xs backdrop-blur-sm`}>
+                      {status.coordinates.lat.toFixed(4)}, {status.coordinates.lng.toFixed(4)}
+                    </div>
+                    <div className={`px-2 py-1 rounded ${isLight ? "bg-white/90" : "bg-black/60"} text-xs backdrop-blur-sm flex items-center`}>
+                      <Navigation className="h-3 w-3 mr-1" />
+                      <span>0.8mi away</span>
                     </div>
                   </div>
                 </div>
