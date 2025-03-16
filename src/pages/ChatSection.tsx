@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Header from '../components/Header';
-import { ArrowLeft, Send, Paperclip, Image, MapPin, Mic, Phone, Video } from 'lucide-react';
+import { Send, Paperclip, Image, MapPin, Mic, Phone, Video } from 'lucide-react';
+import BackButton from '../components/BackButton';
 
 interface Message {
   id: string;
@@ -156,9 +156,7 @@ const ChatSection = () => {
         <div className="border-b border-white/10 bg-black/50 backdrop-blur-md">
           <div className="container mx-auto px-4">
             <div className="flex items-center py-3">
-              <Link to="/" className="mr-4">
-                <ArrowLeft size={20} />
-              </Link>
+              <BackButton className="mr-4" />
               
               <div className="flex-grow">
                 <h2 className="font-medium">{contact?.name}</h2>

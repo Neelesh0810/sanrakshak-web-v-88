@@ -20,8 +20,16 @@ const BackButton: React.FC<BackButtonProps> = ({ className }) => {
     if (returnTo) {
       navigate(`/${returnTo}`);
     } else {
-      // Navigate to dashboard instead of landing page
-      navigate('/dashboard');
+      // Navigate based on user role
+      const authUser = localStorage.getItem('authUser');
+      if (authUser) {
+        const user = JSON.parse(authUser);
+        // Navigate to dashboard which will show the appropriate view based on role
+        navigate('/dashboard');
+      } else {
+        // Default to dashboard for unauthenticated users
+        navigate('/dashboard');
+      }
     }
   };
   
