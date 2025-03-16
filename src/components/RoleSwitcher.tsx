@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { User, UserCheck, Building, Shield, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -46,25 +47,16 @@ const RoleSwitcher: React.FC = () => {
     // Generate a timestamp to force dashboard refresh
     const timestamp = Date.now();
     
-    // Direct navigation based on role
-    let targetRoute = '/dashboard';
-    
-    if (role === 'victim') {
-      targetRoute = '/victim-resources';
-    } else if (['volunteer', 'ngo', 'government'].includes(role)) {
-      targetRoute = '/volunteer-resources';
-    }
-    
-    // Navigate to the appropriate resources page with refresh parameter
-    navigate(`${targetRoute}?refresh=${timestamp}`, { replace: true });
+    // Always navigate to the dashboard
+    navigate(`/dashboard?refresh=${timestamp}`, { replace: true });
     
     // Dispatch events to notify other components of the role change
     window.dispatchEvent(new Event('auth-changed'));
     window.dispatchEvent(new CustomEvent('role-changed', { detail: { role } }));
     
-    // Force a complete page reload if already on the target route
-    if (location.pathname === targetRoute) {
-      window.location.href = `${targetRoute}?refresh=${timestamp}`;
+    // Force a complete page reload if already on the dashboard
+    if (location.pathname === '/dashboard') {
+      window.location.href = `/dashboard?refresh=${timestamp}`;
     }
   };
   
