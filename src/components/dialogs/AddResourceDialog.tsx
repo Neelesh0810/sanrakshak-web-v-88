@@ -193,32 +193,32 @@ const AddResourceDialog: React.FC<AddResourceDialogProps> = ({ isOpen, onClose, 
               {resourceTemplates.map((template, index) => (
                 <button
                   key={index}
-                  className="p-4 border border-white/10 rounded-lg hover:bg-white/5 transition-colors text-left"
+                  className="p-4 border border-black/40 rounded-lg hover:bg-white/5 transition-colors text-left"
                   onClick={() => handleSelectTemplate(template)}
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="text-white">
+                    <div className="text-black">
                       {template.icon}
                     </div>
-                    <h3 className="font-medium">{template.title}</h3>
+                    <h3 className="font-medium text-black">{template.title}</h3>
                   </div>
-                  <p className="text-xs text-gray-400">{template.description}</p>
+                  <p className="text-xs text-black">{template.description}</p>
                 </button>
               ))}
             </div>
             
             <div className="mt-4">
               <button
-                className="w-full p-4 border border-dashed border-white/20 rounded-lg hover:bg-white/5 transition-colors text-left"
+                className="w-full p-4 border border-dashed border-black/40 rounded-lg hover:bg-white/5 transition-colors text-left"
                 onClick={handleSelectCustom}
               >
                 <div className="flex items-center gap-2">
-                  <div className="text-white">
+                  <div className="text-black">
                     <Plus className="h-5 w-5" />
                   </div>
-                  <h3 className="font-medium">Custom Resource</h3>
+                  <h3 className="font-medium text-black">Custom Resource</h3>
                 </div>
-                <p className="text-xs text-gray-400 mt-1">Create a resource that doesn't fit the templates above</p>
+                <p className="text-xs text-black mt-1">Create a resource that doesn't fit the templates above</p>
               </button>
             </div>
           </>
@@ -231,9 +231,9 @@ const AddResourceDialog: React.FC<AddResourceDialogProps> = ({ isOpen, onClose, 
                   name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Resource Title *</FormLabel>
+                      <FormLabel className="text-black">Resource Title *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter resource title" {...field} required />
+                        <Input className="border-black/40" placeholder="Enter resource title" {...field} required />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -245,10 +245,10 @@ const AddResourceDialog: React.FC<AddResourceDialogProps> = ({ isOpen, onClose, 
                   name="category"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Category *</FormLabel>
+                      <FormLabel className="text-black">Category *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="border-black/40">
                             <SelectValue placeholder="Select category" />
                           </SelectTrigger>
                         </FormControl>
@@ -271,9 +271,9 @@ const AddResourceDialog: React.FC<AddResourceDialogProps> = ({ isOpen, onClose, 
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel className="text-black">Description</FormLabel>
                       <FormControl>
-                        <Input placeholder="Brief description of the resource" {...field} />
+                        <Input className="border-black/40" placeholder="Brief description of the resource" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -286,9 +286,9 @@ const AddResourceDialog: React.FC<AddResourceDialogProps> = ({ isOpen, onClose, 
                     name="quantity"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Quantity</FormLabel>
+                        <FormLabel className="text-black">Quantity</FormLabel>
                         <FormControl>
-                          <Input type="number" min="1" placeholder="Amount available" {...field} />
+                          <Input className="border-black/40" type="number" min="1" placeholder="Amount available" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -296,9 +296,9 @@ const AddResourceDialog: React.FC<AddResourceDialogProps> = ({ isOpen, onClose, 
                   />
                   
                   <div className="space-y-2">
-                    <Label>Status</Label>
+                    <Label className="text-black">Status</Label>
                     <Select defaultValue="available">
-                      <SelectTrigger>
+                      <SelectTrigger className="border-black/40">
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
                       <SelectContent>
@@ -315,9 +315,9 @@ const AddResourceDialog: React.FC<AddResourceDialogProps> = ({ isOpen, onClose, 
                   name="location"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Location *</FormLabel>
+                      <FormLabel className="text-black">Location *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Where is this resource stored/available" {...field} required />
+                        <Input className="border-black/40" placeholder="Where is this resource stored/available" {...field} required />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -329,9 +329,9 @@ const AddResourceDialog: React.FC<AddResourceDialogProps> = ({ isOpen, onClose, 
                   name="contact"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Contact Information</FormLabel>
+                      <FormLabel className="text-black">Contact Information</FormLabel>
                       <FormControl>
-                        <Input placeholder="Phone number or email" {...field} />
+                        <Input className="border-black/40" placeholder="Phone number or email" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -353,31 +353,33 @@ const AddResourceDialog: React.FC<AddResourceDialogProps> = ({ isOpen, onClose, 
           <div className="space-y-4 mt-2">
             <div className="grid grid-cols-1 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="title">Resource Title *</Label>
+                <Label className="text-black" htmlFor="title">Resource Title *</Label>
                 <Input
                   id="title"
                   name="title"
                   value={formData.title}
                   onChange={handleInputChange}
                   placeholder="Enter resource title"
+                  className="border-black/40"
                   required
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
+                <Label className="text-black" htmlFor="description">Description</Label>
                 <Input
                   id="description"
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
                   placeholder="Brief description of the resource"
+                  className="border-black/40"
                 />
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="quantity">Quantity</Label>
+                  <Label className="text-black" htmlFor="quantity">Quantity</Label>
                   <Input
                     id="quantity"
                     name="quantity"
@@ -385,13 +387,14 @@ const AddResourceDialog: React.FC<AddResourceDialogProps> = ({ isOpen, onClose, 
                     value={formData.quantity}
                     onChange={handleInputChange}
                     placeholder="Amount available"
+                    className="border-black/40"
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>Status</Label>
+                  <Label className="text-black">Status</Label>
                   <Select defaultValue="available">
-                    <SelectTrigger>
+                    <SelectTrigger className="border-black/40">
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -404,25 +407,27 @@ const AddResourceDialog: React.FC<AddResourceDialogProps> = ({ isOpen, onClose, 
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="location">Location *</Label>
+                <Label className="text-black" htmlFor="location">Location *</Label>
                 <Input
                   id="location"
                   name="location"
                   value={formData.location}
                   onChange={handleInputChange}
                   placeholder="Where is this resource stored/available"
+                  className="border-black/40"
                   required
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="contact">Contact Information</Label>
+                <Label className="text-black" htmlFor="contact">Contact Information</Label>
                 <Input
                   id="contact"
                   name="contact"
                   value={formData.contact}
                   onChange={handleInputChange}
                   placeholder="Phone number or email"
+                  className="border-black/40"
                 />
               </div>
             </div>
