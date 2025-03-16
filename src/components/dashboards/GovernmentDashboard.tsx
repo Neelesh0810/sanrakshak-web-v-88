@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { BarChart, Building2, Users, FileText, AlertTriangle, UserCheck, Building } from 'lucide-react';
 import StatusUpdate from '../StatusUpdate';
 import AnimatedTransition from '../AnimatedTransition';
@@ -7,12 +7,58 @@ import { Link } from 'react-router-dom';
 import useResourceData from '@/hooks/useResourceData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import UserProfile from '../UserProfile';
+import { Button } from '@/components/ui/button';
 
 interface GovernmentDashboardProps {
   resourceData?: ReturnType<typeof useResourceData>;
 }
 
 const GovernmentDashboard: React.FC<GovernmentDashboardProps> = () => {
+  const [helperFilter, setHelperFilter] = useState<'all' | 'volunteer' | 'ngo'>('all');
+  
+  // Sample user data - in a real app, this would come from a database or API
+  const users = [
+    {
+      id: "volunteer-1",
+      name: "Sarah Johnson",
+      role: "volunteer",
+      contactInfo: "sarah.j@example.com",
+      location: "Central District",
+      lastActive: "2 hours ago",
+      skills: ["First Aid", "Search & Rescue", "Logistics"]
+    },
+    {
+      id: "ngo-1",
+      name: "Red Cross Chapter",
+      role: "ngo",
+      contactInfo: "local@redcross.org",
+      location: "Multiple Districts",
+      lastActive: "30 minutes ago"
+    },
+    {
+      id: "volunteer-2",
+      name: "Michael Chen",
+      role: "volunteer",
+      contactInfo: "m.chen@example.com",
+      location: "North District",
+      lastActive: "4 hours ago",
+      skills: ["Medical", "Transportation", "Communication"]
+    },
+    {
+      id: "ngo-2",
+      name: "Community Relief Foundation",
+      role: "ngo",
+      contactInfo: "help@crf.org",
+      location: "South District",
+      lastActive: "1 hour ago"
+    }
+  ];
+  
+  const filteredUsers = users.filter(user => {
+    if (helperFilter === 'all') return true;
+    return user.role === helperFilter;
+  });
+  
   return (
     <div className="container mx-auto px-4">
       <div className="mb-6">
@@ -90,50 +136,60 @@ const GovernmentDashboard: React.FC<GovernmentDashboardProps> = () => {
         <AnimatedTransition delay={100} className="lg:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <UserCheck className="h-5 w-5 mr-2" />
-                Registered Volunteers and NGOs
-              </CardTitle>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between">
+                <CardTitle className="flex items-center mb-4 sm:mb-0">
+                  <UserCheck className="h-5 w-5 mr-2" />
+                  Registered Volunteers and NGOs
+                </CardTitle>
+                
+                <div className="flex space-x-2">
+                  <Button 
+                    variant={helperFilter === 'all' ? 'default' : 'outline'} 
+                    size="sm"
+                    onClick={() => setHelperFilter('all')}
+                  >
+                    All
+                  </Button>
+                  <Button 
+                    variant={helperFilter === 'volunteer' ? 'default' : 'outline'} 
+                    size="sm"
+                    onClick={() => setHelperFilter('volunteer')}
+                  >
+                    <Users className="h-4 w-4 mr-1" />
+                    Volunteers
+                  </Button>
+                  <Button 
+                    variant={helperFilter === 'ngo' ? 'default' : 'outline'} 
+                    size="sm"
+                    onClick={() => setHelperFilter('ngo')}
+                  >
+                    <Building className="h-4 w-4 mr-1" />
+                    NGOs
+                  </Button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <UserProfile
-                  name="Sarah Johnson"
-                  role="volunteer"
-                  contactInfo="sarah.j@example.com"
-                  location="Central District"
-                  lastActive="2 hours ago"
-                  skills={["First Aid", "Search & Rescue", "Logistics"]}
-                  userId="volunteer-1"
-                />
+                {filteredUsers.map(user => (
+                  <UserProfile
+                    key={user.id}
+                    name={user.name}
+                    role={user.role as 'volunteer' | 'ngo'}
+                    contactInfo={user.contactInfo}
+                    location={user.location}
+                    lastActive={user.lastActive}
+                    skills={user.role === 'volunteer' ? (user as any).skills : undefined}
+                    userId={user.id}
+                  />
+                ))}
                 
-                <UserProfile
-                  name="Red Cross Chapter"
-                  role="ngo"
-                  contactInfo="local@redcross.org"
-                  location="Multiple Districts"
-                  lastActive="30 minutes ago"
-                  userId="ngo-1"
-                />
-                
-                <UserProfile
-                  name="Michael Chen"
-                  role="volunteer"
-                  contactInfo="m.chen@example.com"
-                  location="North District"
-                  lastActive="4 hours ago"
-                  skills={["Medical", "Transportation", "Communication"]}
-                  userId="volunteer-2"
-                />
-                
-                <UserProfile
-                  name="Community Relief Foundation"
-                  role="ngo"
-                  contactInfo="help@crf.org"
-                  location="South District"
-                  lastActive="1 hour ago"
-                  userId="ngo-2"
-                />
+                {filteredUsers.length === 0 && (
+                  <div className="col-span-2 py-10 text-center text-gray-400">
+                    <AlertTriangle className="mx-auto mb-2 h-10 w-10 opacity-30" />
+                    <p>No {helperFilter === 'volunteer' ? 'volunteers' : 'NGOs'} found</p>
+                  </div>
+                )}
               </div>
               
               <div className="mt-4 text-center">

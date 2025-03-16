@@ -110,7 +110,7 @@ const Dashboard: React.FC = () => {
       case 'ngo':
         return <NGODashboard resourceData={resourceData} />;
       case 'government':
-        return <GovernmentDashboard />;
+        return <GovernmentDashboard resourceData={resourceData} />;
       default:
         return <VictimDashboard resourceData={resourceData} />;
     }
