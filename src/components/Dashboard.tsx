@@ -14,15 +14,20 @@ const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'resources' | 'updates' | 'map'>('resources');
   const [userRole, setUserRole] = useState<'victim' | 'volunteer' | 'ngo' | 'government' | null>(null);
   const resourceData = useResourceData();
+  // Add a key to force component remount when role changes
+  const [dashboardKey, setDashboardKey] = useState(Date.now());
   
   const fetchUserRole = useCallback(() => {
     const authUser = localStorage.getItem('authUser');
     if (authUser) {
       const user = JSON.parse(authUser);
       setUserRole(user.role);
+      // Update the dashboard key to force a re-render
+      setDashboardKey(Date.now());
     } else {
       // Default to victim view for unauthenticated users
       setUserRole('victim');
+      setDashboardKey(Date.now());
     }
   }, []);
   
@@ -121,7 +126,10 @@ const Dashboard: React.FC = () => {
   return (
     <div className="container mx-auto px-4">
       <EmergencyAlert />
-      {renderDashboardByRole()}
+      {/* Use the key to force a complete re-render when userRole changes */}
+      <div key={dashboardKey}>
+        {renderDashboardByRole()}
+      </div>
     </div>
   );
 };
