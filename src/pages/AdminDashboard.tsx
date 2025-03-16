@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
@@ -45,6 +44,7 @@ const AdminDashboard = () => {
   const isLight = theme === 'light';
   const resourceDataHook = useResourceData();
 
+  // Use the existing fetchResources function
   const fetchResources = () => {
     const storedResources = localStorage.getItem('resources');
     if (storedResources) {
@@ -98,7 +98,7 @@ const AdminDashboard = () => {
     }
   };
 
-  // Fetch all responses to check which resources have been responded to
+  // Use the existing fetchResponses function
   const fetchResponses = () => {
     // Get all responses from localStorage
     const allResponses: ResourceResponse[] = [];
@@ -268,7 +268,6 @@ const AdminDashboard = () => {
 
   const counts = getRequestCounts();
 
-  // Check if a resource has been responded to
   const getResourceResponder = (resourceId: string) => {
     const response = responseData.find(r => r.requestId === resourceId);
     if (response) {
@@ -277,7 +276,6 @@ const AdminDashboard = () => {
     return null;
   };
 
-  // Get responder role if available
   const getResourceResponderRole = (resourceId: string) => {
     const response = responseData.find(r => r.requestId === resourceId);
     if (response) {
@@ -286,14 +284,13 @@ const AdminDashboard = () => {
     return null;
   };
 
-  // Check if a resource has been responded to
   const hasResourceBeenResponded = (resourceId: string) => {
     return responseData.some(r => r.requestId === resourceId);
   };
 
   return (
-    <div className="min-h-screen bg-black">
-      <header className="fixed top-0 left-0 right-0 z-50 py-4 px-6 transition-all duration-300 backdrop-blur-xl bg-black/50">
+    <div className={`min-h-screen ${isLight ? 'bg-white' : 'bg-black'}`}>
+      <header className={`fixed top-0 left-0 right-0 z-50 py-4 px-6 transition-all duration-300 backdrop-blur-xl ${isLight ? 'bg-white/50' : 'bg-black/50'}`}>
         <div className="container mx-auto">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -303,12 +300,12 @@ const AdminDashboard = () => {
             <div className="flex items-center space-x-4">
               {user && (
                 <div className="flex items-center">
-                  <span className="mr-4 text-sm text-gray-400">
-                    Logged in as <span className="font-medium text-white">{user.email}</span>
+                  <span className={`mr-4 text-sm ${isLight ? 'text-gray-600' : 'text-gray-400'}`}>
+                    Logged in as <span className={`font-medium ${isLight ? 'text-black' : 'text-white'}`}>{user.email}</span>
                   </span>
                   <button
                     onClick={handleLogout}
-                    className="flex items-center space-x-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 py-1.5 px-3 rounded-lg transition-colors"
+                    className="flex items-center space-x-2 bg-red-500/20 hover:bg-red-500/30 text-red-600 dark:text-red-300 py-1.5 px-3 rounded-lg transition-colors"
                   >
                     <LogOut size={16} />
                     <span>Logout</span>
@@ -325,64 +322,64 @@ const AdminDashboard = () => {
           <div className="container mx-auto px-4">
             <div className="mb-8">
               <h1 className="text-2xl font-bold mb-2">Administrator Dashboard</h1>
-              <p className="text-gray-400">Manage and coordinate emergency response efforts</p>
+              <p className={`${isLight ? 'text-gray-600' : 'text-gray-400'}`}>Manage and coordinate emergency response efforts</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-              <div className="glass-dark rounded-xl p-4 flex flex-col">
-                <div className="text-sm text-gray-400 mb-1">Pending Requests</div>
+              <div className={`${isLight ? 'bg-white border-gray-200 shadow-sm' : 'glass-dark'} rounded-xl p-4 flex flex-col`}>
+                <div className={`text-sm ${isLight ? 'text-gray-500' : 'text-gray-400'} mb-1`}>Pending Requests</div>
                 <div className="flex items-center">
                   <Clock className="text-yellow-500 mr-2" size={20} />
                   <span className="text-2xl font-bold">{counts.pending}</span>
                 </div>
               </div>
               
-              <div className="glass-dark rounded-xl p-4 flex flex-col">
-                <div className="text-sm text-gray-400 mb-1">Being Addressed</div>
+              <div className={`${isLight ? 'bg-white border-gray-200 shadow-sm' : 'glass-dark'} rounded-xl p-4 flex flex-col`}>
+                <div className={`text-sm ${isLight ? 'text-gray-500' : 'text-gray-400'} mb-1`}>Being Addressed</div>
                 <div className="flex items-center">
                   <FileCheck className="text-blue-500 mr-2" size={20} />
                   <span className="text-2xl font-bold">{counts.addressing}</span>
                 </div>
               </div>
               
-              <div className="glass-dark rounded-xl p-4 flex flex-col">
-                <div className="text-sm text-gray-400 mb-1">Resolved</div>
+              <div className={`${isLight ? 'bg-white border-gray-200 shadow-sm' : 'glass-dark'} rounded-xl p-4 flex flex-col`}>
+                <div className={`text-sm ${isLight ? 'text-gray-500' : 'text-gray-400'} mb-1`}>Resolved</div>
                 <div className="flex items-center">
                   <CheckCircle2 className="text-green-500 mr-2" size={20} />
                   <span className="text-2xl font-bold">{counts.resolved}</span>
                 </div>
               </div>
               
-              <div className="glass-dark rounded-xl p-4 flex flex-col">
-                <div className="text-sm text-gray-400 mb-1">Total Requests</div>
+              <div className={`${isLight ? 'bg-white border-gray-200 shadow-sm' : 'glass-dark'} rounded-xl p-4 flex flex-col`}>
+                <div className={`text-sm ${isLight ? 'text-gray-500' : 'text-gray-400'} mb-1`}>Total Requests</div>
                 <div className="flex items-center">
                   <span className="text-2xl font-bold">{counts.total}</span>
                 </div>
               </div>
             </div>
             
-            <div className="glass-dark rounded-xl p-6 mb-6">
+            <div className={`${isLight ? 'bg-white border-gray-200 shadow-sm' : 'glass-dark'} rounded-xl p-6 mb-6`}>
               <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold">Resource Requests</h2>
                 
                 <div className="flex flex-wrap gap-3 items-center">
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                    <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${isLight ? 'text-gray-500' : 'text-gray-400'}`} size={16} />
                     <input
                       type="text"
                       placeholder="Search requests..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-9 pr-4 py-2 bg-black/40 border border-white/10 rounded-lg focus:ring-1 focus:ring-white/30 focus:outline-none w-full md:w-60"
+                      className={`pl-9 pr-4 py-2 ${isLight ? 'bg-gray-100 border-gray-200' : 'bg-black/40 border-white/10'} border rounded-lg focus:ring-1 ${isLight ? 'focus:ring-gray-300' : 'focus:ring-white/30'} focus:outline-none w-full md:w-60`}
                     />
                   </div>
                   
                   <div className="flex items-center space-x-2">
-                    <Filter size={16} className="text-gray-400" />
+                    <Filter size={16} className={`${isLight ? 'text-gray-500' : 'text-gray-400'}`} />
                     <select
                       value={categoryFilter}
                       onChange={(e) => setCategoryFilter(e.target.value)}
-                      className="bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-white/20"
+                      className={`${isLight ? 'bg-gray-100 border-gray-200' : 'bg-black/40 border-white/10'} border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 ${isLight ? 'focus:ring-gray-300' : 'focus:ring-white/20'}`}
                     >
                       <option value="all">All Categories</option>
                       <option value="water">Water</option>
@@ -397,7 +394,7 @@ const AdminDashboard = () => {
                   <Button
                     onClick={refreshData}
                     variant="outline"
-                    className="flex items-center space-x-2 bg-white/10 hover:bg-white/20 border border-white/10 transition-colors"
+                    className={`flex items-center space-x-2 ${isLight ? 'bg-gray-100 hover:bg-gray-200 border-gray-200' : 'bg-white/10 hover:bg-white/20 border-white/10'} transition-colors`}
                   >
                     <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
                     <span>Refresh</span>
@@ -433,6 +430,7 @@ const AdminDashboard = () => {
                     hasResourceBeenResponded={hasResourceBeenResponded}
                     getResourceResponder={getResourceResponder}
                     getResourceResponderRole={getResourceResponderRole}
+                    isLight={isLight}
                   />
                 </TabsContent>
                 
@@ -445,6 +443,7 @@ const AdminDashboard = () => {
                     hasResourceBeenResponded={hasResourceBeenResponded}
                     getResourceResponder={getResourceResponder}
                     getResourceResponderRole={getResourceResponderRole}
+                    isLight={isLight}
                   />
                 </TabsContent>
                 
@@ -457,6 +456,7 @@ const AdminDashboard = () => {
                     hasResourceBeenResponded={hasResourceBeenResponded}
                     getResourceResponder={getResourceResponder}
                     getResourceResponderRole={getResourceResponderRole}
+                    isLight={isLight}
                   />
                 </TabsContent>
                 
@@ -469,6 +469,7 @@ const AdminDashboard = () => {
                     hasResourceBeenResponded={hasResourceBeenResponded}
                     getResourceResponder={getResourceResponder}
                     getResourceResponderRole={getResourceResponderRole}
+                    isLight={isLight}
                   />
                 </TabsContent>
               </Tabs>
@@ -492,6 +493,7 @@ interface RequestsTableProps {
   hasResourceBeenResponded: (resourceId: string) => boolean;
   getResourceResponder: (resourceId: string) => string | null;
   getResourceResponderRole: (resourceId: string) => string | null;
+  isLight: boolean;
 }
 
 const RequestsTable: React.FC<RequestsTableProps> = ({ 
@@ -501,14 +503,15 @@ const RequestsTable: React.FC<RequestsTableProps> = ({
   getCategoryLabel,
   hasResourceBeenResponded,
   getResourceResponder,
-  getResourceResponderRole
+  getResourceResponderRole,
+  isLight
 }) => {
   
   if (resources.length === 0) {
     return (
-      <div className="text-center py-16 border border-white/5 rounded-lg bg-black/20">
-        <AlertCircle className="mx-auto mb-3 text-gray-400" size={32} />
-        <p className="text-gray-400">No requests found matching your filters</p>
+      <div className={`text-center py-16 border ${isLight ? 'border-gray-200 bg-gray-50' : 'border-white/5 bg-black/20'} rounded-lg`}>
+        <AlertCircle className={`mx-auto mb-3 ${isLight ? 'text-gray-500' : 'text-gray-400'}`} size={32} />
+        <p className={`${isLight ? 'text-gray-600' : 'text-gray-400'}`}>No requests found matching your filters</p>
       </div>
     );
   }
@@ -533,15 +536,15 @@ const RequestsTable: React.FC<RequestsTableProps> = ({
     <div className="overflow-x-auto">
       <Table>
         <TableHeader>
-          <TableRow className="border-white/10">
-            <TableHead className="text-gray-400">Status</TableHead>
-            <TableHead className="text-gray-400">Type</TableHead>
-            <TableHead className="text-gray-400">Title</TableHead>
-            <TableHead className="text-gray-400">Category</TableHead>
-            <TableHead className="text-gray-400">Location</TableHead>
-            <TableHead className="text-gray-400">Time</TableHead>
-            <TableHead className="text-gray-400">Assigned To</TableHead>
-            <TableHead className="text-gray-400">Actions</TableHead>
+          <TableRow className={isLight ? 'border-gray-200' : 'border-white/10'}>
+            <TableHead className={isLight ? 'text-gray-600' : 'text-gray-400'}>Status</TableHead>
+            <TableHead className={isLight ? 'text-gray-600' : 'text-gray-400'}>Type</TableHead>
+            <TableHead className={isLight ? 'text-gray-600' : 'text-gray-400'}>Title</TableHead>
+            <TableHead className={isLight ? 'text-gray-600' : 'text-gray-400'}>Category</TableHead>
+            <TableHead className={isLight ? 'text-gray-600' : 'text-gray-400'}>Location</TableHead>
+            <TableHead className={isLight ? 'text-gray-600' : 'text-gray-400'}>Time</TableHead>
+            <TableHead className={isLight ? 'text-gray-600' : 'text-gray-400'}>Assigned To</TableHead>
+            <TableHead className={isLight ? 'text-gray-600' : 'text-gray-400'}>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -551,12 +554,12 @@ const RequestsTable: React.FC<RequestsTableProps> = ({
             const responderRole = getResourceResponderRole(resource.id);
             
             return (
-              <TableRow key={resource.id} className="border-white/5 hover:bg-white/5">
+              <TableRow key={resource.id} className={`${isLight ? 'border-gray-200 hover:bg-gray-50' : 'border-white/5 hover:bg-white/5'}`}>
                 <TableCell>
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                    ${resource.status === 'pending' ? 'bg-yellow-500/20 text-yellow-300' : 
-                      resource.status === 'addressing' ? 'bg-blue-500/20 text-blue-300' : 
-                      'bg-green-500/20 text-green-300'}`
+                    ${resource.status === 'pending' ? (isLight ? 'bg-yellow-100 text-yellow-800' : 'bg-yellow-500/20 text-yellow-300') : 
+                      resource.status === 'addressing' ? (isLight ? 'bg-blue-100 text-blue-800' : 'bg-blue-500/20 text-blue-300') : 
+                      (isLight ? 'bg-green-100 text-green-800' : 'bg-green-500/20 text-green-300')}`
                   }>
                     {resource.status === 'pending' ? (
                       <Clock className="mr-1" size={12} />
@@ -570,7 +573,7 @@ const RequestsTable: React.FC<RequestsTableProps> = ({
                 </TableCell>
                 <TableCell>
                   {resource.urgent && (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500/20 text-red-300">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isLight ? 'bg-red-100 text-red-800' : 'bg-red-500/20 text-red-300'}`}>
                       Urgent
                     </span>
                   )}
@@ -578,18 +581,18 @@ const RequestsTable: React.FC<RequestsTableProps> = ({
                 <TableCell>{resource.title}</TableCell>
                 <TableCell>{getCategoryLabel(resource.category)}</TableCell>
                 <TableCell>{resource.location}</TableCell>
-                <TableCell className="text-sm text-gray-400">{formatTimestamp(resource.timestamp)}</TableCell>
+                <TableCell className={`text-sm ${isLight ? 'text-gray-600' : 'text-gray-400'}`}>{formatTimestamp(resource.timestamp)}</TableCell>
                 <TableCell>
                   {resource.assignedTo ? (
-                    <span className="text-green-300">{resource.assignedTo}</span>
+                    <span className={isLight ? 'text-green-600' : 'text-green-300'}>{resource.assignedTo}</span>
                   ) : (
                     isResponded && responder ? (
-                      <span className="flex items-center text-blue-300">
+                      <span className="flex items-center text-blue-600 dark:text-blue-300">
                         <User size={12} className="mr-1.5" />
-                        {responder} <span className="ml-1.5 text-xs text-blue-200/70">{getRoleLabel(responderRole)}</span>
+                        {responder} <span className={`ml-1.5 text-xs ${isLight ? 'text-blue-500/70' : 'text-blue-200/70'}`}>{getRoleLabel(responderRole)}</span>
                       </span>
                     ) : (
-                      <span className="text-gray-500 italic text-sm">Not assigned</span>
+                      <span className={`italic text-sm ${isLight ? 'text-gray-400' : 'text-gray-500'}`}>Not assigned</span>
                     )
                   )}
                 </TableCell>
@@ -598,7 +601,7 @@ const RequestsTable: React.FC<RequestsTableProps> = ({
                     {!isResponded && resource.status === 'pending' && (
                       <button 
                         onClick={() => onAssign(resource.id)}
-                        className="px-3 py-1 text-xs bg-blue-500/20 text-blue-300 rounded hover:bg-blue-500/30 transition-colors"
+                        className={`px-3 py-1 text-xs ${isLight ? 'bg-blue-100 text-blue-600 hover:bg-blue-200' : 'bg-blue-500/20 text-blue-300 hover:bg-blue-500/30'} rounded transition-colors`}
                       >
                         Assign
                       </button>
@@ -607,7 +610,7 @@ const RequestsTable: React.FC<RequestsTableProps> = ({
                     {!isResponded && resource.status === 'pending' && (
                       <button 
                         onClick={() => onStatusChange(resource.id, 'addressing')}
-                        className="px-3 py-1 text-xs bg-blue-500/20 text-blue-300 rounded hover:bg-blue-500/30 transition-colors"
+                        className={`px-3 py-1 text-xs ${isLight ? 'bg-blue-100 text-blue-600 hover:bg-blue-200' : 'bg-blue-500/20 text-blue-300 hover:bg-blue-500/30'} rounded transition-colors`}
                       >
                         Address
                       </button>
@@ -616,7 +619,7 @@ const RequestsTable: React.FC<RequestsTableProps> = ({
                     {resource.status === 'addressing' && (
                       <button 
                         onClick={() => onStatusChange(resource.id, 'resolved')}
-                        className="px-3 py-1 text-xs bg-green-500/20 text-green-300 rounded hover:bg-green-500/30 transition-colors"
+                        className={`px-3 py-1 text-xs ${isLight ? 'bg-green-100 text-green-600 hover:bg-green-200' : 'bg-green-500/20 text-green-300 hover:bg-green-500/30'} rounded transition-colors`}
                       >
                         Resolve
                       </button>
@@ -625,7 +628,7 @@ const RequestsTable: React.FC<RequestsTableProps> = ({
                     {resource.status === 'resolved' && (
                       <button 
                         onClick={() => onStatusChange(resource.id, 'addressing')}
-                        className="px-3 py-1 text-xs bg-yellow-500/20 text-yellow-300 rounded hover:bg-yellow-500/30 transition-colors"
+                        className={`px-3 py-1 text-xs ${isLight ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200' : 'bg-yellow-500/20 text-yellow-300 hover:bg-yellow-500/30'} rounded transition-colors`}
                       >
                         Reopen
                       </button>

@@ -9,12 +9,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import UserProfile from '../UserProfile';
 import { Button } from '@/components/ui/button';
 import RegisteredHelpersDialog from '../RegisteredHelpersDialog';
+import { useTheme } from '@/context/ThemeProvider';
 
 interface GovernmentDashboardProps {
   resourceData?: ReturnType<typeof useResourceData>;
 }
 
 const GovernmentDashboard: React.FC<GovernmentDashboardProps> = () => {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   const [helperFilter, setHelperFilter] = useState<'all' | 'volunteer' | 'ngo'>('all');
   const [showAllHelpersDialog, setShowAllHelpersDialog] = useState(false);
   const [users, setUsers] = useState<any[]>([]);
@@ -89,23 +92,23 @@ const GovernmentDashboard: React.FC<GovernmentDashboardProps> = () => {
     <div className="container mx-auto px-4">
       <div className="mb-6">
         <AnimatedTransition>
-          <div className="relative overflow-hidden rounded-xl border border-white/10 glass-dark p-4 sm:p-6">
+          <div className={`relative overflow-hidden rounded-xl border ${isLight ? 'border-gray-200 bg-white shadow-sm' : 'border-white/10 glass-dark'} p-4 sm:p-6`}>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between">
               <div className="mb-4 sm:mb-0 sm:mr-6">
                 <div className="flex items-center mb-2">
-                  <Building2 size={18} className="mr-2 text-white" />
+                  <Building2 size={18} className="mr-2" />
                   <h2 className="text-xl font-semibold">Government Response Hub</h2>
                 </div>
-                <p className="text-gray-300 text-sm mb-3">
+                <p className={`${isLight ? 'text-gray-600' : 'text-gray-300'} text-sm mb-3`}>
                   Coordinate disaster response efforts, manage infrastructure recovery, and analyze impact assessments.
                 </p>
               </div>
               
               <div className="flex space-x-2">
-                <Link to="/command-center" className="px-4 py-2 rounded-full text-sm bg-white text-black hover:bg-white/90 transition-colors">
+                <Link to="/command-center" className={`px-4 py-2 rounded-full text-sm ${isLight ? 'bg-black text-white hover:bg-black/90' : 'bg-white text-black hover:bg-white/90'} transition-colors`}>
                   Command Center
                 </Link>
-                <Link to="/recovery-plan" className="px-4 py-2 rounded-full text-sm bg-white/10 hover:bg-white/15 transition-colors">
+                <Link to="/recovery-plan" className={`px-4 py-2 rounded-full text-sm ${isLight ? 'bg-gray-100 hover:bg-gray-200 text-gray-800' : 'bg-white/10 hover:bg-white/15 text-white'} transition-colors`}>
                   Recovery Plan
                 </Link>
               </div>
@@ -116,42 +119,42 @@ const GovernmentDashboard: React.FC<GovernmentDashboardProps> = () => {
       
       <AnimatedTransition className="mb-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="flex items-center p-4 bg-black/20 rounded-xl border border-white/10">
-            <div className="bg-white/10 p-2 rounded-lg mr-4">
+          <div className={`flex items-center p-4 ${isLight ? 'bg-gray-50 border-gray-200' : 'bg-black/20 border-white/10'} rounded-xl border`}>
+            <div className={`${isLight ? 'bg-gray-200 text-gray-700' : 'bg-white/10'} p-2 rounded-lg mr-4`}>
               <AlertTriangle className="h-7 w-7" />
             </div>
             <div>
-              <h3 className="text-xs text-gray-400">Active Incidents</h3>
+              <h3 className={`text-xs ${isLight ? 'text-gray-500' : 'text-gray-400'}`}>Active Incidents</h3>
               <p className="text-2xl font-semibold">3</p>
             </div>
           </div>
           
-          <div className="flex items-center p-4 bg-black/20 rounded-xl border border-white/10">
-            <div className="bg-white/10 p-2 rounded-lg mr-4">
+          <div className={`flex items-center p-4 ${isLight ? 'bg-gray-50 border-gray-200' : 'bg-black/20 border-white/10'} rounded-xl border`}>
+            <div className={`${isLight ? 'bg-gray-200 text-gray-700' : 'bg-white/10'} p-2 rounded-lg mr-4`}>
               <Building2 className="h-7 w-7" />
             </div>
             <div>
-              <h3 className="text-xs text-gray-400">Affected Areas</h3>
+              <h3 className={`text-xs ${isLight ? 'text-gray-500' : 'text-gray-400'}`}>Affected Areas</h3>
               <p className="text-2xl font-semibold">12</p>
             </div>
           </div>
           
-          <div className="flex items-center p-4 bg-black/20 rounded-xl border border-white/10">
-            <div className="bg-white/10 p-2 rounded-lg mr-4">
+          <div className={`flex items-center p-4 ${isLight ? 'bg-gray-50 border-gray-200' : 'bg-black/20 border-white/10'} rounded-xl border`}>
+            <div className={`${isLight ? 'bg-gray-200 text-gray-700' : 'bg-white/10'} p-2 rounded-lg mr-4`}>
               <Users className="h-7 w-7" />
             </div>
             <div>
-              <h3 className="text-xs text-gray-400">People Affected</h3>
+              <h3 className={`text-xs ${isLight ? 'text-gray-500' : 'text-gray-400'}`}>People Affected</h3>
               <p className="text-2xl font-semibold">5,483</p>
             </div>
           </div>
           
-          <div className="flex items-center p-4 bg-black/20 rounded-xl border border-white/10">
-            <div className="bg-white/10 p-2 rounded-lg mr-4">
+          <div className={`flex items-center p-4 ${isLight ? 'bg-gray-50 border-gray-200' : 'bg-black/20 border-white/10'} rounded-xl border`}>
+            <div className={`${isLight ? 'bg-gray-200 text-gray-700' : 'bg-white/10'} p-2 rounded-lg mr-4`}>
               <FileText className="h-7 w-7" />
             </div>
             <div>
-              <h3 className="text-xs text-gray-400">Response Plans</h3>
+              <h3 className={`text-xs ${isLight ? 'text-gray-500' : 'text-gray-400'}`}>Response Plans</h3>
               <p className="text-2xl font-semibold">7</p>
             </div>
           </div>
@@ -222,7 +225,7 @@ const GovernmentDashboard: React.FC<GovernmentDashboardProps> = () => {
                 <Button 
                   variant="outline" 
                   onClick={() => setShowAllHelpersDialog(true)}
-                  className="px-4 py-2 rounded-full text-sm bg-white/10 hover:bg-white/15 transition-colors inline-block"
+                  className={`px-4 py-2 rounded-full text-sm ${isLight ? 'bg-gray-100 hover:bg-gray-200 text-gray-800' : 'bg-white/10 hover:bg-white/15 text-white'} transition-colors inline-block`}
                 >
                   View All Registered Helpers
                 </Button>
@@ -233,7 +236,7 @@ const GovernmentDashboard: React.FC<GovernmentDashboardProps> = () => {
         
         <div className="space-y-6">
           <AnimatedTransition delay={200}>
-            <div className="bg-black/20 border border-white/10 rounded-xl p-4">
+            <div className={`${isLight ? 'bg-gray-50 border-gray-200' : 'bg-black/20 border-white/10'} border rounded-xl p-4`}>
               <h3 className="text-lg font-medium mb-4">Critical Alerts</h3>
               
               <div className="space-y-3">
@@ -259,40 +262,40 @@ const GovernmentDashboard: React.FC<GovernmentDashboardProps> = () => {
           </AnimatedTransition>
           
           <AnimatedTransition delay={250}>
-            <div className="bg-black/20 border border-white/10 rounded-xl p-4">
+            <div className={`${isLight ? 'bg-gray-50 border-gray-200' : 'bg-black/20 border-white/10'} border rounded-xl p-4`}>
               <h3 className="text-lg font-medium mb-4">Agency Coordination</h3>
               
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 border border-white/10 rounded-lg">
+                <div className={`flex items-center justify-between p-3 border ${isLight ? 'border-gray-200 bg-white' : 'border-white/10'} rounded-lg`}>
                   <div className="flex items-center">
                     <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
                     <span>Emergency Services</span>
                   </div>
-                  <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full">Active</span>
+                  <span className={`text-xs ${isLight ? 'bg-gray-100 text-gray-800' : 'bg-white/10'} px-2 py-0.5 rounded-full`}>Active</span>
                 </div>
                 
-                <div className="flex items-center justify-between p-3 border border-white/10 rounded-lg">
+                <div className={`flex items-center justify-between p-3 border ${isLight ? 'border-gray-200 bg-white' : 'border-white/10'} rounded-lg`}>
                   <div className="flex items-center">
                     <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
                     <span>Public Health</span>
                   </div>
-                  <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full">Active</span>
+                  <span className={`text-xs ${isLight ? 'bg-gray-100 text-gray-800' : 'bg-white/10'} px-2 py-0.5 rounded-full`}>Active</span>
                 </div>
                 
-                <div className="flex items-center justify-between p-3 border border-white/10 rounded-lg">
+                <div className={`flex items-center justify-between p-3 border ${isLight ? 'border-gray-200 bg-white' : 'border-white/10'} rounded-lg`}>
                   <div className="flex items-center">
                     <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
                     <span>Transportation</span>
                   </div>
-                  <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full">Limited</span>
+                  <span className={`text-xs ${isLight ? 'bg-gray-100 text-gray-800' : 'bg-white/10'} px-2 py-0.5 rounded-full`}>Limited</span>
                 </div>
                 
-                <div className="flex items-center justify-between p-3 border border-white/10 rounded-lg">
+                <div className={`flex items-center justify-between p-3 border ${isLight ? 'border-gray-200 bg-white' : 'border-white/10'} rounded-lg`}>
                   <div className="flex items-center">
                     <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
                     <span>Utilities</span>
                   </div>
-                  <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full">Limited</span>
+                  <span className={`text-xs ${isLight ? 'bg-gray-100 text-gray-800' : 'bg-white/10'} px-2 py-0.5 rounded-full`}>Limited</span>
                 </div>
               </div>
             </div>
