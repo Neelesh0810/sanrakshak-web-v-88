@@ -146,7 +146,7 @@ const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ resourceData })
               ) : needsResources.length > 0 ? (
                 // Show resources that need help
                 needsResources.map(resource => (
-                  <div key={resource.id} className="border-2 border-purple-500 rounded-xl overflow-hidden">
+                  <div key={resource.id} className="border-2 border-white/50 rounded-xl overflow-hidden">
                     <ResourceCard
                       type="need"
                       category={resource.category}

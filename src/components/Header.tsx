@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X, Bell, Settings, User, LogOut, UserCheck, Building, ArrowRightLeft, Check, Shield } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import Notifications from './Notifications';
 import { useToast } from "@/hooks/use-toast";
@@ -21,6 +22,7 @@ const Header: React.FC<HeaderProps> = ({
   const [roleSwitcherOpen, setRoleSwitcherOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   const { theme } = useTheme();
   const isLight = theme === 'light';
   
@@ -123,6 +125,16 @@ const Header: React.FC<HeaderProps> = ({
       default: return role;
     }
   };
+
+  const handleDashboardClick = (e: React.MouseEvent) => {
+    if (location.pathname === '/dashboard') {
+      e.preventDefault();
+      // Force a reload of the dashboard with a timestamp to prevent caching
+      const timestamp = Date.now();
+      navigate(`/dashboard?refresh=${timestamp}`, { replace: true });
+      setTimeout(() => window.location.reload(), 100);
+    }
+  };
   
   return (
     <header 
@@ -149,7 +161,11 @@ const Header: React.FC<HeaderProps> = ({
           
           {!isAdminDashboard && (
             <nav className="hidden md:flex items-center space-x-6">
-              <Link to="/dashboard" className="text-sm font-medium hover:opacity-80 transition-opacity">
+              <Link 
+                to="/dashboard" 
+                className="text-sm font-medium hover:opacity-80 transition-opacity"
+                onClick={handleDashboardClick}
+              >
                 Dashboard
               </Link>
               <Link to="/resources" className="text-sm font-medium hover:opacity-80 transition-opacity">
@@ -328,9 +344,12 @@ const Header: React.FC<HeaderProps> = ({
         <div className={`fixed inset-0 pt-16 ${isLight ? "bg-white/95 backdrop-blur-md" : "bg-black/95 backdrop-blur-md"} z-40 animate-fade-in md:hidden`}>
           <nav className="flex flex-col items-center justify-center h-full space-y-8 p-6">
             <Link 
-              to="/" 
+              to="/dashboard" 
               className="text-2xl font-medium" 
-              onClick={toggleMenu}
+              onClick={(e) => {
+                toggleMenu();
+                handleDashboardClick(e);
+              }}
             >
               Dashboard
             </Link>
