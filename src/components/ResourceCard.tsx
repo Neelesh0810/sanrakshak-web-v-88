@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { ArrowRight, Droplet, Home, ShoppingBag, Utensils, Heart, Shield, CheckCircle, AlertTriangle, Info } from 'lucide-react';
@@ -14,7 +13,9 @@ interface ResourceCardProps {
   title: string;
   description: string;
   location: string;
+  locationDetails?: string;
   contact?: string;
+  contactName?: string;
   urgent?: boolean;
   className?: string;
   requestId?: string;
@@ -27,7 +28,9 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   title,
   description,
   location,
+  locationDetails,
   contact,
+  contactName,
   urgent = false,
   className,
   requestId = '',
@@ -51,10 +54,21 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
         setCurrentUser(user);
         
         if (requestId) {
-          // Load response state from localStorage
-          const userResponses = JSON.parse(localStorage.getItem(`responses_${user.id}`) || '[]');
-          const hasAlreadyResponded = userResponses.some((response: any) => response.requestId === requestId);
-          setHasResponded(hasAlreadyResponded);
+          // Only check for responses if the current user role matches the resource type
+          // Victims can request offers, volunteers/NGOs/government can respond to needs
+          const shouldCheckResponses = 
+            (user.role === 'victim' && type === 'offer') || 
+            (['volunteer', 'ngo', 'government'].includes(user.role) && type === 'need');
+          
+          if (shouldCheckResponses) {
+            // Load response state from localStorage
+            const userResponses = JSON.parse(localStorage.getItem(`responses_${user.id}`) || '[]');
+            const hasAlreadyResponded = userResponses.some((response: any) => response.requestId === requestId);
+            setHasResponded(hasAlreadyResponded);
+          } else {
+            // If user role doesn't match resource type for interaction, they can't have responded
+            setHasResponded(false);
+          }
         } else {
           setHasResponded(isRequested);
         }
@@ -70,31 +84,49 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
     
     window.addEventListener('response-created', handleResponseUpdate);
     window.addEventListener('response-updated', handleResponseUpdate);
-    window.addEventListener('resource-updated', handleResponseUpdate);
+    window.addEventListener('resource-updated', handleResourceUpdate);
     window.addEventListener('auth-changed', handleResponseUpdate);
     
     return () => {
       window.removeEventListener('response-created', handleResponseUpdate);
       window.removeEventListener('response-updated', handleResponseUpdate);
-      window.removeEventListener('resource-updated', handleResponseUpdate);
+      window.removeEventListener('resource-updated', handleResourceUpdate);
       window.removeEventListener('auth-changed', handleResponseUpdate);
     };
-  }, [requestId, isRequested]);
+  }, [requestId, isRequested, type]);
   
   // Update hasResponded when isRequested prop changes
   useEffect(() => {
     if (isRequested !== undefined) {
-      setHasResponded(isRequested);
+      // Only apply isRequested if user role matches resource type
+      if (currentUser) {
+        const isUserRoleCompatible = 
+          (currentUser.role === 'victim' && type === 'offer') || 
+          (['volunteer', 'ngo', 'government'].includes(currentUser.role) && type === 'need');
+        
+        setHasResponded(isUserRoleCompatible && isRequested);
+      } else {
+        setHasResponded(isRequested);
+      }
     }
-  }, [isRequested]);
+  }, [isRequested, currentUser, type]);
   
   // Also check storage for response status on every page navigation
   useEffect(() => {
     const syncResponseState = () => {
       if (currentUser && requestId) {
-        const userResponses = JSON.parse(localStorage.getItem(`responses_${currentUser.id}`) || '[]');
-        const hasAlreadyResponded = userResponses.some((response: any) => response.requestId === requestId);
-        setHasResponded(hasAlreadyResponded);
+        // Only check if user role matches resource type for interaction
+        const isUserRoleCompatible = 
+          (currentUser.role === 'victim' && type === 'offer') || 
+          (['volunteer', 'ngo', 'government'].includes(currentUser.role) && type === 'need');
+        
+        if (isUserRoleCompatible) {
+          const userResponses = JSON.parse(localStorage.getItem(`responses_${currentUser.id}`) || '[]');
+          const hasAlreadyResponded = userResponses.some((response: any) => response.requestId === requestId);
+          setHasResponded(hasAlreadyResponded);
+        } else {
+          setHasResponded(false);
+        }
       }
     };
     
@@ -106,8 +138,31 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
     return () => {
       window.removeEventListener('popstate', syncResponseState);
     };
-  }, [currentUser, requestId]);
+  }, [currentUser, requestId, type]);
   
+  const handleResourceUpdate = () => {
+    const authUser = localStorage.getItem('authUser');
+    if (authUser) {
+      const user = JSON.parse(authUser);
+      setCurrentUser(user);
+      
+      if (requestId) {
+        // Only check for responses if the current user role matches the resource type
+        const shouldCheckResponses = 
+          (user.role === 'victim' && type === 'offer') || 
+          (['volunteer', 'ngo', 'government'].includes(user.role) && type === 'need');
+        
+        if (shouldCheckResponses) {
+          const userResponses = JSON.parse(localStorage.getItem(`responses_${user.id}`) || '[]');
+          const hasAlreadyResponded = userResponses.some((response: any) => response.requestId === requestId);
+          setHasResponded(hasAlreadyResponded);
+        } else {
+          setHasResponded(false);
+        }
+      }
+    }
+  };
+
   const getCategoryIcon = () => {
     switch (category) {
       case 'water':
@@ -286,7 +341,9 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
           isLight ? "text-gray-600" : "text-gray-400"
         )}>
           <p>Location: {location}</p>
+          {locationDetails && <p className="mt-1">Details: {locationDetails}</p>}
           {contact && <p className="mt-1">Contact: {contact}</p>}
+          {contactName && <p className="mt-1">Contact Name: {contactName}</p>}
         </div>
         
         <div className="flex justify-between items-center">
@@ -415,6 +472,23 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
               </p>
             </div>
             
+            {locationDetails && (
+              <div>
+                <h4 className={cn(
+                  "text-sm font-medium mb-1",
+                  isLight ? "text-gray-900" : "text-gray-200"
+                )}>
+                  Location Details
+                </h4>
+                <p className={cn(
+                  "text-sm",
+                  isLight ? "text-gray-700" : "text-gray-300"
+                )}>
+                  {locationDetails}
+                </p>
+              </div>
+            )}
+            
             {contact && (
               <div>
                 <h4 className={cn(
@@ -428,6 +502,23 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
                   isLight ? "text-gray-700" : "text-gray-300"
                 )}>
                   {contact}
+                </p>
+              </div>
+            )}
+            
+            {contactName && (
+              <div>
+                <h4 className={cn(
+                  "text-sm font-medium mb-1",
+                  isLight ? "text-gray-900" : "text-gray-200"
+                )}>
+                  Contact Name
+                </h4>
+                <p className={cn(
+                  "text-sm",
+                  isLight ? "text-gray-700" : "text-gray-300"
+                )}>
+                  {contactName}
                 </p>
               </div>
             )}

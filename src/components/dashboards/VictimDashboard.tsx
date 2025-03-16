@@ -1,4 +1,3 @@
-
 import React, { useMemo, useState, useEffect } from 'react';
 import { Info, ArrowRight } from 'lucide-react';
 import ResourceCard from '../ResourceCard';
@@ -108,10 +107,12 @@ const VictimDashboard: React.FC<VictimDashboardProps> = ({ resourceData }) => {
                     title={resource.title}
                     description={resource.description}
                     location={resource.location}
+                    locationDetails={resource.locationDetails}
                     contact={resource.contact}
+                    contactName={resource.contactName}
                     urgent={resource.urgent}
                     requestId={resource.id}
-                    isRequested={user?.id && respondedRequestIds.has(resource.id)}
+                    isRequested={user?.id && user.role === 'victim' && respondedRequestIds.has(resource.id)}
                   />
                 ))
               ) : (

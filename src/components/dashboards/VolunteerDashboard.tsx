@@ -1,4 +1,3 @@
-
 import React, { useMemo, useEffect } from 'react';
 import { Users, ArrowRight, Clock, CheckCircle } from 'lucide-react';
 import ResourceCard from '../ResourceCard';
@@ -156,6 +155,7 @@ const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ resourceData })
                     contact={resource.contact}
                     urgent={resource.urgent}
                     requestId={resource.id}
+                    isRequested={false} // Always false here as we're already filtering out responded items
                   />
                 ))
               ) : (
