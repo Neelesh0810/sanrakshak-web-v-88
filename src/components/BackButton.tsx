@@ -16,25 +16,12 @@ const BackButton: React.FC<BackButtonProps> = ({ className }) => {
   const isLight = theme === 'light';
   
   const handleGoBack = () => {
-    // Get the current user role
-    const authUser = localStorage.getItem('authUser');
-    let userRole = 'victim';
-    
-    if (authUser) {
-      const user = JSON.parse(authUser);
-      userRole = user.role;
-    }
-    
     const returnTo = searchParams.get('returnTo');
     if (returnTo) {
       navigate(`/${returnTo}`);
     } else {
-      // Redirect based on user role
-      if (userRole === 'ngo') {
-        navigate('/dashboard');
-      } else {
-        navigate('/dashboard');
-      }
+      // Navigate to dashboard instead of landing page
+      navigate('/dashboard');
     }
   };
   

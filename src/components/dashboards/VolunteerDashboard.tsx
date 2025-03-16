@@ -9,13 +9,9 @@ import useResourceData from '@/hooks/useResourceData';
 
 interface VolunteerDashboardProps {
   resourceData?: ReturnType<typeof useResourceData>;
-  userFilter?: 'all' | 'volunteers' | 'ngos';
 }
 
-const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ 
-  resourceData,
-  userFilter = 'all'
-}) => {
+const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ resourceData }) => {
   // Use passed resourceData or create a new instance
   const { resources, responses, loading, cleanupInvalidResponses } = resourceData || useResourceData();
   

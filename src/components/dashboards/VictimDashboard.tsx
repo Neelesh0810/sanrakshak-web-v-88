@@ -1,145 +1,79 @@
-import React, { useState, useEffect } from 'react';
-import { Building, Map, Bell, ChevronRight, Clock, Calendar, Activity, Users, Search } from 'lucide-react';
-import UserProfile from '../UserProfile';
+
+import React, { useMemo, useState, useEffect } from 'react';
+import { Info, ArrowRight } from 'lucide-react';
+import ResourceCard from '../ResourceCard';
 import StatusUpdate from '../StatusUpdate';
+import EmergencyContact from '../EmergencyContact';
+import LocationFinder from '../LocationFinder';
 import AnimatedTransition from '../AnimatedTransition';
 import { Link } from 'react-router-dom';
 import useResourceData from '@/hooks/useResourceData';
+import EmergencyContactsDialog from '../EmergencyContactsDialog';
 
 interface VictimDashboardProps {
   resourceData?: ReturnType<typeof useResourceData>;
-  userFilter?: 'all' | 'volunteers' | 'ngos';
 }
 
-const VictimDashboard: React.FC<VictimDashboardProps> = ({ 
-  resourceData,
-  userFilter = 'all'
-}) => {
-  const [registeredUsers, setRegisteredUsers] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+const VictimDashboard: React.FC<VictimDashboardProps> = ({ resourceData }) => {
+  // Use passed resourceData or create a new instance
+  const { resources, responses, loading } = resourceData || useResourceData();
+  const [user, setUser] = useState<any>(null);
+  const [showAllContacts, setShowAllContacts] = useState(false);
   
+  // Get current user to check responses
   useEffect(() => {
-    const fetchUsers = () => {
-      try {
-        const users = JSON.parse(localStorage.getItem('users') || '[]');
-        
-        let filteredUsers = users;
-        if (userFilter === 'volunteers') {
-          filteredUsers = users.filter((user: any) => user.role === 'volunteer');
-        } else if (userFilter === 'ngos') {
-          filteredUsers = users.filter((user: any) => user.role === 'ngo');
-        } else {
-          filteredUsers = users.filter((user: any) => 
-            user.role === 'volunteer' || user.role === 'ngo'
-          );
-        }
-        
-        setRegisteredUsers(filteredUsers);
-      } catch (error) {
-        console.error('Error fetching users:', error);
-        setRegisteredUsers([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    const storedUser = localStorage.getItem('authUser');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+  
+  // Get a set of all resource IDs that the current user has already responded to
+  const respondedRequestIds = useMemo(() => {
+    if (!user?.id) return new Set<string>();
     
-    fetchUsers();
-    
-    const handleAuthChange = () => {
-      fetchUsers();
-    };
-    
-    window.addEventListener('auth-changed', handleAuthChange);
-    
-    return () => {
-      window.removeEventListener('auth-changed', handleAuthChange);
-    };
-  }, [userFilter]);
+    const userResponses = JSON.parse(localStorage.getItem(`responses_${user.id}`) || '[]');
+    return new Set(userResponses.map((response: any) => response.requestId));
+  }, [user, responses]);
+  
+  // Filter resources to only show offers (available to victims)
+  const availableResources = useMemo(() => {
+    return resources
+      .filter(resource => resource.type === 'offer')
+      .sort((a, b) => {
+        // Sort by urgent first, then by timestamp (newest first)
+        if (a.urgent && !b.urgent) return -1;
+        if (!a.urgent && b.urgent) return 1;
+        return b.timestamp - a.timestamp;
+      })
+      .slice(0, 4); // Only show the top 4
+  }, [resources]);
   
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2 space-y-6">
-        <AnimatedTransition className="mb-6" delay={0}>
+    <div className="container mx-auto px-4">
+      <div className="mb-6">
+        <AnimatedTransition>
           <div className="relative overflow-hidden glass-dark rounded-xl border border-white/10 p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between">
               <div className="mb-4 sm:mb-0 sm:mr-6">
-                <div className="flex items-center mb-2">
-                  <Bell size={18} className="mr-2 text-white" />
-                  <h2 className="text-xl font-semibold">Emergency Alerts</h2>
+                <div className="mb-2">
+                  <h2 className="text-xl font-semibold">Need Help?</h2>
                 </div>
                 <p className="text-gray-300 text-sm mb-3">
-                  Stay informed with real-time updates and important announcements.
+                  Request emergency assistance, find shelter, or access resources. Our priority is keeping you safe.
                 </p>
                 <div className="flex items-center text-xs text-gray-400">
-                  <Clock size={12} className="mr-1" />
-                  <span>Last updated: just now</span>
-                </div>
-              </div>
-              
-              <div className="flex space-x-2">
-                <Link to="/alerts" className="px-4 py-2 rounded-full text-sm bg-white text-black hover:bg-white/90 transition-colors">
-                  View All Alerts
-                </Link>
-                <Link to="/submit-report" className="px-4 py-2 rounded-full text-sm bg-white/10 hover:bg-white/15 transition-colors">
-                  Submit Report
-                </Link>
-              </div>
-            </div>
-          </div>
-        </AnimatedTransition>
-        
-        <AnimatedTransition className="mb-6" delay={100}>
-          <div className="relative overflow-hidden glass-dark rounded-xl border border-white/10 p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between">
-              <div className="mb-4 sm:mb-0 sm:mr-6">
-                <div className="flex items-center mb-2">
-                  <Building size={18} className="mr-2 text-white" />
-                  <h2 className="text-xl font-semibold">Available Resources</h2>
-                </div>
-                <p className="text-gray-300 text-sm mb-3">
-                  Find essential resources and support services in your area.
-                </p>
-                <div className="flex items-center text-xs text-gray-400">
-                  <Map size={12} className="mr-1" />
-                  <span>Current Location: City Center</span>
+                  <Info size={12} className="mr-1" />
+                  <span>Your safety is our top priority</span>
                 </div>
               </div>
               
               <div className="flex space-x-2">
                 <Link to="/resources" className="px-4 py-2 rounded-full text-sm bg-white text-black hover:bg-white/90 transition-colors">
-                  Explore Resources
+                  Request Help
                 </Link>
-                <Link to="/connect" className="px-4 py-2 rounded-full text-sm bg-white/10 hover:bg-white/15 transition-colors">
-                  Request Assistance
-                </Link>
-              </div>
-            </div>
-          </div>
-        </AnimatedTransition>
-        
-        <AnimatedTransition delay={200}>
-          <div className="relative overflow-hidden glass-dark rounded-xl border border-white/10 p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between">
-              <div className="mb-4 sm:mb-0 sm:mr-6">
-                <div className="flex items-center mb-2">
-                  <Calendar size={18} className="mr-2 text-white" />
-                  <h2 className="text-xl font-semibold">Emergency Plan</h2>
-                </div>
-                <p className="text-gray-300 text-sm mb-3">
-                  Prepare and stay safe with a personalized emergency plan.
-                </p>
-                <div className="flex items-center text-xs text-gray-400">
-                  <Activity size={12} className="mr-1" />
-                  <span>Last updated: 2 weeks ago</span>
-                </div>
-              </div>
-              
-              <div className="flex space-x-2">
-                <Link to="/emergency-plan" className="px-4 py-2 rounded-full text-sm bg-white text-black hover:bg-white/90 transition-colors">
-                  View Emergency Plan
-                </Link>
-                <Link to="/edit-plan" className="px-4 py-2 rounded-full text-sm bg-white/10 hover:bg-white/15 transition-colors">
-                  Edit Plan
+                <Link to="/shelter-map" className="px-4 py-2 rounded-full text-sm bg-white/10 hover:bg-white/15 transition-colors">
+                  Find Shelter
                 </Link>
               </div>
             </div>
@@ -147,81 +81,122 @@ const VictimDashboard: React.FC<VictimDashboardProps> = ({
         </AnimatedTransition>
       </div>
       
-      <div>
-        <AnimatedTransition className="mb-6" delay={150}>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Emergency Updates</h2>
-            <Link to="/alerts" className="flex items-center text-sm text-gray-400 hover:text-white transition-colors">
-              <span className="mr-1">View All</span>
-              <ChevronRight size={16} />
-            </Link>
-          </div>
-          
-          <div className="space-y-4">
-            <StatusUpdate
-              id="status-1"
-              title="Power Restoration Progress"
-              message="Crews are working to restore power to the eastern district. Estimated completion: 24 hours."
-              source="City Power & Utilities"
-              timestamp="1 hour ago"
-              priority="high"
-            />
-            
-            <StatusUpdate
-              id="status-2"
-              title="Road Closure Update"
-              message="Main Street between 5th and 8th Ave remains flooded and closed to traffic. Use alternate routes."
-              source="Department of Transportation"
-              timestamp="3 hours ago"
-              priority="medium"
-            />
-          </div>
-        </AnimatedTransition>
-        
-        <AnimatedTransition delay={250}>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">
-              {userFilter === 'volunteers' ? 'Volunteers' : 
-               userFilter === 'ngos' ? 'NGOs' : 
-               'Assistance Network'}
-            </h2>
-            <Link to="/connect" className="flex items-center text-sm text-gray-400 hover:text-white transition-colors">
-              <span className="mr-1">Connect</span>
-              <ChevronRight size={16} />
-            </Link>
-          </div>
-          
-          {isLoading ? (
-            <div className="space-y-4">
-              <div className="animate-pulse h-44 rounded-xl bg-white/5"></div>
-              <div className="animate-pulse h-44 rounded-xl bg-white/5"></div>
-            </div>
-          ) : registeredUsers.length > 0 ? (
-            <div className="space-y-4">
-              {registeredUsers.slice(0, 3).map((user) => (
-                <UserProfile
-                  key={user.id}
-                  userId={user.id}
-                  name={user.name}
-                  role={user.role}
-                  contactInfo={user.phone || user.email}
-                  location={user.location || 'Unknown location'}
-                  lastActive="Recently"
-                  skills={user.skills || ['General assistance']}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="border border-white/10 rounded-xl p-4 text-center">
-              <Users size={24} className="mx-auto mb-2 text-gray-400" />
-              <p className="text-gray-400 mb-2">No {userFilter === 'all' ? 'users' : userFilter} registered yet</p>
-              <Link to="/connect" className="text-sm bg-white/10 hover:bg-white/15 px-3 py-1 rounded inline-block">
-                Find Help
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <AnimatedTransition className="mb-6" delay={100}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">Available Resources</h2>
+              <Link to="/resources" className="flex items-center text-sm text-gray-400 hover:text-white transition-colors">
+                <span className="mr-1">View All</span>
+                <ArrowRight size={14} />
               </Link>
             </div>
-          )}
-        </AnimatedTransition>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {loading ? (
+                // Show loading states
+                Array(4).fill(0).map((_, index) => (
+                  <div key={`loading-${index}`} className="animate-pulse rounded-xl p-6 bg-white/5 h-64"></div>
+                ))
+              ) : availableResources.length > 0 ? (
+                // Show available resources
+                availableResources.map(resource => (
+                  <ResourceCard
+                    key={resource.id}
+                    type="offer"
+                    category={resource.category}
+                    title={resource.title}
+                    description={resource.description}
+                    location={resource.location}
+                    contact={resource.contact}
+                    urgent={resource.urgent}
+                    requestId={resource.id}
+                    isRequested={user?.id && respondedRequestIds.has(resource.id)}
+                  />
+                ))
+              ) : (
+                // No resources available
+                <div className="col-span-2 p-6 border border-white/10 rounded-xl text-center">
+                  <p className="text-gray-400">No resources available at the moment.</p>
+                </div>
+              )}
+            </div>
+          </AnimatedTransition>
+          
+          <AnimatedTransition delay={200}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">Status Updates</h2>
+              <Link to="/alerts" className="flex items-center text-sm text-gray-400 hover:text-white transition-colors">
+                <span className="mr-1">View All</span>
+                <ArrowRight size={14} />
+              </Link>
+            </div>
+            
+            <div className="space-y-4">
+              <StatusUpdate
+                id="status-1"
+                title="Power Restoration Progress"
+                message="Crews are working to restore power to the eastern district. Estimated completion: 24 hours."
+                source="City Power & Utilities"
+                timestamp="1 hour ago"
+                priority="high"
+              />
+              
+              <StatusUpdate
+                id="status-2"
+                title="Road Closure Update"
+                message="Main Street between 5th and 8th Ave remains flooded and closed to traffic. Use alternate routes."
+                source="Department of Transportation"
+                timestamp="3 hours ago"
+                priority="medium"
+              />
+            </div>
+          </AnimatedTransition>
+        </div>
+        
+        <div>
+          <AnimatedTransition className="mb-6" delay={150}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">Emergency Contacts</h2>
+              <button 
+                onClick={() => setShowAllContacts(true)}
+                className="flex items-center text-sm text-gray-400 hover:text-white transition-colors"
+              >
+                <span className="mr-1">View All</span>
+                <ArrowRight size={14} />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <EmergencyContact
+                name="Emergency Response"
+                role="Coordination Center"
+                phone="555-911"
+                contactId="emergency-1"
+                available={true}
+              />
+              
+              <EmergencyContact
+                name="Dr. Sarah Johnson"
+                role="Medical Coordinator"
+                phone="555-123-7890"
+                contactId="medical-1"
+                available={true}
+              />
+            </div>
+          </AnimatedTransition>
+          
+          <AnimatedTransition delay={250}>
+            <LocationFinder />
+          </AnimatedTransition>
+        </div>
       </div>
+      
+      {/* Emergency Contacts Dialog */}
+      <EmergencyContactsDialog 
+        open={showAllContacts} 
+        onOpenChange={setShowAllContacts} 
+      />
     </div>
   );
 };
