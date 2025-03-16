@@ -3,6 +3,7 @@ import React from 'react';
 import { FileText, ChevronRight, FileBarChart2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '../context/ThemeProvider';
+import { cn } from '@/lib/utils';
 
 interface ReportItem {
   id: string;
@@ -107,8 +108,8 @@ const ReportsSection = () => {
             )}
           >
             <div className="flex items-center">
-              <FileText className={isLight ? "text-gray-600" : "text-gray-400"} className="mr-3" size={20} />
-              <div>
+              <FileText className={isLight ? "text-gray-600" : "text-gray-400"} size={20} />
+              <div className="ml-3">
                 <h3 className="font-medium">{report.title}</h3>
                 <p className={isLight ? "text-sm text-gray-600" : "text-sm text-gray-400"}>{formatDate(report.date)}</p>
               </div>
