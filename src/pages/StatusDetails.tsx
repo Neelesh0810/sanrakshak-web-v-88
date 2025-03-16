@@ -1,15 +1,17 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Header from '../components/Header';
 import { Clock, Info, AlertTriangle, MapPin, ExternalLink, Bookmark, Share2 } from 'lucide-react';
 import { useTheme } from '../context/ThemeProvider';
 import BackButton from '../components/BackButton';
-import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
+import { useToast } from '@/hooks/use-toast';
 
 const StatusDetails = () => {
   const { id } = useParams<{ id: string }>();
   const { theme } = useTheme();
+  const { toast } = useToast();
   const isLight = theme === 'light';
+  const [mapLoaded, setMapLoaded] = useState(false);
   
   // Jabalpur coordinates
   const defaultCenter = {
@@ -17,11 +19,7 @@ const StatusDetails = () => {
     lng: 79.9864
   };
   
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || "AIzaSyD1tUOXPaAr6eVZlBXJfZlvKtBmAQHD5xY" // Fallback key - replace with your actual key
-  });
-  
+  // Status data mapping
   const statusMap: { [key: string]: any } = {
     'status-1': {
       title: 'Power Restoration Progress',
@@ -83,6 +81,35 @@ const StatusDetails = () => {
     coordinates: defaultCenter
   };
   
+  useEffect(() => {
+    // Create and load iframe with proper Google Maps embed URL
+    const loadMap = () => {
+      const mapContainer = document.getElementById('map-container');
+      if (mapContainer) {
+        const coordinates = status.coordinates;
+        const mapSrc = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBtLRkfZb_SQHkRxsLYgQWs04vT1WLKNSE&q=${coordinates.lat},${coordinates.lng}&zoom=14&maptype=roadmap`;
+        
+        const iframe = document.createElement('iframe');
+        iframe.style.width = '100%';
+        iframe.style.height = '250px';
+        iframe.style.border = '0';
+        iframe.style.borderRadius = '8px';
+        iframe.setAttribute('allowfullscreen', 'true');
+        iframe.setAttribute('loading', 'lazy');
+        iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+        iframe.setAttribute('src', mapSrc);
+        
+        // Clear any existing content
+        mapContainer.innerHTML = '';
+        mapContainer.appendChild(iframe);
+        setMapLoaded(true);
+      }
+    };
+    
+    // Load the map
+    loadMap();
+  }, [id, status]);
+  
   const getPriorityStyles = () => {
     switch (status.priority) {
       case 'high':
@@ -107,12 +134,6 @@ const StatusDetails = () => {
       default:
         return <Info size={20} className={`mr-2 ${isLight ? "text-gray-800" : "text-gray-300"}`} />;
     }
-  };
-  
-  const mapContainerStyle = {
-    width: '100%',
-    height: '250px',
-    borderRadius: '8px'
   };
   
   return (
@@ -179,108 +200,15 @@ const StatusDetails = () => {
                   <span>Location Information</span>
                 </div>
                 
-                {isLoaded ? (
-                  <div className="mb-4 overflow-hidden rounded-lg border border-white/10">
-                    <GoogleMap
-                      mapContainerStyle={mapContainerStyle}
-                      center={status.coordinates}
-                      zoom={13}
-                      options={{
-                        styles: isLight ? [] : [
-                          { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
-                          { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
-                          { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
-                          {
-                            featureType: "administrative.locality",
-                            elementType: "labels.text.fill",
-                            stylers: [{ color: "#d59563" }],
-                          },
-                          {
-                            featureType: "poi",
-                            elementType: "labels.text.fill",
-                            stylers: [{ color: "#d59563" }],
-                          },
-                          {
-                            featureType: "poi.park",
-                            elementType: "geometry",
-                            stylers: [{ color: "#263c3f" }],
-                          },
-                          {
-                            featureType: "poi.park",
-                            elementType: "labels.text.fill",
-                            stylers: [{ color: "#6b9a76" }],
-                          },
-                          {
-                            featureType: "road",
-                            elementType: "geometry",
-                            stylers: [{ color: "#38414e" }],
-                          },
-                          {
-                            featureType: "road",
-                            elementType: "geometry.stroke",
-                            stylers: [{ color: "#212a37" }],
-                          },
-                          {
-                            featureType: "road",
-                            elementType: "labels.text.fill",
-                            stylers: [{ color: "#9ca5b3" }],
-                          },
-                          {
-                            featureType: "road.highway",
-                            elementType: "geometry",
-                            stylers: [{ color: "#746855" }],
-                          },
-                          {
-                            featureType: "road.highway",
-                            elementType: "geometry.stroke",
-                            stylers: [{ color: "#1f2835" }],
-                          },
-                          {
-                            featureType: "road.highway",
-                            elementType: "labels.text.fill",
-                            stylers: [{ color: "#f3d19c" }],
-                          },
-                          {
-                            featureType: "transit",
-                            elementType: "geometry",
-                            stylers: [{ color: "#2f3948" }],
-                          },
-                          {
-                            featureType: "transit.station",
-                            elementType: "labels.text.fill",
-                            stylers: [{ color: "#d59563" }],
-                          },
-                          {
-                            featureType: "water",
-                            elementType: "geometry",
-                            stylers: [{ color: "#17263c" }],
-                          },
-                          {
-                            featureType: "water",
-                            elementType: "labels.text.fill",
-                            stylers: [{ color: "#515c6d" }],
-                          },
-                          {
-                            featureType: "water",
-                            elementType: "labels.text.stroke",
-                            stylers: [{ color: "#17263c" }],
-                          },
-                        ]
-                      }}
-                    >
-                      <Marker position={status.coordinates} />
-                    </GoogleMap>
-                  </div>
-                ) : (
-                  <div className={`${isLight ? "bg-gray-100 border border-gray-300" : "bg-black/40 border border-white/5"} rounded-lg h-56 flex items-center justify-center mb-4`}>
-                    <div className="text-center">
-                      <p className={isLight ? "text-gray-700" : "text-gray-400"}>Loading map...</p>
-                      <p className={`text-xs ${isLight ? "text-gray-600" : "text-gray-500"} mt-1`}>
-                        Coordinates: {status.coordinates.lat}, {status.coordinates.lng}
+                <div id="map-container" className={`mb-4 overflow-hidden rounded-lg border ${isLight ? "border-gray-300" : "border-white/10"} h-[250px]`}>
+                  {!mapLoaded && (
+                    <div className={`flex items-center justify-center h-full ${isLight ? "bg-gray-100" : "bg-black/40"}`}>
+                      <p className={`text-center ${isLight ? "text-gray-700" : "text-gray-400"}`}>
+                        Loading map...
                       </p>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
               
               <div className={`${isLight ? "bg-white border border-gray-300 shadow-soft" : "bg-black/30 border border-white/10"} rounded-xl p-6`}>

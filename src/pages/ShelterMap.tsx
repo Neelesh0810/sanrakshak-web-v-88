@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import { ArrowLeft, MapPin, Navigation, Compass, Route } from 'lucide-react';
@@ -33,6 +34,7 @@ const ShelterMap = () => {
   const [showRoute, setShowRoute] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
   const [locationPermissionDenied, setLocationPermissionDenied] = useState(false);
+  const [mapLoaded, setMapLoaded] = useState(false);
   
   const handleGoBack = () => {
     navigate('/dashboard');
@@ -79,13 +81,23 @@ const ShelterMap = () => {
     };
     
     getUserLocation();
+    loadDefaultMap();
   }, [toast]);
+
+  const loadDefaultMap = () => {
+    const mapIframe = document.getElementById('shelter-map');
+    if (mapIframe) {
+      const defaultSrc = `https://www.google.com/maps/embed/v1/view?key=AIzaSyBtLRkfZb_SQHkRxsLYgQWs04vT1WLKNSE&center=23.1636,79.9548&zoom=14&maptype=roadmap`;
+      mapIframe.setAttribute('src', defaultSrc);
+      setMapLoaded(true);
+    }
+  };
 
   const handleShowOnMap = () => {
     if (selectedShelter) {
       const mapIframe = document.getElementById('shelter-map') as HTMLIFrameElement;
       if (mapIframe) {
-        const newSrc = `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3668.5294410669823!2d${selectedShelter.coordinates.lng}!3d${selectedShelter.coordinates.lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2z${encodeURIComponent(selectedShelter.name)}!5e0!3m2!1sen!2sin!4v1616661901026!5m2!1sen!2sin`;
+        const newSrc = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBtLRkfZb_SQHkRxsLYgQWs04vT1WLKNSE&q=${selectedShelter.coordinates.lat},${selectedShelter.coordinates.lng}&zoom=15&maptype=roadmap`;
         mapIframe.src = newSrc;
       }
       
@@ -117,10 +129,10 @@ const ShelterMap = () => {
           const destLat = selectedShelter.coordinates.lat;
           const destLng = selectedShelter.coordinates.lng;
           
-          const newSrc = `https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d58696.41047349456!2d${(userLng + destLng)/2}!3d${(userLat + destLat)/2}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e6!4m5!1s0x0%3A0x0!2zMjPCsDAw4oCZMDAuMCJOIDc5wrAwMOKAmTAwLjAiRQ!3m2!1d${userLat}!2d${userLng}!4m5!1s0x0%3A0x0!2z${encodeURIComponent(selectedShelter.name)}!3m2!1d${destLat}!2d${destLng}!5e0!3m2!1sen!2sin!4v1616661901026!5m2!1sen!2sin`;
+          const newSrc = `https://www.google.com/maps/embed/v1/directions?key=AIzaSyBtLRkfZb_SQHkRxsLYgQWs04vT1WLKNSE&origin=${userLat},${userLng}&destination=${destLat},${destLng}&mode=driving`;
           mapIframe.src = newSrc;
         } else {
-          const newSrc = `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3668.5294410669823!2d${selectedShelter.coordinates.lng}!3d${selectedShelter.coordinates.lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2z${encodeURIComponent(selectedShelter.name)}!5e0!3m2!1sen!2sin!4v1616661901026!5m2!1sen!2sin`;
+          const newSrc = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBtLRkfZb_SQHkRxsLYgQWs04vT1WLKNSE&q=${selectedShelter.coordinates.lat},${selectedShelter.coordinates.lng}&zoom=15&maptype=roadmap`;
           mapIframe.src = newSrc;
         }
       }
@@ -188,9 +200,16 @@ const ShelterMap = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="md:col-span-2">
               <div className="bg-black/20 border border-white/10 rounded-xl overflow-hidden h-[70vh]">
+                {!mapLoaded && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                    <div className="flex flex-col items-center">
+                      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-white mb-4"></div>
+                      <p className="text-gray-300">Loading map...</p>
+                    </div>
+                  </div>
+                )}
                 <iframe 
                   id="shelter-map"
-                  src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d117756.07676855968!2d79.94600543036132!3d23.16175785!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1616661901026!5m2!1sen!2sin" 
                   width="100%" 
                   height="100%" 
                   style={{ border: 0 }} 
@@ -199,6 +218,7 @@ const ShelterMap = () => {
                   referrerPolicy="no-referrer-when-downgrade"
                   title="Emergency Shelters Map"
                   className="w-full h-full"
+                  onLoad={() => setMapLoaded(true)}
                 />
               </div>
             </div>

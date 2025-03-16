@@ -38,33 +38,6 @@ const Map = () => {
   const location = useLocation();
   const selectedLocationId = location.state?.selectedLocationId;
   
-  const resources: MapResource[] = [
-    {
-      id: 1,
-      name: "Jabalpur Medical Center",
-      type: "Medical",
-      address: "Wright Town, Jabalpur",
-      distance: 0.8,
-      coordinates: { lat: 23.1697, lng: 79.9344 }
-    },
-    {
-      id: 2,
-      name: "Ganga Water Station",
-      type: "Water",
-      address: "Madan Mahal, Jabalpur",
-      distance: 1.2,
-      coordinates: { lat: 23.1463, lng: 79.8895 }
-    },
-    {
-      id: 3,
-      name: "Food Distribution Center",
-      type: "Food",
-      address: "Gorabazar, Jabalpur",
-      distance: 0.5,
-      coordinates: { lat: 23.1821, lng: 79.9260 }
-    }
-  ];
-  
   // Modified to only open the dialog without changing the map
   const navigateToLocation = (resource: MapResource) => {
     setSelectedResource(resource);
@@ -117,8 +90,18 @@ const Map = () => {
     
     setTimeout(() => {
       getLocation();
+      loadDefaultMap();
     }, 1500);
-  }, [toast, selectedLocationId, resources]);
+  }, [toast, selectedLocationId]);
+
+  const loadDefaultMap = () => {
+    const mapIframe = document.getElementById('resource-map');
+    if (mapIframe) {
+      const defaultSrc = `https://www.google.com/maps/embed/v1/view?key=AIzaSyBtLRkfZb_SQHkRxsLYgQWs04vT1WLKNSE&center=23.1636,79.9548&zoom=13&maptype=roadmap`;
+      mapIframe.setAttribute('src', defaultSrc);
+      setIsLoading(false);
+    }
+  };
 
   const getDirectionsUrl = (destination: MapResource) => {
     if (userLocation) {
@@ -131,11 +114,9 @@ const Map = () => {
 
   // Function to focus the map on the selected location
   const focusMapOnLocation = (resource: MapResource) => {
-    // This would be where you'd update the map's center point 
-    // For the iframe implementation we'll just update the iframe src
     const mapIframe = document.getElementById('resource-map') as HTMLIFrameElement;
     if (mapIframe) {
-      const newSrc = `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3668.5294410669823!2d${resource.coordinates.lng}!3d${resource.coordinates.lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2z${encodeURIComponent(resource.name)}!5e0!3m2!1sen!2sin!4v1616661901026!5m2!1sen!2sin`;
+      const newSrc = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBtLRkfZb_SQHkRxsLYgQWs04vT1WLKNSE&q=${resource.coordinates.lat},${resource.coordinates.lng}&zoom=15&maptype=roadmap`;
       mapIframe.src = newSrc;
     }
   };
@@ -157,8 +138,8 @@ const Map = () => {
       const destLat = resource.coordinates.lat;
       const destLng = resource.coordinates.lng;
       
-      // Update iframe to show the route
-      const newSrc = `https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d58696.41047349456!2d${(userLng + destLng)/2}!3d${(userLat + destLat)/2}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e6!4m5!1s0x0%3A0x0!2zMjPCsDAw4oCZMDAuMCJOIDc5wrAwMOKAmTAwLjAiRQ!3m2!1d${userLat}!2d${userLng}!4m5!1s0x0%3A0x0!2z${encodeURIComponent(resource.name)}!3m2!1d${destLat}!2d${destLng}!5e0!3m2!1sen!2sin!4v1616661901026!5m2!1sen!2sin`;
+      // Update iframe to show the route using the embed API
+      const newSrc = `https://www.google.com/maps/embed/v1/directions?key=AIzaSyBtLRkfZb_SQHkRxsLYgQWs04vT1WLKNSE&origin=${userLat},${userLng}&destination=${destLat},${destLng}&mode=driving`;
       mapIframe.src = newSrc;
     }
     
@@ -169,6 +150,33 @@ const Map = () => {
       description: `Showing route to ${resource.name}`,
     });
   };
+
+  const resources: MapResource[] = [
+    {
+      id: 1,
+      name: "Jabalpur Medical Center",
+      type: "Medical",
+      address: "Wright Town, Jabalpur",
+      distance: 0.8,
+      coordinates: { lat: 23.1697, lng: 79.9344 }
+    },
+    {
+      id: 2,
+      name: "Ganga Water Station",
+      type: "Water",
+      address: "Madan Mahal, Jabalpur",
+      distance: 1.2,
+      coordinates: { lat: 23.1463, lng: 79.8895 }
+    },
+    {
+      id: 3,
+      name: "Food Distribution Center",
+      type: "Food",
+      address: "Gorabazar, Jabalpur",
+      distance: 0.5,
+      coordinates: { lat: 23.1821, lng: 79.9260 }
+    }
+  ];
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -196,20 +204,19 @@ const Map = () => {
                         <p className="text-gray-300">Loading map and resources...</p>
                       </div>
                     </div>
-                  ) : (
-                    <iframe 
-                      id="resource-map"
-                      src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d117756.07676855968!2d79.94600543036132!3d23.16175785!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1616661901026!5m2!1sen!2sin" 
-                      width="100%" 
-                      height="100%" 
-                      style={{ border: 0 }} 
-                      allowFullScreen={true} 
-                      loading="lazy" 
-                      referrerPolicy="no-referrer-when-downgrade"
-                      title="Emergency Resources Map"
-                      className="w-full h-full"
-                    />
-                  )}
+                  ) : null}
+                  <iframe 
+                    id="resource-map"
+                    width="100%" 
+                    height="100%" 
+                    style={{ border: 0 }} 
+                    allowFullScreen={true} 
+                    loading="lazy" 
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Emergency Resources Map"
+                    className="w-full h-full"
+                    onLoad={() => setIsLoading(false)}
+                  />
                   
                   {userLocation && !isLoading && (
                     <div className="absolute bottom-4 left-4 glass-dark px-3 py-2 rounded-lg text-sm backdrop-blur-sm">
