@@ -33,6 +33,15 @@ const RequestForm: React.FC<RequestFormProps> = ({ onSubmit, onCancel, userRole 
   const [location, setLocation] = useState('');
   const [contact, setContact] = useState('');
   const [urgent, setUrgent] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  
+  useEffect(() => {
+    // Get current user
+    const storedUser = localStorage.getItem('authUser');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
   
   useEffect(() => {
     if (userRole === 'volunteer' || userRole === 'ngo' || userRole === 'government') {

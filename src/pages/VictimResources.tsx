@@ -14,11 +14,12 @@ const VictimResources = () => {
   const { resources, responses, addResource, loading } = useResourceData();
   const [showForm, setShowForm] = useState(false);
   const [showVictimForm, setShowVictimForm] = useState(false);
-  const [filter, setFilter] = useState<'offer' | 'all'>('all');
+  const [filter, setFilter] = useState<'offer' | 'need' | 'all'>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [respondedRequestIds, setRespondedRequestIds] = useState<Set<string>>(new Set());
+  const [userRequestIds, setUserRequestIds] = useState<Set<string>>(new Set());
   
   useEffect(() => {
     const fetchRespondedRequests = () => {
@@ -32,8 +33,17 @@ const VictimResources = () => {
         ]);
         
         setRespondedRequestIds(combinedResponses);
+        
+        // Identify user's own requests
+        const userRequests = new Set(
+          resources
+            .filter(resource => resource.userId === user.id && resource.type === 'need')
+            .map(resource => resource.id)
+        );
+        setUserRequestIds(userRequests);
       } else {
         setRespondedRequestIds(new Set());
+        setUserRequestIds(new Set());
       }
     };
     
@@ -46,13 +56,15 @@ const VictimResources = () => {
     window.addEventListener('response-created', handleResponseUpdate);
     window.addEventListener('response-updated', handleResponseUpdate);
     window.addEventListener('resource-updated', handleResponseUpdate);
+    window.addEventListener('resource-created', handleResponseUpdate);
     
     return () => {
       window.removeEventListener('response-created', handleResponseUpdate);
       window.removeEventListener('response-updated', handleResponseUpdate);
       window.removeEventListener('resource-updated', handleResponseUpdate);
+      window.removeEventListener('resource-created', handleResponseUpdate);
     };
-  }, [user]);
+  }, [user, resources]);
   
   useEffect(() => {
     const fetchUser = () => {
@@ -89,7 +101,9 @@ const VictimResources = () => {
     
     addResource({
       ...formData,
-      status: 'pending'
+      status: 'pending',
+      userId: user.id,
+      username: user.name || user.email || 'Anonymous'
     });
     
     setShowForm(false);
@@ -121,7 +135,9 @@ const VictimResources = () => {
       urgent: formData.urgent,
       status: 'pending',
       people: formData.people,
-      items: formData.items
+      items: formData.items,
+      userId: user.id,
+      username: user.name || user.email || 'Anonymous'
     });
     
     setShowVictimForm(false);
@@ -132,7 +148,12 @@ const VictimResources = () => {
   };
   
   const filteredResources = resources
-    .filter(resource => resource.type === 'offer') // Only show offers that victims can request
+    .filter(resource => {
+      if (filter === 'all') return true;
+      if (filter === 'offer') return resource.type === 'offer';
+      if (filter === 'need') return resource.type === 'need' && resource.userId === user?.id;
+      return true;
+    })
     .filter(resource => categoryFilter === 'all' || resource.category === categoryFilter)
     .sort((a, b) => {
       if (a.urgent && !b.urgent) return -1;
@@ -207,6 +228,39 @@ const VictimResources = () => {
                   <span className="text-sm">Filter:</span>
                 </div>
                 
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => setFilter('all')}
+                    className={`px-3 py-1 rounded-full text-sm ${
+                      filter === 'all' 
+                        ? 'bg-white text-black' 
+                        : 'bg-white/10 hover:bg-white/15'
+                    }`}
+                  >
+                    All
+                  </button>
+                  <button
+                    onClick={() => setFilter('offer')}
+                    className={`px-3 py-1 rounded-full text-sm ${
+                      filter === 'offer' 
+                        ? 'bg-white text-black' 
+                        : 'bg-white/10 hover:bg-white/15'
+                    }`}
+                  >
+                    Available
+                  </button>
+                  <button
+                    onClick={() => setFilter('need')}
+                    className={`px-3 py-1 rounded-full text-sm ${
+                      filter === 'need' 
+                        ? 'bg-white text-black' 
+                        : 'bg-white/10 hover:bg-white/15'
+                    }`}
+                  >
+                    My Requests
+                  </button>
+                </div>
+                
                 <div className="flex flex-wrap gap-2 mt-3 sm:mt-0 sm:ml-4">
                   <select
                     value={categoryFilter}
@@ -240,7 +294,12 @@ const VictimResources = () => {
                     contact={resource.contact}
                     urgent={resource.urgent}
                     requestId={resource.id}
-                    isRequested={user?.id && respondedRequestIds.has(resource.id)}
+                    isRequested={
+                      user?.id && (
+                        respondedRequestIds.has(resource.id) || 
+                        (resource.type === 'need' && userRequestIds.has(resource.id))
+                      )
+                    }
                   />
                 </div>
               ))}

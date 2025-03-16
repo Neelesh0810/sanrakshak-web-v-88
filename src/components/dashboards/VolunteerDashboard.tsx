@@ -1,3 +1,4 @@
+
 import React, { useMemo, useEffect } from 'react';
 import { Users, ArrowRight, Clock, CheckCircle } from 'lucide-react';
 import ResourceCard from '../ResourceCard';
@@ -145,18 +146,19 @@ const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ resourceData })
               ) : needsResources.length > 0 ? (
                 // Show resources that need help
                 needsResources.map(resource => (
-                  <ResourceCard
-                    key={resource.id}
-                    type="need"
-                    category={resource.category}
-                    title={resource.title}
-                    description={resource.description}
-                    location={resource.location}
-                    contact={resource.contact}
-                    urgent={resource.urgent}
-                    requestId={resource.id}
-                    isRequested={false} // Always false here as we're already filtering out responded items
-                  />
+                  <div key={resource.id} className="border-2 border-purple-500 rounded-xl overflow-hidden">
+                    <ResourceCard
+                      type="need"
+                      category={resource.category}
+                      title={resource.title}
+                      description={resource.description}
+                      location={resource.location}
+                      contact={resource.contact}
+                      urgent={resource.urgent}
+                      requestId={resource.id}
+                      isRequested={false} // Always false here as we're already filtering out responded items
+                    />
+                  </div>
                 ))
               ) : (
                 // No resources available

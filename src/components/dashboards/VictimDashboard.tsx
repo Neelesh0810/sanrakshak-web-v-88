@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState, useEffect } from 'react';
 import { Info, ArrowRight } from 'lucide-react';
 import ResourceCard from '../ResourceCard';
@@ -47,6 +48,19 @@ const VictimDashboard: React.FC<VictimDashboardProps> = ({ resourceData }) => {
       })
       .slice(0, 4); // Only show the top 4
   }, [resources]);
+  
+  // Filter resources to show the victim's own requests
+  const myRequests = useMemo(() => {
+    if (!user?.id) return [];
+    
+    return resources
+      .filter(resource => 
+        resource.type === 'need' && 
+        resource.userId === user.id
+      )
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .slice(0, 2); // Only show the top 2
+  }, [resources, user]);
   
   return (
     <div className="container mx-auto px-4">
@@ -123,6 +137,36 @@ const VictimDashboard: React.FC<VictimDashboardProps> = ({ resourceData }) => {
               )}
             </div>
           </AnimatedTransition>
+          
+          {/* Show My Request Section if user has requests */}
+          {myRequests.length > 0 && (
+            <AnimatedTransition className="mb-6" delay={150}>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold">My Requests</h2>
+                <Link to="/victim-resources" className="flex items-center text-sm text-gray-400 hover:text-white transition-colors">
+                  <span className="mr-1">View All</span>
+                  <ArrowRight size={14} />
+                </Link>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {myRequests.map(resource => (
+                  <ResourceCard
+                    key={resource.id}
+                    type="need"
+                    category={resource.category}
+                    title={resource.title}
+                    description={resource.description}
+                    location={resource.location}
+                    contact={resource.contact}
+                    urgent={resource.urgent}
+                    requestId={resource.id}
+                    isRequested={true} // Always mark as requested since these are the user's own requests
+                  />
+                ))}
+              </div>
+            </AnimatedTransition>
+          )}
           
           <AnimatedTransition delay={200}>
             <div className="flex items-center justify-between mb-4">
