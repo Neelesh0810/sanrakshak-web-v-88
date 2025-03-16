@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import AnimatedTransition from '../components/AnimatedTransition';
@@ -24,7 +23,7 @@ type ResourceRequest = {
 };
 
 const Connect = () => {
-  const { resources, addResource, userLocation } = useResourceData();
+  const { resources, addResource } = useResourceData();
   const [showForm, setShowForm] = useState(false);
   const [filter, setFilter] = useState('all');
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -106,19 +105,6 @@ const Connect = () => {
       return;
     }
     
-    // If no location is provided, use the user's location or Jabalpur
-    if (!newRequest.location) {
-      const defaultLocation = userLocation?.city || 'Jabalpur';
-      // Add a random neighborhood in Jabalpur
-      const jabalpur_areas = [
-        'Madan Mahal', 'Civil Lines', 'Napier Town', 'Ghamapur', 
-        'Adhartal', 'Gokalpur', 'Wright Town', 'Ranjhi', 
-        'Garha', 'Sadar', 'Hanumantal', 'Karmeta'
-      ];
-      const randomArea = jabalpur_areas[Math.floor(Math.random() * jabalpur_areas.length)];
-      newRequest.location = `${randomArea}, ${defaultLocation}, MP`;
-    }
-    
     const addedResource = addResource({
       ...newRequest,
       userId: currentUser.id,
@@ -176,7 +162,6 @@ const Connect = () => {
               <h1 className="text-3xl font-bold tracking-tight">Connect</h1>
               <p className="text-gray-400 mt-1">
                 {isVolunteer ? "Offer resources to those in need" : "Request or offer resources"}
-                {userLocation?.city && ` in ${userLocation.city}`}
               </p>
             </div>
             

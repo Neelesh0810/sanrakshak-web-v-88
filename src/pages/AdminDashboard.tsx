@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
@@ -41,36 +40,11 @@ const AdminDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [showReports, setShowReports] = useState(false);
-  const [userLocation, setUserLocation] = useState<{city: string} | null>(null);
   
   const { toast } = useToast();
   const navigate = useNavigate();
   const { theme } = useTheme();
   const isLight = theme === 'light';
-
-  // Get user location or use Jabalpur as default
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          try {
-            // Normally we would do reverse geocoding here
-            // For now, use Jabalpur as the location
-            setUserLocation({ city: 'Jabalpur' });
-          } catch (error) {
-            console.error('Error getting location details:', error);
-            setUserLocation({ city: 'Jabalpur' }); // Default
-          }
-        },
-        (error) => {
-          console.error('Geolocation error:', error);
-          setUserLocation({ city: 'Jabalpur' }); // Default
-        }
-      );
-    } else {
-      setUserLocation({ city: 'Jabalpur' }); // Default
-    }
-  }, []);
 
   const fetchResources = () => {
     const storedResources = localStorage.getItem('resources');
@@ -81,8 +55,6 @@ const AdminDashboard = () => {
       }));
       setResources(parsedResources);
     } else {
-      // Create default sample resources using Jabalpur locations
-      const city = userLocation?.city || 'Jabalpur';
       const sampleResources: Resource[] = [
         {
           id: '1',
@@ -90,7 +62,7 @@ const AdminDashboard = () => {
           category: 'water',
           title: 'Clean Water Needed',
           description: 'Family of 4 needs clean drinking water. We have been without for 2 days.',
-          location: `Madan Mahal, ${city}, Madhya Pradesh`,
+          location: 'North District, Block C',
           urgent: true,
           timestamp: Date.now() - 3600000,
           status: 'addressing',
@@ -102,7 +74,7 @@ const AdminDashboard = () => {
           category: 'food',
           title: 'Food for children',
           description: 'Need food supplies for 3 children under 10.',
-          location: `Ghamapur, ${city}, Madhya Pradesh`,
+          location: 'East Village, House 45',
           urgent: true,
           timestamp: Date.now() - 7200000,
           status: 'pending'
@@ -113,36 +85,12 @@ const AdminDashboard = () => {
           category: 'medical',
           title: 'Insulin Required',
           description: 'Diabetic patient needs insulin. Current supply will last only 24 hours.',
-          location: `Napier Town, ${city}, Madhya Pradesh`,
-          contact: '0761-555-0187',
+          location: 'South Side Apartments, Building 3',
+          contact: '555-0187',
           urgent: true,
           timestamp: Date.now() - 1800000,
           status: 'resolved',
           assignedTo: 'Medical Team Alpha'
-        },
-        {
-          id: '4',
-          type: 'need',
-          category: 'shelter',
-          title: 'Temporary Housing Needed',
-          description: 'Family of 5 displaced by flooding needs shelter for at least a week.',
-          location: `Adhartal, ${city}, Madhya Pradesh`,
-          contact: '0761-555-3421',
-          urgent: true,
-          timestamp: Date.now() - 5400000,
-          status: 'addressing',
-          assignedTo: 'Shelter Coordination Team'
-        },
-        {
-          id: '5',
-          type: 'need',
-          category: 'supplies',
-          title: 'Hygiene Products Needed',
-          description: 'Need diapers, feminine products, and basic toiletries for multiple families.',
-          location: `Gokalpur, ${city}, Madhya Pradesh`,
-          urgent: false,
-          timestamp: Date.now() - 9000000,
-          status: 'pending'
         }
       ];
       
@@ -168,12 +116,10 @@ const AdminDashboard = () => {
       navigate('/login', { replace: true });
     }
 
-    // Only fetch resources when we have location info
-    if (userLocation) {
-      fetchResources();
-      setIsLoading(false);
-    }
-  }, [navigate, toast, userLocation]);
+    fetchResources();
+    
+    setIsLoading(false);
+  }, [navigate, toast]);
 
   useEffect(() => {
     let result = [...resources];
@@ -289,11 +235,6 @@ const AdminDashboard = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <span className="font-bold text-xl">Sanrakshak Admin</span>
-              {userLocation && (
-                <span className="ml-4 text-sm text-gray-400">
-                  Location: <span className="font-medium text-white">{userLocation.city}</span>
-                </span>
-              )}
             </div>
             
             <div className="flex items-center space-x-4">
@@ -321,7 +262,7 @@ const AdminDashboard = () => {
           <div className="container mx-auto px-4">
             <div className="mb-8">
               <h1 className="text-2xl font-bold mb-2">Administrator Dashboard</h1>
-              <p className="text-gray-400">Manage and coordinate emergency response efforts in {userLocation?.city || 'Jabalpur'}</p>
+              <p className="text-gray-400">Manage and coordinate emergency response efforts</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
