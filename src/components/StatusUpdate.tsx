@@ -67,10 +67,10 @@ const StatusUpdate: React.FC<StatusUpdateProps> = ({
           <Link 
             to={`/status/${id}`} 
             className={cn(
-              "text-xs px-3 py-1 rounded-full transition-colors",
+              "text-xs px-3 py-1 rounded-full transition-colors text-black",
               isLight 
-                ? "bg-blue-100 hover:bg-blue-200 text-blue-800" 
-                : "bg-blue-900/20 hover:bg-blue-900/30 text-blue-300"
+                ? "bg-blue-100 hover:bg-blue-200" 
+                : "bg-blue-900/20 hover:bg-blue-900/30"
             )}
           >
             Details

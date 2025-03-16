@@ -31,13 +31,13 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-center md:text-left mb-4 md:mb-0">
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm text-black">
                 Sanrakshak • Emergency Response System
               </span>
             </div>
             
             <div className="text-center md:text-right">
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-black">
                 This system is for emergency use • Always follow official guidance
               </span>
             </div>

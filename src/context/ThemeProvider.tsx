@@ -29,6 +29,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.style.setProperty('--foreground', '0 0% 0%');
     document.documentElement.style.setProperty('--card-foreground', '0 0% 0%');
     document.documentElement.style.setProperty('--popover-foreground', '0 0% 0%');
+    document.documentElement.style.setProperty('--muted-foreground', '0 0% 5%');
   }, []);
 
   useEffect(() => {
