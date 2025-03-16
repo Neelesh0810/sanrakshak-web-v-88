@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState, useEffect } from 'react';
 import { Building, ArrowRight, PieChart, Users, Map, Plus } from 'lucide-react';
 import ResourceCard from '../ResourceCard';
@@ -9,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import ResourceDetailsDialog from '../dialogs/ResourceDetailsDialog';
 import AddResourceDialog from '../dialogs/AddResourceDialog';
 import ResourceManagementDialog from '../ResourceManagementDialog';
+import HelpRequestsDialog from '../dialogs/HelpRequestsDialog';
 
 interface NGODashboardProps {
   resourceData?: ReturnType<typeof useResourceData>;
@@ -21,6 +23,7 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [isAddResourceDialogOpen, setIsAddResourceDialogOpen] = useState(false);
   const [isManageResourcesDialogOpen, setIsManageResourcesDialogOpen] = useState(false);
+  const [isHelpRequestsDialogOpen, setIsHelpRequestsDialogOpen] = useState(false);
   
   const selectedResource = useMemo(() => {
     if (!selectedResourceId) return null;
@@ -80,6 +83,10 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
   
   const handleOpenManageResources = () => {
     setIsManageResourcesDialogOpen(true);
+  };
+
+  const handleViewAllHelpRequests = () => {
+    setIsHelpRequestsDialogOpen(true);
   };
   
   return (
@@ -250,10 +257,13 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
           <AnimatedTransition delay={200}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">Help Requests</h2>
-              <Link to="/resource-requests" className="flex items-center text-sm text-gray-400 hover:text-white transition-colors">
+              <button 
+                onClick={handleViewAllHelpRequests}
+                className="flex items-center text-sm text-gray-400 hover:text-white transition-colors"
+              >
                 <span className="mr-1">View All</span>
                 <ArrowRight size={14} />
-              </Link>
+              </button>
             </div>
             
             <div className="space-y-4">
@@ -375,6 +385,12 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
       <ResourceManagementDialog
         open={isManageResourcesDialogOpen}
         onOpenChange={setIsManageResourcesDialogOpen}
+      />
+
+      <HelpRequestsDialog
+        isOpen={isHelpRequestsDialogOpen}
+        onClose={() => setIsHelpRequestsDialogOpen(false)}
+        resources={resources}
       />
     </div>
   );
