@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { User, UserCheck, Building, Shield, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -47,8 +46,16 @@ const RoleSwitcher: React.FC = () => {
     // Generate a timestamp to force dashboard refresh
     const timestamp = Date.now();
     
-    // Always navigate to the dashboard regardless of current page
-    navigate(`/dashboard?refresh=${timestamp}`, { replace: true });
+    // If already on dashboard, force a reload to refresh content
+    if (location.pathname === '/dashboard') {
+      // Use a combination of navigate and window.location.reload for a full refresh
+      navigate(`/dashboard?refresh=${timestamp}`, { replace: true });
+      // Add a slight delay before reloading to ensure navigation completes
+      setTimeout(() => window.location.reload(), 100);
+    } else {
+      // Otherwise just navigate to dashboard
+      navigate(`/dashboard?refresh=${timestamp}`, { replace: true });
+    }
     
     // Dispatch events to notify other components of the role change
     window.dispatchEvent(new Event('auth-changed'));
