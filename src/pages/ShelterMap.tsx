@@ -57,27 +57,17 @@ const ShelterMap = () => {
           (error) => {
             console.error("Error getting location:", error);
             setLocationPermissionDenied(true);
-            // Default to Jabalpur coordinates
-            setUserLocation({
-              lat: 23.1636,
-              lng: 79.9548
-            });
             toast({
               title: "Location Error",
-              description: "Using default location (Jabalpur). Some features may be limited.",
+              description: "Could not access your location. Some features may be limited.",
             });
           }
         );
       } else {
         setLocationPermissionDenied(true);
-        // Default to Jabalpur coordinates
-        setUserLocation({
-          lat: 23.1636,
-          lng: 79.9548
-        });
         toast({
           title: "Location Not Supported",
-          description: "Using default location (Jabalpur). Your browser does not support geolocation.",
+          description: "Your browser does not support geolocation.",
         });
       }
     };
@@ -89,7 +79,6 @@ const ShelterMap = () => {
   const loadDefaultMap = () => {
     const mapIframe = document.getElementById('shelter-map');
     if (mapIframe) {
-      // Center on Jabalpur by default
       const defaultSrc = `https://www.google.com/maps/embed/v1/view?key=AIzaSyBtLRkfZb_SQHkRxsLYgQWs04vT1WLKNSE&center=23.1636,79.9548&zoom=13&maptype=roadmap`;
       mapIframe.setAttribute('src', defaultSrc);
       setMapLoaded(true);
@@ -143,12 +132,11 @@ const ShelterMap = () => {
     }
   }, [selectedShelter, userLocation, locationPermissionDenied, toast]);
 
-  // Updated shelter data with specific Jabalpur locations
   const shelters = [
     {
       id: 1,
       name: "Rani Durgavati University Shelter",
-      address: "Saraswati Vihar, Pachpedi, Jabalpur, Madhya Pradesh 482001",
+      address: "Saraswati Vihar, Pachpedi, Jabalpur",
       capacity: 220,
       occupancy: 135,
       amenities: ["Food", "Water", "Medical", "Power"],
@@ -157,7 +145,7 @@ const ShelterMap = () => {
     {
       id: 2,
       name: "Model School Adhartal",
-      address: "Adhartal, Jabalpur, Madhya Pradesh 482004",
+      address: "Adhartal, Jabalpur",
       capacity: 180,
       occupancy: 92,
       amenities: ["Food", "Water", "Power", "Pet Friendly"],
@@ -166,29 +154,11 @@ const ShelterMap = () => {
     {
       id: 3,
       name: "St. Aloysius College Relief Center",
-      address: "Sadar, Jabalpur, Madhya Pradesh 482001",
+      address: "Sadar, Jabalpur",
       capacity: 250,
       occupancy: 121,
       amenities: ["Food", "Water", "Medical", "Wifi"],
       coordinates: { lat: 23.1655, lng: 79.9422 }
-    },
-    {
-      id: 4,
-      name: "Jabalpur Engineering College (JEC) Shelter",
-      address: "Gokalpur, Jabalpur, Madhya Pradesh 482011",
-      capacity: 300,
-      occupancy: 175,
-      amenities: ["Food", "Water", "Medical", "Power", "Wifi"],
-      coordinates: { lat: 23.1769, lng: 80.0256 }
-    },
-    {
-      id: 5,
-      name: "Government Medical College Shelter",
-      address: "Medical College Campus, Jabalpur, Madhya Pradesh 482003",
-      capacity: 200,
-      occupancy: 140,
-      amenities: ["Food", "Water", "Medical", "Power", "Pet Friendly"],
-      coordinates: { lat: 23.1839, lng: 79.9318 }
     }
   ];
   
@@ -238,11 +208,7 @@ const ShelterMap = () => {
                   <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm px-3 py-2 rounded-lg text-sm">
                     <div className="flex items-center">
                       <MapPin size={16} className="mr-2 text-white/70" />
-                      <span className="text-white">
-                        {locationPermissionDenied 
-                          ? "Using default location (Jabalpur)" 
-                          : "Your location is available"}
-                      </span>
+                      <span className="text-white">Your location is available</span>
                     </div>
                   </div>
                 )}
@@ -313,9 +279,9 @@ const ShelterMap = () => {
               onClick={handleShowRoute}
               className="w-full flex items-center justify-center"
               variant="default"
-              disabled={locationPermissionDenied}
+              disabled={locationPermissionDenied || !userLocation}
             >
-              {locationPermissionDenied ? (
+              {locationPermissionDenied || !userLocation ? (
                 <Ban className="mr-2 h-4 w-4" />
               ) : (
                 <Route className="mr-2 h-4 w-4" />
