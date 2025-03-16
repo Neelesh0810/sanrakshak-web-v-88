@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from "@/hooks/use-toast";
 import { Mail, KeyRound, User, Phone, MapPin } from 'lucide-react';
 import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const Signup = () => {
   const [name, setName] = useState('');
@@ -188,21 +188,19 @@ const Signup = () => {
           </div>
           
           <div className="space-y-2">
-            <Label className="block mb-2">I am:</Label>
-            <RadioGroup 
-              value={role} 
+            <Label htmlFor="role" className="block mb-2">I am:</Label>
+            <Select
+              value={role}
               onValueChange={(value) => setRole(value as 'victim' | 'volunteer')}
-              className="flex flex-col space-y-2"
             >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="victim" id="victim" />
-                <Label htmlFor="victim">Affected by the disaster</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="volunteer" id="volunteer" />
-                <Label htmlFor="volunteer">Want to volunteer</Label>
-              </div>
-            </RadioGroup>
+              <SelectTrigger id="role" className="w-full bg-black/50 border-white/20">
+                <SelectValue placeholder="Select your role" />
+              </SelectTrigger>
+              <SelectContent className="bg-black border border-white/20">
+                <SelectItem value="victim">Affected by the disaster</SelectItem>
+                <SelectItem value="volunteer">Want to volunteer</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           
           {role === 'victim' && (
