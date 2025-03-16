@@ -34,7 +34,6 @@ const ShelterMap = () => {
   const [showRoute, setShowRoute] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
   const [locationPermissionDenied, setLocationPermissionDenied] = useState(false);
-  const [mapLoaded, setMapLoaded] = useState(false);
   
   const handleGoBack = () => {
     navigate('/dashboard');
@@ -81,32 +80,16 @@ const ShelterMap = () => {
     };
     
     getUserLocation();
-    loadDefaultMap();
   }, [toast]);
-
-  const loadDefaultMap = () => {
-    const mapIframe = document.getElementById('shelter-map');
-    if (mapIframe) {
-      const defaultSrc = `https://www.google.com/maps/embed/v1/view?key=AIzaSyBtLRkfZb_SQHkRxsLYgQWs04vT1WLKNSE&center=23.1636,79.9548&zoom=14&maptype=roadmap`;
-      mapIframe.setAttribute('src', defaultSrc);
-      setMapLoaded(true);
-    }
-  };
 
   const handleShowOnMap = () => {
     if (selectedShelter) {
-      const mapIframe = document.getElementById('shelter-map') as HTMLIFrameElement;
-      if (mapIframe) {
-        const newSrc = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBtLRkfZb_SQHkRxsLYgQWs04vT1WLKNSE&q=${selectedShelter.coordinates.lat},${selectedShelter.coordinates.lng}&zoom=15&maptype=roadmap`;
-        mapIframe.src = newSrc;
-      }
-      
       setDialogOpen(false);
       setShowRoute(false);
       
       toast({
         title: "Shelter Location",
-        description: `Showing ${selectedShelter.name} on the map`,
+        description: `Selected ${selectedShelter.name}`,
       });
     }
   };
@@ -119,22 +102,6 @@ const ShelterMap = () => {
           description: "Your location is needed to show the route. Please enable location services.",
         });
         return;
-      }
-      
-      const mapIframe = document.getElementById('shelter-map') as HTMLIFrameElement;
-      if (mapIframe) {
-        if (userLocation) {
-          const userLat = userLocation.lat;
-          const userLng = userLocation.lng;
-          const destLat = selectedShelter.coordinates.lat;
-          const destLng = selectedShelter.coordinates.lng;
-          
-          const newSrc = `https://www.google.com/maps/embed/v1/directions?key=AIzaSyBtLRkfZb_SQHkRxsLYgQWs04vT1WLKNSE&origin=${userLat},${userLng}&destination=${destLat},${destLng}&mode=driving`;
-          mapIframe.src = newSrc;
-        } else {
-          const newSrc = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBtLRkfZb_SQHkRxsLYgQWs04vT1WLKNSE&q=${selectedShelter.coordinates.lat},${selectedShelter.coordinates.lng}&zoom=15&maptype=roadmap`;
-          mapIframe.src = newSrc;
-        }
       }
       
       setDialogOpen(false);
@@ -200,26 +167,54 @@ const ShelterMap = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="md:col-span-2">
               <div className="bg-black/20 border border-white/10 rounded-xl overflow-hidden h-[70vh]">
-                {!mapLoaded && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-                    <div className="flex flex-col items-center">
-                      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-white mb-4"></div>
-                      <p className="text-gray-300">Loading map...</p>
+                {/* Static map visualization as fallback */}
+                <div className="w-full h-full bg-black/40 flex flex-col items-center justify-center p-4">
+                  <div className="flex flex-col items-center text-center text-gray-300 max-w-md">
+                    <MapPin size={40} className="mb-4 text-gray-400" />
+                    <h3 className="text-xl font-medium mb-2">Shelter Locations</h3>
+                    <p className="mb-6">Map showing emergency shelters in Jabalpur area:</p>
+                    
+                    <div className="w-full space-y-4">
+                      {shelters.map(shelter => (
+                        <div key={shelter.id} 
+                          className={`border border-white/20 rounded-lg p-3 flex items-center ${
+                            selectedShelter?.id === shelter.id ? 'bg-white/20' : 'bg-black/50'
+                          }`}
+                        >
+                          <MapPin size={20} className="mr-3 text-gray-400 flex-shrink-0" />
+                          <div className="flex-1">
+                            <h4 className="font-medium">{shelter.name}</h4>
+                            <p className="text-sm text-gray-400">{shelter.coordinates.lat.toFixed(4)}, {shelter.coordinates.lng.toFixed(4)}</p>
+                          </div>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleNavigateToShelter(shelter)}
+                            className="ml-2"
+                          >
+                            Select
+                          </Button>
+                        </div>
+                      ))}
                     </div>
+                    
+                    {selectedShelter && (
+                      <div className="mt-6 w-full">
+                        <h3 className="text-lg font-medium mb-2">Selected: {selectedShelter.name}</h3>
+                        {showRoute && userLocation && (
+                          <div className="border border-white/20 rounded-lg p-3 bg-black/30">
+                            <div className="flex items-center">
+                              <Route size={20} className="mr-2 text-gray-400" />
+                              <p>
+                                Route from your location to {selectedShelter.name} ({selectedShelter.address})
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
-                )}
-                <iframe 
-                  id="shelter-map"
-                  width="100%" 
-                  height="100%" 
-                  style={{ border: 0 }} 
-                  allowFullScreen={true} 
-                  loading="lazy" 
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="Emergency Shelters Map"
-                  className="w-full h-full"
-                  onLoad={() => setMapLoaded(true)}
-                />
+                </div>
               </div>
             </div>
             
