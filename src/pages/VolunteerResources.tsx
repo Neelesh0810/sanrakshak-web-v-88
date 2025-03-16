@@ -12,7 +12,7 @@ import BackButton from '@/components/BackButton';
 const VolunteerResources = () => {
   const { resources, responses, addResource, loading } = useResourceData();
   const [showForm, setShowForm] = useState(false);
-  const [filter, setFilter] = useState<'need' | 'all'>('all');
+  const [filter, setFilter] = useState<'need' | 'offer' | 'all'>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
@@ -98,7 +98,7 @@ const VolunteerResources = () => {
   };
   
   const filteredResources = resources
-    .filter(resource => resource.type === 'need') // Only show needs that volunteers can respond to
+    .filter(resource => filter === 'all' || resource.type === filter)
     .filter(resource => categoryFilter === 'all' || resource.category === categoryFilter)
     .sort((a, b) => {
       if (a.urgent && !b.urgent) return -1;
@@ -130,8 +130,8 @@ const VolunteerResources = () => {
           
             <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-8">
               <div>
-                <h1 className="text-2xl font-bold mb-2">Help Requests</h1>
-                <p className="text-gray-400">View and respond to people who need assistance</p>
+                <h1 className="text-2xl font-bold mb-2">Resources Exchange</h1>
+                <p className="text-gray-400">View needs, offer help, and see all resources</p>
               </div>
               
               {!showForm && (
@@ -159,6 +159,39 @@ const VolunteerResources = () => {
                 <div className="flex items-center space-x-2">
                   <Filter size={16} className="text-gray-400" />
                   <span className="text-sm">Filter:</span>
+                </div>
+                
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => setFilter('all')}
+                    className={`px-3 py-1 rounded-full text-sm ${
+                      filter === 'all' 
+                        ? 'bg-white text-black' 
+                        : 'bg-white/10 hover:bg-white/15'
+                    }`}
+                  >
+                    All
+                  </button>
+                  <button
+                    onClick={() => setFilter('need')}
+                    className={`px-3 py-1 rounded-full text-sm ${
+                      filter === 'need' 
+                        ? 'bg-white text-black' 
+                        : 'bg-white/10 hover:bg-white/15'
+                    }`}
+                  >
+                    Requests
+                  </button>
+                  <button
+                    onClick={() => setFilter('offer')}
+                    className={`px-3 py-1 rounded-full text-sm ${
+                      filter === 'offer' 
+                        ? 'bg-white text-black' 
+                        : 'bg-white/10 hover:bg-white/15'
+                    }`}
+                  >
+                    Offers
+                  </button>
                 </div>
                 
                 <div className="flex flex-wrap gap-2 mt-3 sm:mt-0 sm:ml-4">
@@ -204,6 +237,7 @@ const VolunteerResources = () => {
                   <p className="text-gray-400">No resources match your filters.</p>
                   <button
                     onClick={() => {
+                      setFilter('all');
                       setCategoryFilter('all');
                     }}
                     className="mt-2 px-4 py-2 bg-white/10 rounded-lg text-sm hover:bg-white/15 transition-colors"
