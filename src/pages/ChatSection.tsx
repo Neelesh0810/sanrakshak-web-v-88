@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import { ArrowLeft, Send, Paperclip, Image, MapPin, Mic, Phone, Video } from 'lucide-react';
-import { getAllUsers } from '../utils/userService';
+import { getAllUsers, getUserById } from '../utils/userService';
 import BackButton from '../components/BackButton';
 import { toast } from '@/components/ui/use-toast';
 
@@ -61,8 +60,7 @@ const ChatSection = () => {
       
       // Then check if it's a user from userService
       try {
-        const allUsers = getAllUsers();
-        const userContact = allUsers.find(user => user.id === contactId);
+        const userContact = getUserById(contactId || '');
         
         if (userContact) {
           // Safely check if lastActive exists before using includes
@@ -209,6 +207,8 @@ const ChatSection = () => {
     } else if (role === 'volunteer') {
       navigate('/dashboard');
     } else if (role === 'government') {
+      navigate('/dashboard');
+    } else if (role === 'victim') {
       navigate('/dashboard');
     } else {
       // Default fallback

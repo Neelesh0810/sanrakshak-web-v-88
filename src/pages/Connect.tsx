@@ -3,11 +3,13 @@ import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import AnimatedTransition from '../components/AnimatedTransition';
 import ResourceCard from '../components/ResourceCard';
-import { Plus, ArrowRight, Filter, UserCheck, AlertTriangle } from 'lucide-react';
+import { Plus, ArrowRight, Filter, UserCheck, AlertTriangle, Users } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from 'react-router-dom';
 import RequestForm from '@/components/RequestForm';
 import useResourceData from '@/hooks/useResourceData';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import RegisteredHelpers from '@/components/RegisteredHelpers';
 
 type ResourceRequest = {
   id: string;
@@ -30,6 +32,7 @@ const Connect = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [actingMode, setActingMode] = useState<string>('');
   const [respondedRequestIds, setRespondedRequestIds] = useState<Set<string>>(new Set());
+  const [activeTab, setActiveTab] = useState("resources");
   const { toast } = useToast();
   const navigate = useNavigate();
   
@@ -163,7 +166,7 @@ const Connect = () => {
             <div>
               <h1 className="text-3xl font-bold tracking-tight">Connect</h1>
               <p className="text-gray-400 mt-1">
-                {isVolunteer ? "Offer resources to those in need" : "Request or offer resources"}
+                {isVolunteer ? "Offer resources and connect with others" : "Request resources and connect with helpers"}
               </p>
             </div>
             
@@ -187,7 +190,7 @@ const Connect = () => {
                 </button>
               )}
               
-              {!showForm && (
+              {!showForm && activeTab === "resources" && (
                 <button 
                   onClick={() => setShowForm(!showForm)}
                   className="flex items-center px-4 py-2 rounded-full bg-white text-black hover:bg-white/90 transition-colors"
@@ -199,100 +202,113 @@ const Connect = () => {
             </div>
           </div>
           
-          {showForm && (
-            <AnimatedTransition className="mb-8">
-              <RequestForm 
-                onSubmit={handleAddRequest} 
-                onCancel={() => setShowForm(false)} 
-                userRole={currentUser?.role}
-              />
-            </AnimatedTransition>
-          )}
-          
-          <div className="mb-6">
-            <div className="flex items-center space-x-2 overflow-x-auto pb-2">
-              <button 
-                onClick={() => setFilter('all')}
-                className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors ${
-                  filter === 'all' ? 'bg-white text-black' : 'bg-white/10 hover:bg-white/15'
-                }`}
-              >
-                All Requests
-              </button>
-              <button 
-                onClick={() => setFilter('need')}
-                className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors ${
-                  filter === 'need' ? 'bg-white text-black' : 'bg-white/10 hover:bg-white/15'
-                }`}
-              >
-                Needs
-              </button>
-              <button 
-                onClick={() => setFilter('offer')}
-                className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors ${
-                  filter === 'offer' ? 'bg-white text-black' : 'bg-white/10 hover:bg-white/15'
-                }`}
-              >
-                Offers
-              </button>
-              {currentUser && (
-                <button 
-                  onClick={() => setFilter('my')}
-                  className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors ${
-                    filter === 'my' ? 'bg-white text-black' : 'bg-white/10 hover:bg-white/15'
-                  }`}
-                >
-                  My Requests
-                </button>
-              )}
-              <button 
-                className="p-2 rounded-full bg-white/10 hover:bg-white/15 transition-colors"
-                aria-label="Filter options"
-              >
-                <Filter size={18} />
-              </button>
-            </div>
-          </div>
-          
-          <AnimatedTransition>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredRequests.length > 0 ? (
-                filteredRequests.map((request) => (
-                  <ResourceCard
-                    key={request.id}
-                    type={request.type}
-                    category={request.category}
-                    title={request.title}
-                    description={request.description}
-                    location={request.location}
-                    contact={request.contact}
-                    urgent={request.urgent}
-                    requestId={request.id}
-                    isRequested={currentUser?.id && respondedRequestIds.has(request.id)}
+          <Tabs defaultValue="resources" className="mb-8" onValueChange={setActiveTab}>
+            <TabsList className="bg-white/10 mb-6">
+              <TabsTrigger value="resources" className="data-[state=active]:bg-white data-[state=active]:text-black">Resources</TabsTrigger>
+              <TabsTrigger value="helpers" className="data-[state=active]:bg-white data-[state=active]:text-black">Registered Helpers</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="resources">
+              {showForm && (
+                <AnimatedTransition className="mb-8">
+                  <RequestForm 
+                    onSubmit={handleAddRequest} 
+                    onCancel={() => setShowForm(false)} 
+                    userRole={currentUser?.role}
                   />
-                ))
-              ) : (
-                <div className="col-span-full py-12 text-center">
-                  <p className="text-gray-400 mb-4">No requests found. Be the first to add one!</p>
+                </AnimatedTransition>
+              )}
+              
+              <div className="mb-6">
+                <div className="flex items-center space-x-2 overflow-x-auto pb-2">
                   <button 
-                    onClick={() => setShowForm(true)}
-                    className="px-4 py-2 rounded-full bg-white/10 hover:bg-white/15 transition-colors"
+                    onClick={() => setFilter('all')}
+                    className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors ${
+                      filter === 'all' ? 'bg-white text-black' : 'bg-white/10 hover:bg-white/15'
+                    }`}
                   >
-                    {getButtonText()}
+                    All Requests
+                  </button>
+                  <button 
+                    onClick={() => setFilter('need')}
+                    className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors ${
+                      filter === 'need' ? 'bg-white text-black' : 'bg-white/10 hover:bg-white/15'
+                    }`}
+                  >
+                    Needs
+                  </button>
+                  <button 
+                    onClick={() => setFilter('offer')}
+                    className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors ${
+                      filter === 'offer' ? 'bg-white text-black' : 'bg-white/10 hover:bg-white/15'
+                    }`}
+                  >
+                    Offers
+                  </button>
+                  {currentUser && (
+                    <button 
+                      onClick={() => setFilter('my')}
+                      className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors ${
+                        filter === 'my' ? 'bg-white text-black' : 'bg-white/10 hover:bg-white/15'
+                      }`}
+                    >
+                      My Requests
+                    </button>
+                  )}
+                  <button 
+                    className="p-2 rounded-full bg-white/10 hover:bg-white/15 transition-colors"
+                    aria-label="Filter options"
+                  >
+                    <Filter size={18} />
+                  </button>
+                </div>
+              </div>
+              
+              <AnimatedTransition>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredRequests.length > 0 ? (
+                    filteredRequests.map((request) => (
+                      <ResourceCard
+                        key={request.id}
+                        type={request.type}
+                        category={request.category}
+                        title={request.title}
+                        description={request.description}
+                        location={request.location}
+                        contact={request.contact}
+                        urgent={request.urgent}
+                        requestId={request.id}
+                        isRequested={currentUser?.id && respondedRequestIds.has(request.id)}
+                      />
+                    ))
+                  ) : (
+                    <div className="col-span-full py-12 text-center">
+                      <p className="text-gray-400 mb-4">No requests found. Be the first to add one!</p>
+                      <button 
+                        onClick={() => setShowForm(true)}
+                        className="px-4 py-2 rounded-full bg-white/10 hover:bg-white/15 transition-colors"
+                      >
+                        {getButtonText()}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </AnimatedTransition>
+              
+              {filteredRequests.length > 6 && (
+                <div className="mt-8 text-center">
+                  <button className="flex items-center px-4 py-2 rounded-full bg-white/10 hover:bg-white/15 transition-colors mx-auto">
+                    <span className="mr-1">Load More</span>
+                    <ArrowRight size={14} />
                   </button>
                 </div>
               )}
-            </div>
-          </AnimatedTransition>
-          
-          {filteredRequests.length > 6 && (
-            <div className="mt-8 text-center">
-              <button className="flex items-center px-4 py-2 rounded-full bg-white/10 hover:bg-white/15 transition-colors mx-auto">
-                <span className="mr-1">Load More</span>
-                <ArrowRight size={14} />
-              </button>
-            </div>
-          )}
+            </TabsContent>
+            
+            <TabsContent value="helpers">
+              <RegisteredHelpers />
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
       
