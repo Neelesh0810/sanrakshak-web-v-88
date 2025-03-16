@@ -1,6 +1,12 @@
+
 import React, { useState, useEffect } from 'react';
 import { Droplet, Home, ShoppingBag, Utensils, Heart, Shield } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type ResourceCategory = 'water' | 'shelter' | 'food' | 'supplies' | 'medical' | 'safety';
 type ResourceType = 'need' | 'offer';
@@ -64,65 +70,67 @@ const RequestForm: React.FC<RequestFormProps> = ({ onSubmit, onCancel, userRole 
   };
   
   return (
-    <div className="glass-dark border border-white/10 rounded-xl p-5">
-      <h2 className="text-xl font-semibold mb-4">
+    <div className="bg-black/30 border border-white/10 rounded-xl p-5">
+      <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+        {getCategoryIcon(category)}
         {isVolunteer ? 'Offer Resources' : (type === 'need' ? 'Request Resources' : 'Offer Resources')}
       </h2>
       
       <form onSubmit={handleSubmit} className="space-y-4">
         {!isVolunteer && type === 'need' && (
           <div className="flex">
-            <button
+            <Button
               type="button"
               onClick={() => setType('need')}
-              className="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors bg-white text-black"
+              className="flex-1 py-2 px-4 text-sm font-medium"
+              variant="default"
             >
               I Need Help
-            </button>
+            </Button>
           </div>
         )}
         
-        <div>
-          <label className="block text-sm font-medium mb-1">Category</label>
+        <div className="space-y-2">
+          <Label htmlFor="category">Category</Label>
           <Select value={category} onValueChange={(value: ResourceCategory) => setCategory(value)}>
-            <SelectTrigger className="w-full bg-black/40 border border-white/10 text-white">
+            <SelectTrigger id="category" className="w-full">
               <div className="flex items-center">
                 {getCategoryIcon(category)}
                 <SelectValue className="ml-2" />
               </div>
             </SelectTrigger>
-            <SelectContent className="bg-black text-white border border-white/10">
-              <SelectItem value="water" className="focus:bg-white/10">
+            <SelectContent>
+              <SelectItem value="water">
                 <div className="flex items-center">
                   <Droplet size={18} className="mr-2" />
                   <span>Water</span>
                 </div>
               </SelectItem>
-              <SelectItem value="shelter" className="focus:bg-white/10">
+              <SelectItem value="shelter">
                 <div className="flex items-center">
                   <Home size={18} className="mr-2" />
                   <span>Shelter</span>
                 </div>
               </SelectItem>
-              <SelectItem value="food" className="focus:bg-white/10">
+              <SelectItem value="food">
                 <div className="flex items-center">
                   <Utensils size={18} className="mr-2" />
                   <span>Food</span>
                 </div>
               </SelectItem>
-              <SelectItem value="supplies" className="focus:bg-white/10">
+              <SelectItem value="supplies">
                 <div className="flex items-center">
                   <ShoppingBag size={18} className="mr-2" />
                   <span>Supplies</span>
                 </div>
               </SelectItem>
-              <SelectItem value="medical" className="focus:bg-white/10">
+              <SelectItem value="medical">
                 <div className="flex items-center">
                   <Heart size={18} className="mr-2" />
                   <span>Medical</span>
                 </div>
               </SelectItem>
-              <SelectItem value="safety" className="focus:bg-white/10">
+              <SelectItem value="safety">
                 <div className="flex items-center">
                   <Shield size={18} className="mr-2" />
                   <span>Safety</span>
@@ -132,86 +140,74 @@ const RequestForm: React.FC<RequestFormProps> = ({ onSubmit, onCancel, userRole 
           </Select>
         </div>
         
-        <div>
-          <label htmlFor="title" className="block text-sm font-medium mb-1">Title</label>
-          <input
+        <div className="space-y-2">
+          <Label htmlFor="title">Title</Label>
+          <Input
             id="title"
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
             placeholder="Brief description of what you need/offer"
-            className="w-full bg-black/40 border border-white/10 rounded-lg p-3 placeholder:text-gray-500 focus:ring-1 focus:ring-white/30 focus:outline-none"
           />
         </div>
         
-        <div>
-          <label htmlFor="description" className="block text-sm font-medium mb-1">Details</label>
-          <textarea
+        <div className="space-y-2">
+          <Label htmlFor="description">Details</Label>
+          <Textarea
             id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
             rows={3}
             placeholder="Provide more information about your request"
-            className="w-full bg-black/40 border border-white/10 rounded-lg p-3 placeholder:text-gray-500 focus:ring-1 focus:ring-white/30 focus:outline-none resize-none"
+            className="resize-none"
           />
         </div>
         
-        <div>
-          <label htmlFor="location" className="block text-sm font-medium mb-1">Location</label>
-          <input
+        <div className="space-y-2">
+          <Label htmlFor="location">Location</Label>
+          <Input
             id="location"
             type="text"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             required
             placeholder="Your location or drop point"
-            className="w-full bg-black/40 border border-white/10 rounded-lg p-3 placeholder:text-gray-500 focus:ring-1 focus:ring-white/30 focus:outline-none"
           />
         </div>
         
-        <div>
-          <label htmlFor="contact" className="block text-sm font-medium mb-1">Contact (Optional)</label>
-          <input
+        <div className="space-y-2">
+          <Label htmlFor="contact">Contact (Optional)</Label>
+          <Input
             id="contact"
             type="text"
             value={contact}
             onChange={(e) => setContact(e.target.value)}
             placeholder="Phone number or other contact info"
-            className="w-full bg-black/40 border border-white/10 rounded-lg p-3 placeholder:text-gray-500 focus:ring-1 focus:ring-white/30 focus:outline-none"
           />
         </div>
         
         {!isVolunteer && (
-          <div className="flex items-center">
-            <input
-              id="urgent"
-              type="checkbox"
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="urgent" 
               checked={urgent}
-              onChange={(e) => setUrgent(e.target.checked)}
-              className="w-4 h-4 bg-black border-white/30 rounded focus:ring-white"
+              onCheckedChange={(checked) => setUrgent(checked as boolean)}
             />
-            <label htmlFor="urgent" className="ml-2 text-sm">
+            <Label htmlFor="urgent" className="text-sm font-normal">
               Mark as urgent
-            </label>
+            </Label>
           </div>
         )}
         
-        <div className="flex justify-end space-x-3 pt-2">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 rounded-lg border border-white/10 hover:bg-white/5 transition-colors"
-          >
+        <div className="flex justify-end space-x-3 pt-4">
+          <Button variant="outline" onClick={onCancel} type="button">
             Cancel
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 rounded-lg bg-white text-black hover:bg-white/90 transition-colors"
-          >
+          </Button>
+          <Button type="submit">
             Submit
-          </button>
+          </Button>
         </div>
       </form>
     </div>
