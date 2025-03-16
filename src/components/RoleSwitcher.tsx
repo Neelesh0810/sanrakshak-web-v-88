@@ -56,7 +56,7 @@ const RoleSwitcher: React.FC = () => {
     
     // Force a complete page reload if already on dashboard
     if (location.pathname === '/dashboard') {
-      window.location.reload();
+      window.location.href = '/dashboard?refresh=' + timestamp;
     }
   };
   
