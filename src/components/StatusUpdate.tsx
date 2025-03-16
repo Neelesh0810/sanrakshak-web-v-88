@@ -45,8 +45,8 @@ const StatusUpdate: React.FC<StatusUpdateProps> = ({
       className={cn(
         'rounded-lg overflow-hidden transition-all shadow-[0_8px_20px_rgba(0,0,0,0.12)] backdrop-blur-sm',
         isLight 
-          ? 'bg-white/95 border border-black/20 shadow-soft' 
-          : 'bg-black/30 backdrop-blur-sm border border-white/10',
+          ? 'bg-white/95 border-2 border-black/20 shadow-soft' 
+          : 'bg-black/30 backdrop-blur-sm border-2 border-white/10',
         getPriorityStyles(),
         className
       )}

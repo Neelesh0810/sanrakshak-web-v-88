@@ -16,7 +16,7 @@ const Table = React.forwardRef<
         ref={ref}
         className={cn(
           "w-full caption-bottom text-sm",
-          isLight ? "border border-gray-200 rounded-md" : "",
+          isLight ? "border-2 border-gray-200 rounded-md" : "",
           className
         )}
         {...props}
