@@ -1,3 +1,4 @@
+
 interface User {
   id: string;
   name: string;
@@ -23,8 +24,6 @@ export const getAllUsers = (): User[] => {
 
 // Get a specific user by ID
 export const getUserById = (userId: string): User | null => {
-  if (!userId) return null;
-  
   try {
     const users = getAllUsers();
     const user = users.find(u => u.id === userId);
@@ -33,11 +32,6 @@ export const getUserById = (userId: string): User | null => {
     console.error('Error getting user by ID:', error);
     return null;
   }
-};
-
-// Filter users by role
-export const filterUsersByRole = (users: User[], role: 'volunteer' | 'ngo'): User[] => {
-  return users.filter(user => user.role === role);
 };
 
 // Get current timestamp in the required format
@@ -54,6 +48,11 @@ export const getCurrentTimestamp = (): string => {
   if (hours < 24) return `${hours} hours ago`;
   
   return 'more than a day ago';
+};
+
+// Filter users by role
+export const filterUsersByRole = (users: User[], role: 'volunteer' | 'ngo'): User[] => {
+  return users.filter(user => user.role === role);
 };
 
 // Add last active information to user when they log in
