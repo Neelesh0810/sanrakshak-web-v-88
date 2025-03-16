@@ -21,7 +21,21 @@ const ChatSection = () => {
   useEffect(() => {
     // Get contact info based on contactId
     const getContactInfo = () => {
-      // In a real app, this would be an API call
+      // Try to get the user from localStorage first
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const foundUser = users.find((user: any) => user.id === contactId);
+      
+      if (foundUser) {
+        setContact({
+          name: foundUser.name,
+          role: foundUser.role,
+          phone: foundUser.phone || foundUser.email,
+          isOnline: true,
+        });
+        return;
+      }
+      
+      // If not found, use the fallback
       const contactMap: {[key: string]: any} = {
         'emergency-1': {
           name: 'Emergency Response',
@@ -68,7 +82,7 @@ const ChatSection = () => {
       };
       
       setContact(contactMap[contactId || ''] || { 
-        name: 'Unknown Contact',
+        name: contactId || 'Contact',
         role: 'No information available',
         isOnline: false,
       });

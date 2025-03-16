@@ -4,7 +4,7 @@ import VictimDashboard from './dashboards/VictimDashboard';
 import VolunteerDashboard from './dashboards/VolunteerDashboard';
 import NGODashboard from './dashboards/NGODashboard';
 import GovernmentDashboard from './dashboards/GovernmentDashboard';
-import { Info, Map, Users, Zap } from 'lucide-react';
+import { Info, Map, Users, Zap, Building2, UserCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AnimatedTransition from './AnimatedTransition';
 import { Link } from 'react-router-dom';
@@ -13,6 +13,7 @@ import useResourceData from '@/hooks/useResourceData';
 const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'resources' | 'updates' | 'map'>('resources');
   const [userRole, setUserRole] = useState<'victim' | 'volunteer' | 'ngo' | 'government' | null>(null);
+  const [userFilter, setUserFilter] = useState<'all' | 'volunteers' | 'ngos'>('all');
   const resourceData = useResourceData();
   
   const fetchUserRole = useCallback(() => {
@@ -104,21 +105,59 @@ const Dashboard: React.FC = () => {
   const renderDashboardByRole = () => {
     switch (userRole) {
       case 'victim':
-        return <VictimDashboard resourceData={resourceData} />;
+        return <VictimDashboard resourceData={resourceData} userFilter={userFilter} />;
       case 'volunteer':
         return <VolunteerDashboard resourceData={resourceData} />;
       case 'ngo':
-        return <NGODashboard resourceData={resourceData} />;
+        return <NGODashboard resourceData={resourceData} userFilter={userFilter} />;
       case 'government':
         return <GovernmentDashboard />;
       default:
-        return <VictimDashboard resourceData={resourceData} />;
+        return <VictimDashboard resourceData={resourceData} userFilter={userFilter} />;
     }
+  };
+  
+  const renderFilterButtons = () => {
+    if (userRole !== 'victim' && userRole !== 'ngo') {
+      return null;
+    }
+    
+    return (
+      <div className="mb-4 flex space-x-2">
+        <button
+          onClick={() => setUserFilter('all')}
+          className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors ${
+            userFilter === 'all' ? 'bg-white text-black' : 'bg-white/10 hover:bg-white/15'
+          }`}
+        >
+          <span>All Contacts</span>
+        </button>
+        <button
+          onClick={() => setUserFilter('volunteers')}
+          className={`flex items-center px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors ${
+            userFilter === 'volunteers' ? 'bg-white text-black' : 'bg-white/10 hover:bg-white/15'
+          }`}
+        >
+          <UserCheck size={16} className="mr-1.5" />
+          <span>Volunteers</span>
+        </button>
+        <button
+          onClick={() => setUserFilter('ngos')}
+          className={`flex items-center px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors ${
+            userFilter === 'ngos' ? 'bg-white text-black' : 'bg-white/10 hover:bg-white/15'
+          }`}
+        >
+          <Building2 size={16} className="mr-1.5" />
+          <span>NGOs</span>
+        </button>
+      </div>
+    );
   };
   
   return (
     <div className="container mx-auto px-4">
       <EmergencyAlert />
+      {renderFilterButtons()}
       {renderDashboardByRole()}
     </div>
   );
