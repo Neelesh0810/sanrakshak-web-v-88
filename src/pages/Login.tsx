@@ -16,6 +16,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loginType, setLoginType] = useState('user');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   
@@ -24,96 +25,111 @@ const Login = () => {
   };
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
     // Prevent default form submission
     e.preventDefault();
+    setIsSubmitting(true);
     
-    const storedUsers = localStorage.getItem('users');
-    const users = storedUsers ? JSON.parse(storedUsers) : [];
-    
-    let loggedInUser;
-    
-    if (loginType === 'admin') {
-      // For admin login, make sure to check the role as well
-      loggedInUser = users.find((user: any) => 
-        user.email === email && 
-        user.password === password && 
-        user.role === 'admin'
-      );
+    try {
+      console.log("Login form submitted. Login type:", loginType);
       
-      if (!loggedInUser) {
-        toast({
-          title: "Admin Login Failed",
-          description: "Invalid admin credentials. Please check your email and password.",
-        });
-        return;
-      }
-    } else {
-      // Regular user login
-      loggedInUser = users.find((user: any) => user.email === email && user.password === password);
+      const storedUsers = localStorage.getItem('users');
+      const users = storedUsers ? JSON.parse(storedUsers) : [];
       
-      if (!loggedInUser) {
-        toast({
-          title: "Login Failed",
-          description: "Invalid credentials. Please check your email and password.",
-        });
-        return;
-      }
-    }
-    
-    // Save authenticated user to localStorage
-    localStorage.setItem('authUser', JSON.stringify(loggedInUser));
-    
-    toast({
-      title: "Login Successful",
-      description: `Welcome back, ${loggedInUser.name}!`,
-    });
-    
-    // Get current users array
-    const usersStr = localStorage.getItem('users');
-    const allUsers = usersStr ? JSON.parse(usersStr) : [];
-    
-    // Check if this user is already in our users array
-    const userExists = allUsers.some((u: any) => u.id === loggedInUser.id);
-    
-    if (!userExists) {
-      // Add the new user to our users array with appropriate structure
-      allUsers.push({
-        id: loggedInUser.id,
-        name: loggedInUser.name,
-        role: loggedInUser.role,
-        contactInfo: loggedInUser.email || loggedInUser.phone || 'No contact info',
-        location: loggedInUser.location || 'Unknown location',
-        lastActive: 'just now',
-        skills: ['volunteer', 'ngo', 'government'].includes(loggedInUser.role) ? ['New Volunteer'] : [],
-        needsHelp: loggedInUser.role === 'victim' ? ['Newly Registered'] : []
-      });
+      let loggedInUser;
       
-      // Save updated users array
-      localStorage.setItem('users', JSON.stringify(allUsers));
-    } else {
-      // Update the last active time for existing user
-      const updatedUsers = allUsers.map((u: any) => {
-        if (u.id === loggedInUser.id) {
-          return { ...u, lastActive: 'just now' };
+      if (loginType === 'admin') {
+        // For admin login, make sure to check the role as well
+        loggedInUser = users.find((user: any) => 
+          user.email === email && 
+          user.password === password && 
+          user.role === 'admin'
+        );
+        
+        if (!loggedInUser) {
+          console.log("Admin login failed");
+          toast({
+            title: "Admin Login Failed",
+            description: "Invalid admin credentials. Please check your email and password.",
+          });
+          setIsSubmitting(false);
+          return;
         }
-        return u;
+      } else {
+        // Regular user login
+        loggedInUser = users.find((user: any) => user.email === email && user.password === password);
+        
+        if (!loggedInUser) {
+          console.log("User login failed");
+          toast({
+            title: "Login Failed",
+            description: "Invalid credentials. Please check your email and password.",
+          });
+          setIsSubmitting(false);
+          return;
+        }
+      }
+      
+      // Save authenticated user to localStorage
+      localStorage.setItem('authUser', JSON.stringify(loggedInUser));
+      
+      toast({
+        title: "Login Successful",
+        description: `Welcome back, ${loggedInUser.name}!`,
       });
       
-      localStorage.setItem('users', JSON.stringify(updatedUsers));
-    }
-    
-    // Dispatch event to notify other components
-    window.dispatchEvent(new Event('auth-changed'));
-    
-    console.log("Login successful, redirecting to:", loggedInUser.role === 'admin' ? '/admin-dashboard' : '/dashboard');
-    
-    // Redirect based on user role (with replace: true to prevent back navigation to login)
-    if (loggedInUser.role === 'admin') {
-      navigate('/admin-dashboard', { replace: true });
-    } else {
-      navigate('/dashboard', { replace: true });
+      // Get current users array
+      const usersStr = localStorage.getItem('users');
+      const allUsers = usersStr ? JSON.parse(usersStr) : [];
+      
+      // Check if this user is already in our users array
+      const userExists = allUsers.some((u: any) => u.id === loggedInUser.id);
+      
+      if (!userExists) {
+        // Add the new user to our users array with appropriate structure
+        allUsers.push({
+          id: loggedInUser.id,
+          name: loggedInUser.name,
+          role: loggedInUser.role,
+          contactInfo: loggedInUser.email || loggedInUser.phone || 'No contact info',
+          location: loggedInUser.location || 'Unknown location',
+          lastActive: 'just now',
+          skills: ['volunteer', 'ngo', 'government'].includes(loggedInUser.role) ? ['New Volunteer'] : [],
+          needsHelp: loggedInUser.role === 'victim' ? ['Newly Registered'] : []
+        });
+        
+        // Save updated users array
+        localStorage.setItem('users', JSON.stringify(allUsers));
+      } else {
+        // Update the last active time for existing user
+        const updatedUsers = allUsers.map((u: any) => {
+          if (u.id === loggedInUser.id) {
+            return { ...u, lastActive: 'just now' };
+          }
+          return u;
+        });
+        
+        localStorage.setItem('users', JSON.stringify(updatedUsers));
+      }
+      
+      // Dispatch event to notify other components
+      window.dispatchEvent(new Event('auth-changed'));
+      
+      console.log("Login successful, redirecting to:", loggedInUser.role === 'admin' ? '/admin-dashboard' : '/dashboard');
+      
+      // Redirect based on user role (with replace: true to prevent back navigation to login)
+      if (loggedInUser.role === 'admin') {
+        navigate('/admin-dashboard', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
+      toast({
+        title: "Login Failed",
+        description: "An error occurred. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

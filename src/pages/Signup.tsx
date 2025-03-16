@@ -57,75 +57,83 @@ const Signup = () => {
       return;
     }
     
-    const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
-    if (existingUsers.find((user: any) => user.email === email)) {
+    try {
+      const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+      if (existingUsers.find((user: any) => user.email === email)) {
+        toast({
+          title: "Email already exists",
+          description: "Please use a different email address.",
+        });
+        setLoading(false);
+        return;
+      }
+      
+      const newUser = {
+        id: `user-${Date.now()}`,
+        name,
+        email,
+        phone,
+        location,
+        password,
+        role,
+        canVolunteer,
+      };
+      
+      // Save user to localStorage for authentication
+      localStorage.setItem('authUser', JSON.stringify(newUser));
+      
+      // Add user to users array
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      users.push(newUser);
+      localStorage.setItem('users', JSON.stringify(users));
+      
+      // Notify other components that auth state has changed
+      window.dispatchEvent(new Event('auth-changed'));
+      
       toast({
-        title: "Email already exists",
-        description: "Please use a different email address.",
-      });
-      setLoading(false);
-      return;
-    }
-    
-    const newUser = {
-      id: `user-${Date.now()}`,
-      name,
-      email,
-      phone,
-      location,
-      password,
-      role,
-      canVolunteer,
-    };
-    
-    // Save user to localStorage for authentication
-    localStorage.setItem('authUser', JSON.stringify(newUser));
-    
-    // Add user to users array
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    users.push(newUser);
-    localStorage.setItem('users', JSON.stringify(users));
-    
-    // Notify other components that auth state has changed
-    window.dispatchEvent(new Event('auth-changed'));
-    
-    toast({
-      title: "Signup successful",
-      description: "You have successfully signed up.",
-    });
-    
-    // Update the user in the users array with more details
-    const usersStr = localStorage.getItem('users');
-    const allUsers = usersStr ? JSON.parse(usersStr) : [];
-    
-    // Find if user exists in the array and update it
-    const userExists = allUsers.some((u: any) => u.id === newUser.id);
-    
-    if (!userExists) {
-      allUsers.push({
-        id: newUser.id,
-        name: newUser.name,
-        role: newUser.role,
-        contactInfo: newUser.email || newUser.phone || 'No contact info',
-        location: newUser.location || 'Unknown location',
-        lastActive: 'just now',
-        skills: ['volunteer', 'ngo', 'government'].includes(newUser.role) ? ['New Volunteer'] : [],
-        needsHelp: newUser.role === 'victim' ? ['Newly Registered'] : []
+        title: "Signup successful",
+        description: "You have successfully signed up.",
       });
       
-      localStorage.setItem('users', JSON.stringify(allUsers));
+      // Update the user in the users array with more details
+      const usersStr = localStorage.getItem('users');
+      const allUsers = usersStr ? JSON.parse(usersStr) : [];
+      
+      // Find if user exists in the array and update it
+      const userExists = allUsers.some((u: any) => u.id === newUser.id);
+      
+      if (!userExists) {
+        allUsers.push({
+          id: newUser.id,
+          name: newUser.name,
+          role: newUser.role,
+          contactInfo: newUser.email || newUser.phone || 'No contact info',
+          location: newUser.location || 'Unknown location',
+          lastActive: 'just now',
+          skills: ['volunteer', 'ngo', 'government'].includes(newUser.role) ? ['New Volunteer'] : [],
+          needsHelp: newUser.role === 'victim' ? ['Newly Registered'] : []
+        });
+        
+        localStorage.setItem('users', JSON.stringify(allUsers));
+      }
+      
+      console.log("Signup successful, redirecting to:", role === 'admin' ? '/admin-dashboard' : '/dashboard');
+      
+      // Redirect based on user role with replace: true to prevent back navigation
+      if (role === 'admin') {
+        navigate('/admin-dashboard', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
+    } catch (error) {
+      console.error("Error during signup:", error);
+      toast({
+        title: "Signup failed",
+        description: "An error occurred during signup. Please try again.",
+      });
+    } finally {
+      setLoading(false);
     }
-    
-    console.log("Signup successful, redirecting to:", role === 'admin' ? '/admin-dashboard' : '/dashboard');
-    
-    // Redirect based on user role with replace: true to prevent back navigation
-    if (role === 'admin') {
-      navigate('/admin-dashboard', { replace: true });
-    } else {
-      navigate('/dashboard', { replace: true });
-    }
-    
-    setLoading(false);
   };
   
   return (
