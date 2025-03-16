@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 
 // Define types for our resources
@@ -40,6 +41,32 @@ const useResourceData = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [responses, setResponses] = useState<ResourceResponse[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userLocation, setUserLocation] = useState<{city: string} | null>(null);
+
+  // Try to get user's location or use Jabalpur as default
+  useEffect(() => {
+    // First check if we can get the user's city from browser geolocation
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            // We'd normally do reverse geocoding here to get the city name
+            // For now, we'll just use Jabalpur as the location
+            setUserLocation({ city: 'Jabalpur' });
+          } catch (error) {
+            console.error('Error getting location details:', error);
+            setUserLocation({ city: 'Jabalpur' }); // Default
+          }
+        },
+        (error) => {
+          console.error('Geolocation error:', error);
+          setUserLocation({ city: 'Jabalpur' }); // Default
+        }
+      );
+    } else {
+      setUserLocation({ city: 'Jabalpur' }); // Default
+    }
+  }, []);
 
   // Load resources from localStorage
   useEffect(() => {
@@ -73,8 +100,9 @@ const useResourceData = () => {
         }
       }
       
-      // If no resources found, create initial data
+      // If no resources found, create initial data with Jabalpur locations
       if (allResources.length === 0) {
+        const city = userLocation?.city || 'Jabalpur';
         allResources = [
           {
             id: '1',
@@ -82,7 +110,8 @@ const useResourceData = () => {
             category: 'water',
             title: 'Clean Drinking Water',
             description: 'Urgently need bottled water for family of 4, including infant.',
-            location: 'Madan Mahal, Jabalpur',
+            location: `Madan Mahal, ${city}`,
+            locationDetails: 'Near Railway Station',
             urgent: true,
             timestamp: Date.now() - 3600000,
             status: 'pending'
@@ -93,7 +122,8 @@ const useResourceData = () => {
             category: 'shelter',
             title: 'Temporary Housing Available',
             description: 'Can accommodate up to 3 people in spare rooms. Has generator and supplies.',
-            location: 'Civil Lines, Jabalpur',
+            location: `Civil Lines, ${city}`,
+            locationDetails: 'Near St. Aloysius College',
             contact: '555-123-4567',
             timestamp: Date.now() - 7200000,
             status: 'pending'
@@ -132,8 +162,11 @@ const useResourceData = () => {
       setResponses(allResponses);
     };
     
-    loadResources();
-    loadResponses();
+    // Only load resources when we have location info
+    if (userLocation) {
+      loadResources();
+      loadResponses();
+    }
     
     // Listen for storage events to update in real-time across tabs
     const handleStorageChange = (event: StorageEvent) => {
@@ -167,10 +200,15 @@ const useResourceData = () => {
       window.removeEventListener('response-updated', handleResourceChange);
       window.removeEventListener('response-created', handleResourceChange);
     };
-  }, []);
+  }, [userLocation]);
   
   // Function to add a new resource
   const addResource = (newResource: Omit<Resource, 'id' | 'timestamp'>) => {
+    // If location is not specified, use the user's current location or default
+    if (!newResource.location) {
+      newResource.location = `${userLocation?.city || 'Jabalpur'}`;
+    }
+    
     const resource: Resource = {
       ...newResource,
       id: Date.now().toString(),
@@ -291,7 +329,8 @@ const useResourceData = () => {
     addResource,
     addResponse,
     updateResponse,
-    cleanupInvalidResponses
+    cleanupInvalidResponses,
+    userLocation
   };
 };
 
