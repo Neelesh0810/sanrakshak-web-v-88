@@ -5,6 +5,7 @@ import Header from '../components/Header';
 import { ArrowLeft, Send, Paperclip, Image, MapPin, Mic, Phone, Video } from 'lucide-react';
 import { getAllUsers } from '../utils/userService';
 import BackButton from '../components/BackButton';
+import { toast } from '@/components/ui/use-toast';
 
 interface Message {
   id: string;
@@ -19,11 +20,16 @@ const ChatSection = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [contact, setContact] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   
   useEffect(() => {
     // Get contact info based on contactId
     const getContactInfo = () => {
+      setLoading(true);
+      setError(null);
+      
       // Check if contactId is a UUID or one of the predefined contacts
       const predefinedContacts: {[key: string]: any} = {
         'emergency-1': {
@@ -46,35 +52,66 @@ const ChatSection = () => {
         }
       };
       
-      // Check if it's a predefined contact
+      // First check if it's a predefined contact
       if (predefinedContacts[contactId || '']) {
         setContact(predefinedContacts[contactId || '']);
+        setLoading(false);
         return;
       }
       
-      // Check if it's a user from userService
-      const allUsers = getAllUsers();
-      const userContact = allUsers.find(user => user.id === contactId);
-      
-      if (userContact) {
-        setContact({
-          name: userContact.name,
-          role: userContact.role,
-          phone: userContact.contactInfo,
-          isOnline: userContact.lastActive === 'just now' || userContact.lastActive.includes('minute'),
-        });
-      } else {
-        // Fallback for unknown contacts
+      // Then check if it's a user from userService
+      try {
+        const allUsers = getAllUsers();
+        const userContact = allUsers.find(user => user.id === contactId);
+        
+        if (userContact) {
+          // Safely check if lastActive exists before using includes
+          const isOnline = userContact.lastActive ? 
+            (userContact.lastActive === 'just now' || userContact.lastActive.includes('minute')) : 
+            false;
+            
+          setContact({
+            name: userContact.name,
+            role: userContact.role,
+            phone: userContact.contactInfo,
+            isOnline: isOnline,
+          });
+        } else {
+          // Invalid contact ID
+          setError(`Contact not found. The contact ID ${contactId} does not exist.`);
+          setContact({ 
+            name: "Unknown Contact",
+            role: "No information available",
+            isOnline: false,
+          });
+          
+          // Show toast notification
+          toast({
+            title: "Contact not found",
+            description: "This chat doesn't exist or has been removed.",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error("Error finding contact:", error);
+        setError("Error loading contact information");
         setContact({ 
-          name: "Unknown Contact",
-          role: "No information available",
+          name: "Error",
+          role: "Could not load contact information",
           isOnline: false,
         });
+      } finally {
+        setLoading(false);
       }
     };
     
     // Get message history or create empty conversation
     const getMessages = () => {
+      if (!contactId) {
+        setError("No contact ID provided");
+        return;
+      }
+      
       const savedMessages = localStorage.getItem(`chat_${contactId}`);
       
       if (savedMessages) {
@@ -105,8 +142,13 @@ const ChatSection = () => {
       }
     };
     
-    getContactInfo();
-    getMessages();
+    if (contactId) {
+      getContactInfo();
+      getMessages();
+    } else {
+      setError("No contact ID provided");
+      setLoading(false);
+    }
   }, [contactId]);
   
   const handleSubmit = (e: React.FormEvent) => {
@@ -173,6 +215,37 @@ const ChatSection = () => {
       navigate('/dashboard');
     }
   };
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center">
+        <Header emergency={true} />
+        <div className="pt-16 text-center">
+          <p>Loading chat...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <div className="min-h-screen bg-black text-white flex flex-col">
+        <Header emergency={true} />
+        <div className="pt-16 flex flex-col items-center justify-center flex-grow">
+          <div className="text-center p-6 max-w-md mx-auto">
+            <h2 className="text-xl font-semibold mb-4">Chat not available</h2>
+            <p className="mb-6">{error}</p>
+            <button
+              onClick={handleGoBack}
+              className="bg-white text-black px-4 py-2 rounded-lg hover:bg-white/90 transition-colors"
+            >
+              Return to Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
