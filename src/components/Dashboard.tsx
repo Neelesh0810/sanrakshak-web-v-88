@@ -7,22 +7,26 @@ import GovernmentDashboard from './dashboards/GovernmentDashboard';
 import { Info, Map, Users, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AnimatedTransition from './AnimatedTransition';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import useResourceData from '@/hooks/useResourceData';
 
 const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'resources' | 'updates' | 'map'>('resources');
   const [userRole, setUserRole] = useState<'victim' | 'volunteer' | 'ngo' | 'government' | null>(null);
+  const [dashboardKey, setDashboardKey] = useState(Date.now());
   const resourceData = useResourceData();
+  const [searchParams] = useSearchParams();
   
   const fetchUserRole = useCallback(() => {
     const authUser = localStorage.getItem('authUser');
     if (authUser) {
       const user = JSON.parse(authUser);
       setUserRole(user.role);
+      console.info('Rendering dashboard for role:', user.role);
     } else {
       // Default to victim view for unauthenticated users
       setUserRole('victim');
+      console.warn('No role specified, defaulting to Victim dashboard');
     }
   }, []);
   
@@ -33,14 +37,23 @@ const Dashboard: React.FC = () => {
     // Setup event listener for auth changes
     const handleAuthChange = () => {
       fetchUserRole();
+      setDashboardKey(Date.now()); // Force re-render
     };
     
+    // Force refresh when the refresh param changes in URL
+    const refreshParam = searchParams.get('refresh');
+    if (refreshParam) {
+      setDashboardKey(parseInt(refreshParam));
+    }
+    
     window.addEventListener('auth-changed', handleAuthChange);
+    window.addEventListener('role-changed', handleAuthChange);
     
     return () => {
       window.removeEventListener('auth-changed', handleAuthChange);
+      window.removeEventListener('role-changed', handleAuthChange);
     };
-  }, [fetchUserRole]);
+  }, [fetchUserRole, searchParams]);
   
   // Listen for resource updates to refresh data across components
   useEffect(() => {
@@ -104,15 +117,15 @@ const Dashboard: React.FC = () => {
   const renderDashboardByRole = () => {
     switch (userRole) {
       case 'victim':
-        return <VictimDashboard resourceData={resourceData} />;
+        return <VictimDashboard key={dashboardKey} resourceData={resourceData} />;
       case 'volunteer':
-        return <VolunteerDashboard resourceData={resourceData} />;
+        return <VolunteerDashboard key={dashboardKey} resourceData={resourceData} />;
       case 'ngo':
-        return <NGODashboard resourceData={resourceData} />;
+        return <NGODashboard key={dashboardKey} resourceData={resourceData} />;
       case 'government':
-        return <GovernmentDashboard resourceData={resourceData} />;
+        return <GovernmentDashboard key={dashboardKey} resourceData={resourceData} />;
       default:
-        return <VictimDashboard resourceData={resourceData} />;
+        return <VictimDashboard key={dashboardKey} resourceData={resourceData} />;
     }
   };
   

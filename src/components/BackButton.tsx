@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useTheme } from '../context/ThemeProvider';
 
@@ -12,10 +12,18 @@ interface BackButtonProps {
 const BackButton: React.FC<BackButtonProps> = ({ className }) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const { theme } = useTheme();
   const isLight = theme === 'light';
   
   const handleGoBack = () => {
+    // For login and signup pages, always go to landing page
+    if (location.pathname === '/login' || location.pathname === '/signup') {
+      navigate('/', { replace: true });
+      return;
+    }
+    
+    // For other pages, use the original logic
     const returnTo = searchParams.get('returnTo');
     if (returnTo) {
       navigate(`/${returnTo}`);
@@ -27,8 +35,8 @@ const BackButton: React.FC<BackButtonProps> = ({ className }) => {
         // Navigate to dashboard which will show the appropriate view based on role
         navigate('/dashboard');
       } else {
-        // Default to dashboard for unauthenticated users
-        navigate('/dashboard');
+        // Default to landing page for unauthenticated users
+        navigate('/');
       }
     }
   };

@@ -44,11 +44,20 @@ const RoleSwitcher: React.FC = () => {
       duration: 3000,
     });
     
-    // Always navigate to dashboard to ensure proper dashboard is loaded for the new role
-    navigate('/dashboard', { replace: true });
+    // Generate a timestamp to force dashboard refresh
+    const timestamp = Date.now();
     
-    // Dispatch an event to notify other components of the role change
+    // Always navigate to dashboard and force a reload
+    navigate('/dashboard?refresh=' + timestamp, { replace: true });
+    
+    // Dispatch events to notify other components of the role change
     window.dispatchEvent(new Event('auth-changed'));
+    window.dispatchEvent(new CustomEvent('role-changed', { detail: { role } }));
+    
+    // Force a complete page reload if already on dashboard
+    if (location.pathname === '/dashboard') {
+      window.location.reload();
+    }
   };
   
   const getRoleName = (role: string): string => {
