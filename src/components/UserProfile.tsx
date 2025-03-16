@@ -2,8 +2,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { User, Phone, MapPin, Clock, BadgeHelp, Shield } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useToast } from "@/hooks/use-toast";
 
 interface UserProfileProps {
   name: string;
@@ -14,7 +12,6 @@ interface UserProfileProps {
   skills?: string[];
   needsHelp?: string[];
   className?: string;
-  userId?: string;
 }
 
 const UserProfile: React.FC<UserProfileProps> = ({
@@ -26,10 +23,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
   skills = [],
   needsHelp = [],
   className,
-  userId = 'default-id',
 }) => {
-  const { toast } = useToast();
-  
   const getRoleDisplay = () => {
     switch (role) {
       case 'victim':
@@ -47,50 +41,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
   
   const roleInfo = getRoleDisplay();
   const RoleIcon = roleInfo.icon;
-
-  const handleConnect = () => {
-    // Create a connection record in localStorage
-    const currentUser = localStorage.getItem('authUser');
-    if (!currentUser) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to connect with others",
-      });
-      return;
-    }
-
-    const connections = JSON.parse(localStorage.getItem('connections') || '[]');
-    const parsedUser = JSON.parse(currentUser);
-    
-    // Check if connection already exists
-    const existingConnection = connections.find(
-      (conn: any) => conn.userId === parsedUser.id && conn.connectedTo === userId
-    );
-    
-    if (!existingConnection) {
-      connections.push({
-        id: `conn-${Date.now()}`,
-        userId: parsedUser.id,
-        connectedTo: userId,
-        userName: parsedUser.name,
-        connectedName: name,
-        timestamp: Date.now(),
-        status: 'pending'
-      });
-      
-      localStorage.setItem('connections', JSON.stringify(connections));
-      
-      toast({
-        title: "Connection Request Sent",
-        description: `You've requested to connect with ${name}`,
-      });
-    } else {
-      toast({
-        title: "Already Connected",
-        description: `You're already connected with ${name}`,
-      });
-    }
-  };
 
   return (
     <div 
@@ -156,18 +106,12 @@ const UserProfile: React.FC<UserProfileProps> = ({
         )}
         
         <div className="flex space-x-2 mt-3">
-          <button 
-            onClick={handleConnect} 
-            className="flex-1 py-1.5 rounded-full text-sm bg-white text-black font-medium hover:bg-white/90 transition-colors"
-          >
+          <button className="flex-1 py-1.5 rounded-full text-sm bg-white text-black font-medium hover:bg-white/90 transition-colors">
             {role === 'victim' ? 'Provide Help' : 'Connect'}
           </button>
-          <Link 
-            to={`/chat/${userId}`} 
-            className="flex-1 py-1.5 rounded-full text-sm bg-white/10 hover:bg-white/15 transition-colors text-center"
-          >
+          <button className="flex-1 py-1.5 rounded-full text-sm bg-white/10 hover:bg-white/15 transition-colors">
             Message
-          </Link>
+          </button>
         </div>
       </div>
     </div>

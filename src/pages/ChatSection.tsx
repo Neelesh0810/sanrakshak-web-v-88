@@ -41,30 +41,6 @@ const ChatSection = () => {
           phone: '555-456-7890',
           isOnline: false,
         },
-        'volunteer-1': {
-          name: 'Sarah Johnson',
-          role: 'Volunteer',
-          phone: 'sarah.j@example.com',
-          isOnline: true,
-        },
-        'volunteer-2': {
-          name: 'Michael Chen',
-          role: 'Volunteer',
-          phone: 'm.chen@example.com',
-          isOnline: true,
-        },
-        'ngo-1': {
-          name: 'Red Cross Chapter',
-          role: 'NGO',
-          phone: 'local@redcross.org',
-          isOnline: true,
-        },
-        'ngo-2': {
-          name: 'Community Relief Foundation',
-          role: 'NGO',
-          phone: 'help@crf.org',
-          isOnline: true,
-        }
       };
       
       setContact(contactMap[contactId || ''] || { 
@@ -74,36 +50,48 @@ const ChatSection = () => {
       });
     };
     
-    // Get message history or create empty conversation
+    // Get message history
     const getMessages = () => {
-      const savedMessages = localStorage.getItem(`chat_${contactId}`);
-      
-      if (savedMessages) {
-        try {
-          const parsedMessages = JSON.parse(savedMessages);
-          // Convert string dates back to Date objects
-          const processedMessages = parsedMessages.map((msg: any) => ({
-            ...msg,
-            timestamp: new Date(msg.timestamp)
-          }));
-          setMessages(processedMessages);
-        } catch (error) {
-          console.error("Error parsing saved messages:", error);
-          setMessages([]);
-        }
-      } else if (contactId) {
-        // Create welcome message for new conversations
-        const initialMessage: Message = {
-          id: `msg-init-${Date.now()}`,
-          text: `Hello, this is a new conversation with ${contactId}. How can I assist you?`,
+      // This would normally be an API call to get messages
+      const mockMessages: Message[] = [
+        {
+          id: '1',
+          text: 'Hello, how can I assist you during this emergency?',
           sender: 'contact',
-          timestamp: new Date(),
-        };
-        setMessages([initialMessage]);
-        
-        // Save the initial message
-        localStorage.setItem(`chat_${contactId}`, JSON.stringify([initialMessage]));
-      }
+          timestamp: new Date(Date.now() - 3600000),
+          status: 'read',
+        },
+        {
+          id: '2',
+          text: 'I need information about evacuation routes from the east side.',
+          sender: 'user',
+          timestamp: new Date(Date.now() - 3500000),
+          status: 'read',
+        },
+        {
+          id: '3',
+          text: 'The main evacuation routes from the east side are Highway 12 and County Road 45. Both are currently open and operational.',
+          sender: 'contact',
+          timestamp: new Date(Date.now() - 3400000),
+          status: 'read',
+        },
+        {
+          id: '4',
+          text: 'Is there public transportation available? I don\'t have a vehicle.',
+          sender: 'user',
+          timestamp: new Date(Date.now() - 3300000),
+          status: 'read',
+        },
+        {
+          id: '5',
+          text: 'Yes, evacuation buses are running from the East Side Community Center every 30 minutes. The next one leaves at 2:30 PM.',
+          sender: 'contact',
+          timestamp: new Date(Date.now() - 3200000),
+          status: 'read',
+        },
+      ];
+      
+      setMessages(mockMessages);
     };
     
     getContactInfo();
@@ -124,12 +112,8 @@ const ChatSection = () => {
       status: 'sent',
     };
     
-    const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
+    setMessages(prev => [...prev, userMessage]);
     setNewMessage('');
-    
-    // Save to localStorage
-    localStorage.setItem(`chat_${contactId}`, JSON.stringify(updatedMessages));
     
     // Simulate response from contact
     setTimeout(() => {
@@ -140,11 +124,7 @@ const ChatSection = () => {
         timestamp: new Date(),
       };
       
-      const messagesWithResponse = [...updatedMessages, responseMessage];
-      setMessages(messagesWithResponse);
-      
-      // Update localStorage with response
-      localStorage.setItem(`chat_${contactId}`, JSON.stringify(messagesWithResponse));
+      setMessages(prev => [...prev, responseMessage]);
     }, 2000);
   };
   

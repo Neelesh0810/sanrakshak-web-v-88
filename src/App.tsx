@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -29,7 +30,6 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Reports from "./pages/Reports";
 import RecoveryPlan from "./pages/RecoveryPlan";
 import CommandCenter from "./pages/CommandCenter";
-import { initializeUsersIfNeeded } from "./utils/userService";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,7 +41,7 @@ const queryClient = new QueryClient({
 });
 
 if (!localStorage.getItem('users')) {
-  initializeUsersIfNeeded();
+  localStorage.setItem('users', JSON.stringify([]));
 }
 
 const App = () => {

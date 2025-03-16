@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { BarChart, Building2, Users, FileText, AlertTriangle, UserCheck, Building } from 'lucide-react';
 import StatusUpdate from '../StatusUpdate';
 import AnimatedTransition from '../AnimatedTransition';
@@ -7,51 +6,12 @@ import { Link } from 'react-router-dom';
 import useResourceData from '@/hooks/useResourceData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import UserProfile from '../UserProfile';
-import { filterUsersByRole, getAllUsers, initializeUsersIfNeeded } from '@/utils/userService';
 
 interface GovernmentDashboardProps {
   resourceData?: ReturnType<typeof useResourceData>;
 }
 
 const GovernmentDashboard: React.FC<GovernmentDashboardProps> = () => {
-  const [displayFilter, setDisplayFilter] = useState<'all' | 'volunteer' | 'ngo'>('all');
-  const [users, setUsers] = useState<any[]>([]);
-  
-  useEffect(() => {
-    // Initialize default users if needed
-    initializeUsersIfNeeded();
-    
-    // Load all users
-    const loadUsers = () => {
-      const allUsers = getAllUsers();
-      setUsers(allUsers.filter(user => user.role === 'volunteer' || user.role === 'ngo'));
-    };
-    
-    loadUsers();
-    
-    // Listen for auth changes
-    const handleAuthChange = () => {
-      loadUsers();
-    };
-    
-    window.addEventListener('auth-changed', handleAuthChange);
-    window.addEventListener('storage', handleAuthChange);
-    
-    return () => {
-      window.removeEventListener('auth-changed', handleAuthChange);
-      window.removeEventListener('storage', handleAuthChange);
-    };
-  }, []);
-  
-  const getFilteredUsers = () => {
-    if (displayFilter === 'all') {
-      return users;
-    }
-    return filterUsersByRole(users, displayFilter);
-  };
-
-  const filteredUsers = getFilteredUsers();
-  
   return (
     <div className="container mx-auto px-4">
       <div className="mb-6">
@@ -129,74 +89,52 @@ const GovernmentDashboard: React.FC<GovernmentDashboardProps> = () => {
         <AnimatedTransition delay={100} className="lg:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <UserCheck className="h-5 w-5 mr-2" />
-                  Registered Volunteers and NGOs
-                </div>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => setDisplayFilter('all')}
-                    className={`px-3 py-1 rounded-full text-xs ${
-                      displayFilter === 'all' 
-                        ? 'bg-white text-black' 
-                        : 'bg-white/10 hover:bg-white/15'
-                    } transition-colors`}
-                  >
-                    All
-                  </button>
-                  <button
-                    onClick={() => setDisplayFilter('volunteer')}
-                    className={`px-3 py-1 rounded-full text-xs ${
-                      displayFilter === 'volunteer' 
-                        ? 'bg-white text-black' 
-                        : 'bg-white/10 hover:bg-white/15'
-                    } transition-colors`}
-                  >
-                    <UserCheck className="h-3 w-3 inline mr-1" />
-                    Volunteers
-                  </button>
-                  <button
-                    onClick={() => setDisplayFilter('ngo')}
-                    className={`px-3 py-1 rounded-full text-xs ${
-                      displayFilter === 'ngo' 
-                        ? 'bg-white text-black' 
-                        : 'bg-white/10 hover:bg-white/15'
-                    } transition-colors`}
-                  >
-                    <Building className="h-3 w-3 inline mr-1" />
-                    NGOs
-                  </button>
-                </div>
+              <CardTitle className="flex items-center">
+                <UserCheck className="h-5 w-5 mr-2" />
+                Registered Volunteers and NGOs
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {filteredUsers.length > 0 ? (
-                  filteredUsers.map((user) => (
-                    <UserProfile
-                      key={user.id}
-                      name={user.name}
-                      role={user.role}
-                      contactInfo={user.contactInfo}
-                      location={user.location}
-                      lastActive={user.lastActive}
-                      skills={user.skills || []}
-                      needsHelp={user.needsHelp || []}
-                      userId={user.id}
-                    />
-                  ))
-                ) : (
-                  <div className="col-span-2 py-8 text-center">
-                    <p className="text-gray-400">No {displayFilter === 'volunteer' ? 'volunteers' : displayFilter === 'ngo' ? 'NGOs' : 'users'} found</p>
-                  </div>
-                )}
+                <UserProfile
+                  name="Sarah Johnson"
+                  role="volunteer"
+                  contactInfo="sarah.j@example.com"
+                  location="Central District"
+                  lastActive="2 hours ago"
+                  skills={["First Aid", "Search & Rescue", "Logistics"]}
+                />
+                
+                <UserProfile
+                  name="Red Cross Chapter"
+                  role="ngo"
+                  contactInfo="local@redcross.org"
+                  location="Multiple Districts"
+                  lastActive="30 minutes ago"
+                />
+                
+                <UserProfile
+                  name="Michael Chen"
+                  role="volunteer"
+                  contactInfo="m.chen@example.com"
+                  location="North District"
+                  lastActive="4 hours ago"
+                  skills={["Medical", "Transportation", "Communication"]}
+                />
+                
+                <UserProfile
+                  name="Community Relief Foundation"
+                  role="ngo"
+                  contactInfo="help@crf.org"
+                  location="South District"
+                  lastActive="1 hour ago"
+                />
               </div>
               
               <div className="mt-4 text-center">
-                <Link to="/all-helpers" className="px-4 py-2 rounded-full text-sm bg-white/10 hover:bg-white/15 transition-colors inline-block">
+                <button className="px-4 py-2 rounded-full text-sm bg-white/10 hover:bg-white/15 transition-colors">
                   View All Registered Helpers
-                </Link>
+                </button>
               </div>
             </CardContent>
           </Card>
