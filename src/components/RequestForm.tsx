@@ -77,16 +77,27 @@ const RequestForm: React.FC<RequestFormProps> = ({ onSubmit, onCancel, userRole 
       </h2>
       
       <form onSubmit={handleSubmit} className="space-y-4">
-        {!isVolunteer && type === 'need' && (
+        {!isVolunteer && (
           <div className="flex">
             <Button
               type="button"
               onClick={() => setType('need')}
-              className="flex-1 py-2 px-4 text-sm font-medium"
-              variant="default"
+              className={`flex-1 py-2 px-4 text-sm font-medium ${type === 'need' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}`}
+              variant={type === 'need' ? 'default' : 'outline'}
             >
               I Need Help
             </Button>
+            
+            {userRole === 'victim' && (
+              <Button
+                type="button"
+                onClick={() => setType('offer')}
+                className={`flex-1 py-2 px-4 text-sm font-medium ${type === 'offer' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}`}
+                variant={type === 'offer' ? 'default' : 'outline'}
+              >
+                I Can Help Others
+              </Button>
+            )}
           </div>
         )}
         
@@ -188,7 +199,7 @@ const RequestForm: React.FC<RequestFormProps> = ({ onSubmit, onCancel, userRole 
           />
         </div>
         
-        {!isVolunteer && (
+        {!isVolunteer && type === 'need' && (
           <div className="flex items-center space-x-2">
             <Checkbox 
               id="urgent" 

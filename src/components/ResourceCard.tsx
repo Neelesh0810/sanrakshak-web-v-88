@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { ArrowRight, Droplet, Home, ShoppingBag, Utensils, Heart, Shield, CheckCircle, AlertTriangle, Info } from 'lucide-react';
@@ -40,6 +41,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   const [hasResponded, setHasResponded] = useState(isRequested);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [isAlreadyResponded, setIsAlreadyResponded] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { theme } = useTheme();
@@ -75,11 +77,36 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
       }
     };
     
+    // Check if this request has already been responded to by any user
+    const checkGlobalResponses = () => {
+      if (requestId) {
+        // Check all responses in localStorage
+        let anyoneResponded = false;
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('responses_')) {
+            try {
+              const responses = JSON.parse(localStorage.getItem(key) || '[]');
+              if (responses.some((response: any) => response.requestId === requestId)) {
+                anyoneResponded = true;
+                break;
+              }
+            } catch (error) {
+              console.error('Error checking responses:', error);
+            }
+          }
+        }
+        setIsAlreadyResponded(anyoneResponded);
+      }
+    };
+    
     checkUserResponses();
+    checkGlobalResponses();
     
     // Setup event listeners to update response status when changes happen
     const handleResponseUpdate = () => {
       checkUserResponses();
+      checkGlobalResponses();
     };
     
     window.addEventListener('response-created', handleResponseUpdate);
@@ -128,6 +155,26 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
           setHasResponded(false);
         }
       }
+      
+      // Also check if any user has responded to this request
+      if (requestId) {
+        let anyoneResponded = false;
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('responses_')) {
+            try {
+              const responses = JSON.parse(localStorage.getItem(key) || '[]');
+              if (responses.some((response: any) => response.requestId === requestId)) {
+                anyoneResponded = true;
+                break;
+              }
+            } catch (error) {
+              console.error('Error checking responses:', error);
+            }
+          }
+        }
+        setIsAlreadyResponded(anyoneResponded);
+      }
     };
     
     syncResponseState();
@@ -159,6 +206,24 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
         } else {
           setHasResponded(false);
         }
+        
+        // Check if this request has been responded to by any user
+        let anyoneResponded = false;
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('responses_')) {
+            try {
+              const responses = JSON.parse(localStorage.getItem(key) || '[]');
+              if (responses.some((response: any) => response.requestId === requestId)) {
+                anyoneResponded = true;
+                break;
+              }
+            } catch (error) {
+              console.error('Error checking responses:', error);
+            }
+          }
+        }
+        setIsAlreadyResponded(anyoneResponded);
       }
     }
   };
@@ -224,11 +289,21 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
       return;
     }
     
+    // Check if request has already been responded to by any user
+    if (isAlreadyResponded && type === 'need') {
+      toast({
+        title: "Already In Progress",
+        description: "This request is already being addressed by another volunteer or organization",
+      });
+      return;
+    }
+    
     setIsRequesting(true);
     
     setTimeout(() => {
       setIsRequesting(false);
       setHasResponded(true);
+      setIsAlreadyResponded(true);
       
       const responseId = Date.now().toString();
       const userResponses = JSON.parse(localStorage.getItem(`responses_${currentUser.id}`) || '[]');
@@ -243,7 +318,10 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
         category,
         title,
         time: Date.now(),
-        status: 'pending'
+        status: 'pending',
+        responderName: currentUser.name || currentUser.email || 'User',
+        responderRole: currentUser.role,
+        responderUserId: currentUser.id
       };
       
       // Only add the response if it doesn't exist already
@@ -271,6 +349,29 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
         if (!respondedRequests.includes(requestId)) {
           respondedRequests.push(requestId);
           localStorage.setItem(`responded_requests_${currentUser.id}`, JSON.stringify(respondedRequests));
+        }
+        
+        // Also update the resources list to mark this request as assigned
+        if (type === 'need') {
+          const storedResources = localStorage.getItem('resources');
+          if (storedResources) {
+            try {
+              const resources = JSON.parse(storedResources);
+              const updatedResources = resources.map((resource: any) => {
+                if (resource.id === requestId) {
+                  return {
+                    ...resource,
+                    status: 'addressing',
+                    assignedTo: currentUser.name || currentUser.email || 'Volunteer'
+                  };
+                }
+                return resource;
+              });
+              localStorage.setItem('resources', JSON.stringify(updatedResources));
+            } catch (error) {
+              console.error('Error updating resources:', error);
+            }
+          }
         }
         
         toast({
@@ -370,6 +471,17 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
             >
               <CheckCircle size={14} className="mr-1.5" />
               <span>{type === 'need' ? 'Response Sent' : 'Requested'}</span>
+            </button>
+          ) : isAlreadyResponded && type === 'need' ? (
+            <button 
+              disabled
+              className={cn(
+                "flex items-center text-sm font-medium py-1.5 px-3 rounded-full opacity-70 transition-colors",
+                isLight ? "bg-gray-200 text-gray-600" : "bg-white/10"
+              )}
+            >
+              <CheckCircle size={14} className="mr-1.5" />
+              <span>Being Addressed</span>
             </button>
           ) : !canInteract() && currentUser ? (
             <div className={cn(
@@ -524,7 +636,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
             )}
             
             <div className="flex justify-end pt-2">
-              {!hasResponded && canInteract() && (
+              {!hasResponded && !isAlreadyResponded && canInteract() && (
                 <Button
                   onClick={() => {
                     setShowDetails(false);
@@ -547,6 +659,12 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
                     </>
                   )}
                 </Button>
+              )}
+              {isAlreadyResponded && type === 'need' && !hasResponded && (
+                <div className="text-sm text-amber-500">
+                  <AlertTriangle size={16} className="mr-1 inline-block" />
+                  <span>This request is already being addressed</span>
+                </div>
               )}
             </div>
           </div>

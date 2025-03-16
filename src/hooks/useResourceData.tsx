@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 
 // Define types for our resources
@@ -34,6 +35,9 @@ export interface ResourceResponse {
   title: string;
   time: number;
   status: 'pending' | 'accepted' | 'rejected';
+  responderName?: string;
+  responderRole?: string;
+  responderUserId?: string;
 }
 
 const useResourceData = () => {
@@ -197,10 +201,16 @@ const useResourceData = () => {
   
   // Function to add a response
   const addResponse = (userId: string, response: Omit<ResourceResponse, 'id' | 'time'>) => {
+    // Get the current user info for additional response data
+    const currentUser = JSON.parse(localStorage.getItem('authUser') || '{}');
+    
     const newResponse: ResourceResponse = {
       ...response,
       id: Date.now().toString(),
-      time: Date.now()
+      time: Date.now(),
+      responderName: currentUser.name || currentUser.email || 'User',
+      responderRole: currentUser.role || 'volunteer',
+      responderUserId: userId
     };
     
     const userResponses = JSON.parse(localStorage.getItem(`responses_${userId}`) || '[]');
@@ -210,6 +220,29 @@ const useResourceData = () => {
     
     // Update the responses state
     setResponses([newResponse, ...responses]);
+    
+    // If this is a response to a "need" request, update the status in the resources
+    if (response.type === 'offer') {
+      const storedResources = localStorage.getItem('resources');
+      if (storedResources) {
+        try {
+          const resources = JSON.parse(storedResources);
+          const updatedResources = resources.map((resource: Resource) => {
+            if (resource.id === response.requestId) {
+              return {
+                ...resource,
+                status: 'addressing',
+                assignedTo: currentUser.name || currentUser.email || 'Volunteer'
+              };
+            }
+            return resource;
+          });
+          localStorage.setItem('resources', JSON.stringify(updatedResources));
+        } catch (error) {
+          console.error('Error updating resources:', error);
+        }
+      }
+    }
     
     // Dispatch event to notify other components
     window.dispatchEvent(new Event('response-created'));

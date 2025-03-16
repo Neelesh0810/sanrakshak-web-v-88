@@ -13,6 +13,7 @@ import {
   RefreshCw,
   AlertCircle,
   LogOut,
+  User,
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeProvider';
 import { Button } from '@/components/ui/button';
@@ -138,6 +139,23 @@ const AdminDashboard = () => {
     fetchResponses();
     
     setIsLoading(false);
+
+    const handleResourceUpdate = () => {
+      fetchResources();
+      fetchResponses();
+    };
+
+    window.addEventListener('response-created', handleResourceUpdate);
+    window.addEventListener('response-updated', handleResourceUpdate);
+    window.addEventListener('resource-updated', handleResourceUpdate);
+    window.addEventListener('resource-created', handleResourceUpdate);
+
+    return () => {
+      window.removeEventListener('response-created', handleResourceUpdate);
+      window.removeEventListener('response-updated', handleResourceUpdate);
+      window.removeEventListener('resource-updated', handleResourceUpdate);
+      window.removeEventListener('resource-created', handleResourceUpdate);
+    };
   }, [navigate, toast]);
 
   useEffect(() => {
@@ -188,6 +206,8 @@ const AdminDashboard = () => {
       title: "Status Updated",
       description: `Request has been marked as ${newStatus}`,
     });
+
+    window.dispatchEvent(new Event('resource-updated'));
   };
 
   const handleAssignRequest = (id: string) => {
@@ -250,31 +270,25 @@ const AdminDashboard = () => {
 
   // Check if a resource has been responded to
   const getResourceResponder = (resourceId: string) => {
-    const response = responseData.find(r => r.requestId === resourceId && r.status === 'pending');
+    const response = responseData.find(r => r.requestId === resourceId);
     if (response) {
-      // Try to get the username from localStorage
-      try {
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && key.startsWith('authUser_')) {
-            const userData = JSON.parse(localStorage.getItem(key) || '{}');
-            if (key === `authUser_${response.id.split('_')[0]}`) {
-              return userData.username || userData.email || 'User';
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error finding responder:', error);
-      }
-      
-      return 'User';
+      return response.responderName || 'User';
+    }
+    return null;
+  };
+
+  // Get responder role if available
+  const getResourceResponderRole = (resourceId: string) => {
+    const response = responseData.find(r => r.requestId === resourceId);
+    if (response) {
+      return response.responderRole || 'volunteer';
     }
     return null;
   };
 
   // Check if a resource has been responded to
   const hasResourceBeenResponded = (resourceId: string) => {
-    return responseData.some(r => r.requestId === resourceId && r.status === 'pending');
+    return responseData.some(r => r.requestId === resourceId);
   };
 
   return (
@@ -418,6 +432,7 @@ const AdminDashboard = () => {
                     getCategoryLabel={getCategoryLabel}
                     hasResourceBeenResponded={hasResourceBeenResponded}
                     getResourceResponder={getResourceResponder}
+                    getResourceResponderRole={getResourceResponderRole}
                   />
                 </TabsContent>
                 
@@ -429,6 +444,7 @@ const AdminDashboard = () => {
                     getCategoryLabel={getCategoryLabel}
                     hasResourceBeenResponded={hasResourceBeenResponded}
                     getResourceResponder={getResourceResponder}
+                    getResourceResponderRole={getResourceResponderRole}
                   />
                 </TabsContent>
                 
@@ -440,6 +456,7 @@ const AdminDashboard = () => {
                     getCategoryLabel={getCategoryLabel}
                     hasResourceBeenResponded={hasResourceBeenResponded}
                     getResourceResponder={getResourceResponder}
+                    getResourceResponderRole={getResourceResponderRole}
                   />
                 </TabsContent>
                 
@@ -451,6 +468,7 @@ const AdminDashboard = () => {
                     getCategoryLabel={getCategoryLabel}
                     hasResourceBeenResponded={hasResourceBeenResponded}
                     getResourceResponder={getResourceResponder}
+                    getResourceResponderRole={getResourceResponderRole}
                   />
                 </TabsContent>
               </Tabs>
@@ -473,6 +491,7 @@ interface RequestsTableProps {
   getCategoryLabel: (category: string) => string;
   hasResourceBeenResponded: (resourceId: string) => boolean;
   getResourceResponder: (resourceId: string) => string | null;
+  getResourceResponderRole: (resourceId: string) => string | null;
 }
 
 const RequestsTable: React.FC<RequestsTableProps> = ({ 
@@ -481,7 +500,8 @@ const RequestsTable: React.FC<RequestsTableProps> = ({
   onStatusChange,
   getCategoryLabel,
   hasResourceBeenResponded,
-  getResourceResponder
+  getResourceResponder,
+  getResourceResponderRole
 }) => {
   
   if (resources.length === 0) {
@@ -496,6 +516,17 @@ const RequestsTable: React.FC<RequestsTableProps> = ({
   const formatTimestamp = (timestamp: number) => {
     const date = new Date(timestamp);
     return date.toLocaleString();
+  };
+
+  const getRoleLabel = (role: string | null) => {
+    if (!role) return "";
+    
+    switch (role) {
+      case 'volunteer': return "(Volunteer)";
+      case 'ngo': return "(NGO)";
+      case 'government': return "(Gov)";
+      default: return "";
+    }
   };
   
   return (
@@ -517,6 +548,7 @@ const RequestsTable: React.FC<RequestsTableProps> = ({
           {resources.map((resource) => {
             const isResponded = hasResourceBeenResponded(resource.id);
             const responder = getResourceResponder(resource.id);
+            const responderRole = getResourceResponderRole(resource.id);
             
             return (
               <TableRow key={resource.id} className="border-white/5 hover:bg-white/5">
@@ -548,9 +580,14 @@ const RequestsTable: React.FC<RequestsTableProps> = ({
                 <TableCell>{resource.location}</TableCell>
                 <TableCell className="text-sm text-gray-400">{formatTimestamp(resource.timestamp)}</TableCell>
                 <TableCell>
-                  {resource.assignedTo || (
+                  {resource.assignedTo ? (
+                    <span className="text-green-300">{resource.assignedTo}</span>
+                  ) : (
                     isResponded && responder ? (
-                      <span className="text-blue-300">Responded by {responder}</span>
+                      <span className="flex items-center text-blue-300">
+                        <User size={12} className="mr-1.5" />
+                        {responder} <span className="ml-1.5 text-xs text-blue-200/70">{getRoleLabel(responderRole)}</span>
+                      </span>
                     ) : (
                       <span className="text-gray-500 italic text-sm">Not assigned</span>
                     )
