@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, X, Bell, Settings, User, LogOut, UserCheck, Building, ArrowRightLeft } from 'lucide-react';
+import { Menu, X, Bell, Settings, User, LogOut, UserCheck, Building, ArrowRightLeft, Check, Shield } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import Notifications from './Notifications';
@@ -28,7 +27,6 @@ const Header: React.FC<HeaderProps> = ({
   const [user, setUser] = useState<any>(null);
   const [isAdminDashboard, setIsAdminDashboard] = useState(false);
   
-  // Refs for click outside detection
   const profileRef = useRef<HTMLDivElement>(null);
   const roleSwitcherRef = useRef<HTMLDivElement>(null);
   const notificationsRef = useRef<HTMLDivElement>(null);
@@ -50,22 +48,18 @@ const Header: React.FC<HeaderProps> = ({
       setUser(null);
     }
     
-    // Check if we're on the admin dashboard
     setIsAdminDashboard(
       window.location.pathname.includes('/admin-dashboard') || 
       window.location.pathname.includes('/admin')
     );
   }, []);
   
-  // Handle clicks outside dropdowns
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      // Close profile dropdown if click is outside
       if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
         setProfileOpen(false);
       }
       
-      // Close role switcher dropdown if click is outside
       if (roleSwitcherRef.current && !roleSwitcherRef.current.contains(event.target as Node)) {
         setRoleSwitcherOpen(false);
       }
@@ -117,7 +111,7 @@ const Header: React.FC<HeaderProps> = ({
     
     setRoleSwitcherOpen(false);
     
-    window.location.reload();
+    navigate('/dashboard');
   };
   
   const getRoleName = (role: string): string => {
@@ -153,7 +147,6 @@ const Header: React.FC<HeaderProps> = ({
             </div>
           </Link>
           
-          {/* Only show navigation for non-admin dashboard */}
           {!isAdminDashboard && (
             <nav className="hidden md:flex items-center space-x-6">
               <Link to="/dashboard" className="text-sm font-medium hover:opacity-80 transition-opacity">
@@ -174,7 +167,6 @@ const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center space-x-4">
             {user ? (
               <>
-                {/* Only show role switcher if not admin and not on admin dashboard */}
                 {user.role !== 'admin' && !isAdminDashboard && user.role && (
                   <div className="relative" ref={roleSwitcherRef}>
                     <button 
@@ -204,7 +196,8 @@ const Header: React.FC<HeaderProps> = ({
                             onClick={() => switchRole('victim')}
                           >
                             <User size={16} className="mr-2" />
-                            <span>Affected Person</span>
+                            <span className="flex-1 text-left">Affected Person</span>
+                            {user.role === 'victim' && <Check size={16} className="text-green-400" />}
                           </button>
                           
                           <button
@@ -212,7 +205,8 @@ const Header: React.FC<HeaderProps> = ({
                             onClick={() => switchRole('volunteer')}
                           >
                             <UserCheck size={16} className="mr-2" />
-                            <span>Volunteer</span>
+                            <span className="flex-1 text-left">Volunteer</span>
+                            {user.role === 'volunteer' && <Check size={16} className="text-green-400" />}
                           </button>
                           
                           <button
@@ -220,14 +214,17 @@ const Header: React.FC<HeaderProps> = ({
                             onClick={() => switchRole('ngo')}
                           >
                             <Building size={16} className="mr-2" />
-                            <span>NGO</span>
+                            <span className="flex-1 text-left">NGO</span>
+                            {user.role === 'ngo' && <Check size={16} className="text-green-400" />}
                           </button>
                           
                           <button
                             className={`flex items-center w-full px-3 py-2 text-sm hover:bg-white/10 ${user.role === 'government' ? 'bg-white/5' : ''}`}
                             onClick={() => switchRole('government')}
                           >
-                            <span>Government</span>
+                            <Shield size={16} className="mr-2" />
+                            <span className="flex-1 text-left">Government</span>
+                            {user.role === 'government' && <Check size={16} className="text-green-400" />}
                           </button>
                         </div>
                       </div>
@@ -235,7 +232,6 @@ const Header: React.FC<HeaderProps> = ({
                   </div>
                 )}
                 
-                {/* Only show notifications if not on admin dashboard */}
                 {!isAdminDashboard && (
                   <div ref={notificationsRef}>
                     <Notifications />
@@ -268,7 +264,6 @@ const Header: React.FC<HeaderProps> = ({
                         </button>
                       </div>
                       <div>
-                        {/* Only show profile and settings links for non-admin users */}
                         {user.role !== 'admin' && (
                           <>
                             <button 
@@ -316,7 +311,6 @@ const Header: React.FC<HeaderProps> = ({
               </div>
             )}
             
-            {/* Only show mobile menu button for non-admin users */}
             {user && user.role !== 'admin' && !isAdminDashboard && (
               <button 
                 className="md:hidden p-2 rounded-full hover:bg-white/5 transition-colors focus-ring"
@@ -330,7 +324,6 @@ const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
       
-      {/* Mobile menu - only for non-admin users */}
       {menuOpen && user && user.role !== 'admin' && !isAdminDashboard && (
         <div className={`fixed inset-0 pt-16 ${isLight ? "bg-white/95 backdrop-blur-md" : "bg-black/95 backdrop-blur-md"} z-40 animate-fade-in md:hidden`}>
           <nav className="flex flex-col items-center justify-center h-full space-y-8 p-6">

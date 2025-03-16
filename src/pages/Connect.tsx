@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import AnimatedTransition from '../components/AnimatedTransition';
@@ -33,7 +32,6 @@ const Connect = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   
-  // Load user data and responded requests
   useEffect(() => {
     const fetchUserData = () => {
       const authUser = localStorage.getItem('authUser');
@@ -42,11 +40,9 @@ const Connect = () => {
         setCurrentUser(user);
         setActingMode(user.role);
         
-        // Load responded requests
         const userResponses = JSON.parse(localStorage.getItem(`responses_${user.id}`) || '[]');
         const fastLookupResponses = JSON.parse(localStorage.getItem(`responded_requests_${user.id}`) || '[]');
         
-        // Combine both sources
         const combinedResponses = new Set([
           ...fastLookupResponses,
           ...userResponses.map((response: any) => response.requestId)
@@ -137,6 +133,8 @@ const Connect = () => {
       title: "Mode Switched",
       description: `You are now acting as a ${newMode}`,
     });
+    
+    navigate('/dashboard');
   };
   
   const filteredRequests = filter === 'all' 

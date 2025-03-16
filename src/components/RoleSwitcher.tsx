@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { User, UserCheck, Building, Shield } from 'lucide-react';
+import { User, UserCheck, Building, Shield, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
@@ -43,27 +43,8 @@ const RoleSwitcher: React.FC = () => {
       duration: 3000,
     });
     
-    // Navigate to the appropriate page based on the role
-    redirectBasedOnRole(role);
-  };
-  
-  const redirectBasedOnRole = (role: string) => {
-    // Get the current path
-    const currentPath = window.location.pathname;
-    
-    // If we're on a resource page, redirect to the appropriate version based on role
-    if (currentPath.includes('/resources') || 
-        currentPath.includes('/volunteer-resources') || 
-        currentPath.includes('/victim-resources')) {
-      if (role === 'victim') {
-        navigate('/victim-resources');
-      } else if (role === 'volunteer' || role === 'ngo' || role === 'government') {
-        navigate('/volunteer-resources');
-      }
-    } else {
-      // For all other pages, go to dashboard
-      navigate('/dashboard');
-    }
+    // Navigate directly to dashboard instead of redirecting based on current page
+    navigate('/dashboard');
   };
   
   const getRoleName = (role: string): string => {
@@ -107,7 +88,8 @@ const RoleSwitcher: React.FC = () => {
           onClick={() => switchRole('victim')}
         >
           <User size={16} className="mr-2" />
-          <span>Affected Person</span>
+          <span className="flex-1 text-left">Affected Person</span>
+          {currentUser.role === 'victim' && <Check size={16} className="text-green-400" />}
         </button>
         
         <button
@@ -115,7 +97,8 @@ const RoleSwitcher: React.FC = () => {
           onClick={() => switchRole('volunteer')}
         >
           <UserCheck size={16} className="mr-2" />
-          <span>Volunteer</span>
+          <span className="flex-1 text-left">Volunteer</span>
+          {currentUser.role === 'volunteer' && <Check size={16} className="text-green-400" />}
         </button>
         
         <button
@@ -123,7 +106,8 @@ const RoleSwitcher: React.FC = () => {
           onClick={() => switchRole('ngo')}
         >
           <Building size={16} className="mr-2" />
-          <span>NGO</span>
+          <span className="flex-1 text-left">NGO</span>
+          {currentUser.role === 'ngo' && <Check size={16} className="text-green-400" />}
         </button>
         
         <button
@@ -131,7 +115,8 @@ const RoleSwitcher: React.FC = () => {
           onClick={() => switchRole('government')}
         >
           <Shield size={16} className="mr-2" />
-          <span>Government</span>
+          <span className="flex-1 text-left">Government</span>
+          {currentUser.role === 'government' && <Check size={16} className="text-green-400" />}
         </button>
       </div>
     </div>

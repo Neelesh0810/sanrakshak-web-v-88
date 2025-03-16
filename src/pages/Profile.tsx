@@ -19,7 +19,6 @@ const Profile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check authentication
     const checkAuth = () => {
       const authUser = localStorage.getItem('authUser');
       if (!authUser) {
@@ -30,7 +29,6 @@ const Profile = () => {
       try {
         const userData = JSON.parse(authUser);
         if (!userData || !userData.id) {
-          // Invalid user data
           localStorage.removeItem('authUser');
           redirectToLogin();
           return;
@@ -39,22 +37,19 @@ const Profile = () => {
         setUser(userData);
         setActingAs(userData.role);
         
-        // Get resource requests
         const allRequests = JSON.parse(localStorage.getItem('resourceRequests') || '[]');
         const userRequests = allRequests.filter((req: any) => req.userId === userData.id);
         setRequests(userRequests);
         
-        // Calculate stats
         setStats({
           requestsMade: userRequests.filter((req: any) => req.type === 'need').length,
           requestsHelped: userRequests.filter((req: any) => req.type === 'offer').length,
-          responseReceived: 0 // Would need tracking for this in a real app
+          responseReceived: 0
         });
         
         setIsLoading(false);
       } catch (e) {
         console.error("Error parsing user data:", e);
-        // Clear invalid data
         localStorage.removeItem('authUser');
         redirectToLogin();
       }
@@ -62,7 +57,6 @@ const Profile = () => {
     
     checkAuth();
     
-    // Listen for storage events to update auth state
     const handleStorageChange = (event: StorageEvent) => {
       if (event.key === 'authUser') {
         checkAuth();
@@ -90,18 +84,18 @@ const Profile = () => {
     const newRole = actingAs === 'victim' ? 'volunteer' : 'victim';
     setActingAs(newRole);
     
-    // Update user's active role in authUser
     const updatedUser = { ...user, role: newRole };
     localStorage.setItem('authUser', JSON.stringify(updatedUser));
     setUser(updatedUser);
     
-    // Trigger storage event for other components
     window.dispatchEvent(new Event('storage'));
     
     toast({
       title: "Role Switched",
       description: `You are now acting as a ${newRole}`,
     });
+    
+    navigate('/dashboard');
   };
 
   if (isLoading) {
