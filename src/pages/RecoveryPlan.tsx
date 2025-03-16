@@ -12,7 +12,7 @@ const RecoveryPlan = () => {
       <Header />
       <div className="container mx-auto px-4 py-8">
         <AnimatedTransition>
-          <div className="mb-4">
+          <div className="mt-16 mb-4"> {/* Added mt-16 to add top margin and prevent overlap with header */}
             <BackButton />
           </div>
           <div className="mb-8">
