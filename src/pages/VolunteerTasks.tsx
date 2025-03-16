@@ -106,12 +106,14 @@ const VolunteerTasks = () => {
           <div className="mb-6 flex items-center justify-between">
             <div>
               <div className="flex items-center">
-                <Link to="/dashboard" className="mr-2 p-2 rounded-full hover:bg-white/10 transition-colors">
+                <Link to="/dashboard" className={`mr-2 p-2 rounded-full ${
+                  isLight ? 'hover:bg-gray-100' : 'hover:bg-white/10'
+                } transition-colors`}>
                   <ArrowLeft size={18} />
                 </Link>
                 <h1 className="text-2xl font-bold">My Volunteer Tasks</h1>
               </div>
-              <p className="text-gray-400 mt-1">Manage and view your volunteer assignments</p>
+              <p className={`${isLight ? 'text-gray-600' : 'text-gray-400'} mt-1`}>Manage and view your volunteer assignments</p>
             </div>
           </div>
           
@@ -149,7 +151,7 @@ const VolunteerTasks = () => {
                               <CheckCircle size={18} className="mr-2 text-primary" />
                               <h3 className="font-semibold text-lg">{task.title}</h3>
                             </div>
-                            <p className="text-gray-500 dark:text-gray-400 mb-4">{task.description}</p>
+                            <p className={`${isLight ? 'text-gray-600' : 'text-gray-400'} mb-4`}>{task.description}</p>
                             
                             <div className="space-y-2">
                               <div className="flex items-center text-sm">
@@ -177,8 +179,10 @@ const VolunteerTasks = () => {
                           </div>
                         </div>
                         
-                        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-white/5 flex justify-between items-center">
-                          <div className="text-xs text-gray-500">
+                        <div className={`mt-4 pt-4 border-t ${
+                          isLight ? 'border-gray-100' : 'border-white/5'
+                        } flex justify-between items-center`}>
+                          <div className={`text-xs ${isLight ? 'text-gray-500' : 'text-gray-500'}`}>
                             {new Date(task.createdAt).toLocaleDateString()}
                           </div>
                           <Link 
@@ -201,7 +205,7 @@ const VolunteerTasks = () => {
                     isLight ? 'bg-gray-50 border border-gray-100' : 'bg-black/20 border border-white/5'
                   }`}>
                     <h3 className="text-lg font-medium mb-2">No tasks assigned yet</h3>
-                    <p className="text-gray-500 dark:text-gray-400 mb-4">
+                    <p className={`${isLight ? 'text-gray-600' : 'text-gray-400'} mb-4`}>
                       You don't have any volunteer tasks assigned at the moment.
                     </p>
                     <Link 

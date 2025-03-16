@@ -33,9 +33,9 @@ const StatCard = ({
         </div>
         <div>
           <div className="text-3xl font-bold">{value}</div>
-          <div className="text-sm text-gray-500 dark:text-gray-400">{label}</div>
+          <div className={`text-sm ${isLight ? 'text-gray-600' : 'text-gray-400'}`}>{label}</div>
           {description && (
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{description}</p>
+            <p className={`text-xs ${isLight ? 'text-gray-500' : 'text-gray-500'} mt-1`}>{description}</p>
           )}
         </div>
       </div>
@@ -77,19 +77,21 @@ const VolunteerStats = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className={`min-h-screen ${isLight ? 'bg-white' : 'bg-background'}`}>
       <Header />
       
       <main className="pt-20 pb-16">
         <div className="container mx-auto px-4">
           <div className="mb-6">
             <div className="flex items-center">
-              <Link to="/volunteer-tasks" className="mr-2 p-2 rounded-full hover:bg-white/10 transition-colors">
+              <Link to="/volunteer-tasks" className={`mr-2 p-2 rounded-full ${
+                isLight ? 'hover:bg-gray-100' : 'hover:bg-white/10'
+              } transition-colors`}>
                 <ArrowLeft size={18} />
               </Link>
               <h1 className="text-2xl font-bold">Volunteer Statistics</h1>
             </div>
-            <p className="text-gray-400 mt-1">Track your impact and contributions</p>
+            <p className={`${isLight ? 'text-gray-600' : 'text-gray-400'} mt-1`}>Track your impact and contributions</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -139,12 +141,12 @@ const VolunteerStats = () => {
                   <div className="p-6">
                     <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
                     
-                    <div className="divide-y divide-gray-100 dark:divide-white/10">
+                    <div className={`divide-y ${isLight ? 'divide-gray-100' : 'divide-white/10'}`}>
                       {activities.map((activity, index) => (
                         <div key={index} className="py-4 first:pt-0 last:pb-0">
                           <div className="flex justify-between items-start">
                             <div>
-                              <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-1">
+                              <div className={`flex items-center text-sm ${isLight ? 'text-gray-600' : 'text-gray-400'} mb-1`}>
                                 <span>{activity.type}</span>
                                 <span className="mx-2">•</span>
                                 <span>{activity.date}</span>
@@ -182,7 +184,7 @@ const VolunteerStats = () => {
                           <span className="text-sm font-medium">First Aid</span>
                           <span className="text-xs">Advanced</span>
                         </div>
-                        <div className="w-full bg-gray-200 dark:bg-white/10 rounded-full h-2">
+                        <div className={`w-full ${isLight ? 'bg-gray-200' : 'bg-white/10'} rounded-full h-2`}>
                           <div className="bg-primary h-2 rounded-full" style={{ width: '90%' }}></div>
                         </div>
                       </div>
@@ -192,7 +194,7 @@ const VolunteerStats = () => {
                           <span className="text-sm font-medium">Resource Distribution</span>
                           <span className="text-xs">Intermediate</span>
                         </div>
-                        <div className="w-full bg-gray-200 dark:bg-white/10 rounded-full h-2">
+                        <div className={`w-full ${isLight ? 'bg-gray-200' : 'bg-white/10'} rounded-full h-2`}>
                           <div className="bg-primary h-2 rounded-full" style={{ width: '70%' }}></div>
                         </div>
                       </div>
@@ -202,7 +204,7 @@ const VolunteerStats = () => {
                           <span className="text-sm font-medium">Shelter Management</span>
                           <span className="text-xs">Beginner</span>
                         </div>
-                        <div className="w-full bg-gray-200 dark:bg-white/10 rounded-full h-2">
+                        <div className={`w-full ${isLight ? 'bg-gray-200' : 'bg-white/10'} rounded-full h-2`}>
                           <div className="bg-primary h-2 rounded-full" style={{ width: '40%' }}></div>
                         </div>
                       </div>
@@ -212,7 +214,7 @@ const VolunteerStats = () => {
                           <span className="text-sm font-medium">Communication</span>
                           <span className="text-xs">Advanced</span>
                         </div>
-                        <div className="w-full bg-gray-200 dark:bg-white/10 rounded-full h-2">
+                        <div className={`w-full ${isLight ? 'bg-gray-200' : 'bg-white/10'} rounded-full h-2`}>
                           <div className="bg-primary h-2 rounded-full" style={{ width: '85%' }}></div>
                         </div>
                       </div>
@@ -238,7 +240,7 @@ const VolunteerStats = () => {
                           <Trophy size={18} className="mr-2 text-yellow-500" />
                           <h3 className="font-medium">First Responder</h3>
                         </div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className={`text-sm ${isLight ? 'text-gray-600' : 'text-gray-400'}`}>
                           Awarded for quick response during initial emergency phase
                         </p>
                       </div>
@@ -250,7 +252,7 @@ const VolunteerStats = () => {
                           <Heart size={18} className="mr-2 text-red-500" />
                           <h3 className="font-medium">Compassionate Care</h3>
                         </div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className={`text-sm ${isLight ? 'text-gray-600' : 'text-gray-400'}`}>
                           Recognized for exceptional empathy when helping vulnerable individuals
                         </p>
                       </div>
@@ -274,10 +276,10 @@ const VolunteerStats = () => {
                           <Calendar size={16} className="mr-2" />
                           <h3 className="font-medium">Shelter Support</h3>
                         </div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                        <p className={`text-sm ${isLight ? 'text-gray-600' : 'text-gray-400'} mb-2`}>
                           Central High School shelter location
                         </p>
-                        <div className="flex justify-between text-xs text-gray-500">
+                        <div className={`flex justify-between text-xs ${isLight ? 'text-gray-600' : 'text-gray-500'}`}>
                           <span>Today, 4:00 PM - 8:00 PM</span>
                           <Link to="/volunteer-tasks" className="text-primary hover:underline">
                             View

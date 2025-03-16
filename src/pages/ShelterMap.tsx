@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import Header from '../components/Header';
 import { ArrowLeft, MapPin, Navigation, Compass, Route, Ban } from 'lucide-react';
@@ -112,7 +111,6 @@ const ShelterMap = () => {
         const destLat = selectedShelter.coordinates.lat;
         const destLng = selectedShelter.coordinates.lng;
         
-        // Update iframe to show the route using the embed API
         const newSrc = `https://www.google.com/maps/embed/v1/directions?key=AIzaSyBtLRkfZb_SQHkRxsLYgQWs04vT1WLKNSE&origin=${userLat},${userLng}&destination=${destLat},${destLng}&mode=driving`;
         mapIframe.src = newSrc;
       }
@@ -163,7 +161,7 @@ const ShelterMap = () => {
   ];
   
   return (
-    <div className="min-h-screen bg-background">
+    <div className={`min-h-screen ${isLight ? 'bg-white text-black' : 'bg-black text-white'}`}>
       <Header title="Shelter Map" />
       
       <main className="pt-20 pb-16 min-h-screen">
@@ -182,12 +180,16 @@ const ShelterMap = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="md:col-span-2">
-              <div className="bg-black/20 border border-white/10 rounded-xl overflow-hidden h-[70vh]">
+              <div className={`rounded-xl overflow-hidden h-[70vh] ${
+                isLight ? 'bg-gray-100 border border-gray-200' : 'bg-black/20 border border-white/10'
+              }`}>
                 {!mapLoaded && (
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="flex flex-col items-center">
-                      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-white mb-4"></div>
-                      <p className="text-gray-300">Loading map...</p>
+                      <div className={`animate-spin rounded-full h-10 w-10 border-t-2 ${
+                        isLight ? 'border-gray-800' : 'border-white'
+                      } mb-4`}></div>
+                      <p className={isLight ? 'text-gray-700' : 'text-gray-300'}>Loading map...</p>
                     </div>
                   </div>
                 )}
@@ -205,30 +207,40 @@ const ShelterMap = () => {
                 />
                 
                 {userLocation && mapLoaded && (
-                  <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm px-3 py-2 rounded-lg text-sm">
+                  <div className={`absolute bottom-4 left-4 px-3 py-2 rounded-lg text-sm ${
+                    isLight ? 'bg-white/80 border border-gray-200' : 'bg-black/60 backdrop-blur-sm'
+                  }`}>
                     <div className="flex items-center">
-                      <MapPin size={16} className="mr-2 text-white/70" />
-                      <span className="text-white">Your location is available</span>
+                      <MapPin size={16} className={`mr-2 ${isLight ? 'text-gray-700' : 'text-white/70'}`} />
+                      <span>Your location is available</span>
                     </div>
                   </div>
                 )}
               </div>
             </div>
             
-            <div className="border border-white/10 bg-black/20 rounded-xl p-4 h-[70vh] overflow-auto">
+            <div className={`rounded-xl p-4 h-[70vh] overflow-auto ${
+              isLight ? 'bg-white border border-gray-200' : 'border border-white/10 bg-black/20'
+            }`}>
               <h2 className="text-xl font-semibold mb-4">Nearby Shelters</h2>
               
               <div className="space-y-4">
                 {shelters.map(shelter => (
-                  <div key={shelter.id} className="border border-white/10 bg-black/10 rounded-lg p-3 hover:bg-black/30 transition-colors">
+                  <div key={shelter.id} className={`rounded-lg p-3 transition-colors ${
+                    isLight 
+                      ? 'border border-gray-200 bg-white hover:bg-gray-50' 
+                      : 'border border-white/10 bg-black/10 hover:bg-black/30'
+                  }`}>
                     <h3 className="font-medium">{shelter.name}</h3>
-                    <p className="text-sm text-gray-400 mb-2">{shelter.address}</p>
-                    <div className="text-xs text-gray-500 mb-2 space-y-1">
+                    <p className={`text-sm mb-2 ${isLight ? 'text-gray-600' : 'text-gray-400'}`}>{shelter.address}</p>
+                    <div className={`text-xs mb-2 space-y-1 ${isLight ? 'text-gray-700' : 'text-gray-500'}`}>
                       <p>Capacity: {shelter.capacity} people</p>
                       <p>Status: Open ({Math.round((shelter.occupancy / shelter.capacity) * 100)}% full)</p>
                       <div className="flex gap-1 flex-wrap mt-1">
                         {shelter.amenities.map(amenity => (
-                          <span key={amenity} className="inline-block px-2 py-0.5 bg-black/30 rounded-full text-gray-300">{amenity}</span>
+                          <span key={amenity} className={`inline-block px-2 py-0.5 rounded-full text-gray-700 ${
+                            isLight ? 'bg-gray-100' : 'bg-black/30 text-gray-300'
+                          }`}>{amenity}</span>
                         ))}
                       </div>
                     </div>
@@ -262,11 +274,15 @@ const ShelterMap = () => {
                     <Compass size={16} className="mr-2 text-gray-400" />
                     <span>Capacity: {selectedShelter.capacity} people</span>
                   </div>
-                  <div className="rounded-lg border p-2 mt-4 text-sm bg-background/50">
+                  <div className={`rounded-lg border p-2 mt-4 text-sm ${
+                    isLight ? 'bg-gray-50' : 'bg-background/50'
+                  }`}>
                     <span className="text-xs uppercase text-muted-foreground font-medium">Amenities</span>
                     <div className="font-medium mt-1 flex flex-wrap gap-1">
                       {selectedShelter.amenities.map(amenity => (
-                        <span key={amenity} className="inline-block px-2 py-0.5 bg-black/30 rounded-full text-gray-300">{amenity}</span>
+                        <span key={amenity} className={`inline-block px-2 py-0.5 rounded-full ${
+                          isLight ? 'bg-gray-100 text-gray-700' : 'bg-black/30 text-gray-300'
+                        }`}>{amenity}</span>
                       ))}
                     </div>
                   </div>
