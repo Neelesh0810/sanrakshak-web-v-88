@@ -11,6 +11,8 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Bell, CheckCheck, AlertTriangle, Info, MessageSquare, Package, MapPin, Clock, User } from 'lucide-react';
+import { useTheme } from '../context/ThemeProvider';
+import { cn } from '@/lib/utils';
 
 type NotificationType = 'alert' | 'request' | 'response' | 'system' | 'update';
 
@@ -33,18 +35,20 @@ interface NotificationDetailsDialogProps {
   onMarkAsRead: (id: string) => void;
 }
 
-const NotificationIcon = ({ type }: { type: NotificationType }) => {
+const NotificationIcon = ({ type, isLight }: { type: NotificationType, isLight: boolean }) => {
+  const getIconClass = isLight ? "text-black" : "text-white";
+  
   switch (type) {
     case 'alert':
-      return <AlertTriangle size={16} className="text-white" />;
+      return <AlertTriangle size={16} className={getIconClass} />;
     case 'request':
-      return <Package size={16} className="text-white" />;
+      return <Package size={16} className={getIconClass} />;
     case 'response':
-      return <MessageSquare size={16} className="text-white" />;
+      return <MessageSquare size={16} className={getIconClass} />;
     case 'update':
-      return <Info size={16} className="text-white" />;
+      return <Info size={16} className={getIconClass} />;
     default:
-      return <Bell size={16} className="text-white" />;
+      return <Bell size={16} className={getIconClass} />;
   }
 };
 
@@ -54,6 +58,9 @@ export const NotificationDetailsDialog: React.FC<NotificationDetailsDialogProps>
   onOpenChange,
   onMarkAsRead
 }) => {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+  
   if (!notification) return null;
   
   const formatTime = (timestamp: number) => {
@@ -75,10 +82,13 @@ export const NotificationDetailsDialog: React.FC<NotificationDetailsDialogProps>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <div className="flex items-center gap-2">
-            <div className={`p-2 rounded-full ${
-              notification.type === 'alert' ? 'bg-white/20' : 'bg-white/10'
-            }`}>
-              <NotificationIcon type={notification.type} />
+            <div className={cn(
+              "p-2 rounded-full",
+              isLight
+                ? notification.type === 'alert' ? 'bg-red-100' : 'bg-gray-100'
+                : notification.type === 'alert' ? 'bg-white/20' : 'bg-white/10'
+            )}>
+              <NotificationIcon type={notification.type} isLight={isLight} />
             </div>
             <DialogTitle>{notification.title}</DialogTitle>
           </div>
@@ -88,10 +98,13 @@ export const NotificationDetailsDialog: React.FC<NotificationDetailsDialogProps>
         </DialogHeader>
         
         <div className="py-4">
-          <p className="mb-4">{notification.message}</p>
+          <p className={cn("mb-4", isLight ? "text-gray-800" : "")}>{notification.message}</p>
           
           {(notification.source || notification.location) && (
-            <div className="space-y-2 mt-4 text-sm text-gray-400">
+            <div className={cn(
+              "space-y-2 mt-4 text-sm",
+              isLight ? "text-gray-600" : "text-gray-400"
+            )}>
               {notification.source && (
                 <div className="flex items-center">
                   <Bell size={14} className="mr-2" />

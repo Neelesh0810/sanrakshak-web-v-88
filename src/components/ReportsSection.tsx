@@ -2,6 +2,7 @@
 import React from 'react';
 import { FileText, ChevronRight, FileBarChart2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTheme } from '../context/ThemeProvider';
 
 interface ReportItem {
   id: string;
@@ -12,6 +13,9 @@ interface ReportItem {
 }
 
 const ReportsSection = () => {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+  
   // Mock data for reports
   const reports: ReportItem[] = [
     {
@@ -54,20 +58,36 @@ const ReportsSection = () => {
   };
 
   const getReportTypeClass = (type: string) => {
-    switch (type) {
-      case 'resource':
-        return 'bg-blue-500/20 text-blue-300';
-      case 'activity':
-        return 'bg-green-500/20 text-green-300';
-      case 'emergency':
-        return 'bg-red-500/20 text-red-300';
-      default:
-        return 'bg-gray-500/20 text-gray-300';
+    if (isLight) {
+      switch (type) {
+        case 'resource':
+          return 'bg-blue-100 text-blue-800 border border-blue-200';
+        case 'activity':
+          return 'bg-green-100 text-green-800 border border-green-200';
+        case 'emergency':
+          return 'bg-red-100 text-red-800 border border-red-200';
+        default:
+          return 'bg-gray-100 text-gray-800 border border-gray-200';
+      }
+    } else {
+      switch (type) {
+        case 'resource':
+          return 'bg-blue-500/20 text-blue-300';
+        case 'activity':
+          return 'bg-green-500/20 text-green-300';
+        case 'emergency':
+          return 'bg-red-500/20 text-red-300';
+        default:
+          return 'bg-gray-500/20 text-gray-300';
+      }
     }
   };
 
   return (
-    <div className="glass-dark rounded-xl p-6">
+    <div className={cn(
+      "rounded-xl p-6",
+      isLight ? "bg-white border border-gray-200 shadow-soft" : "glass-dark"
+    )}>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center">
           <FileBarChart2 className="mr-2" size={24} />
@@ -77,12 +97,20 @@ const ReportsSection = () => {
       
       <div className="space-y-4">
         {reports.map(report => (
-          <div key={report.id} className="flex items-center justify-between p-4 rounded-lg bg-black/40 border border-white/5 hover:bg-black/60 transition-colors">
+          <div 
+            key={report.id} 
+            className={cn(
+              "flex items-center justify-between p-4 rounded-lg border transition-colors",
+              isLight 
+                ? "bg-gray-50 border-gray-200 hover:bg-gray-100" 
+                : "bg-black/40 border-white/5 hover:bg-black/60"
+            )}
+          >
             <div className="flex items-center">
-              <FileText className="text-gray-400 mr-3" size={20} />
+              <FileText className={isLight ? "text-gray-600" : "text-gray-400"} className="mr-3" size={20} />
               <div>
                 <h3 className="font-medium">{report.title}</h3>
-                <p className="text-sm text-gray-400">{formatDate(report.date)}</p>
+                <p className={isLight ? "text-sm text-gray-600" : "text-sm text-gray-400"}>{formatDate(report.date)}</p>
               </div>
             </div>
             

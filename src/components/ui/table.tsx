@@ -1,27 +1,49 @@
-import * as React from "react"
 
+import * as React from "react"
+import { useTheme } from "../../context/ThemeProvider"
 import { cn } from "@/lib/utils"
 
 const Table = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
->(({ className, ...props }, ref) => (
-  <div className="relative w-full overflow-auto">
-    <table
-      ref={ref}
-      className={cn("w-full caption-bottom text-sm", className)}
-      {...props}
-    />
-  </div>
-))
+>(({ className, ...props }, ref) => {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+  
+  return (
+    <div className="relative w-full overflow-auto">
+      <table
+        ref={ref}
+        className={cn(
+          "w-full caption-bottom text-sm",
+          isLight ? "border border-gray-200 rounded-md" : "",
+          className
+        )}
+        {...props}
+      />
+    </div>
+  );
+})
 Table.displayName = "Table"
 
 const TableHeader = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
->(({ className, ...props }, ref) => (
-  <thead ref={ref} className={cn("[&_tr]:border-b", className)} {...props} />
-))
+>(({ className, ...props }, ref) => {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+  
+  return (
+    <thead 
+      ref={ref} 
+      className={cn(
+        isLight ? "[&_tr]:border-b [&_tr]:border-gray-200" : "[&_tr]:border-b", 
+        className
+      )} 
+      {...props} 
+    />
+  );
+})
 TableHeader.displayName = "TableHeader"
 
 const TableBody = React.forwardRef<

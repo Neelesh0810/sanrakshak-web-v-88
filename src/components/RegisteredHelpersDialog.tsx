@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Search, Building, Users } from 'lucide-react';
 import { 
@@ -11,6 +10,8 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import UserProfile from './UserProfile';
+import { useTheme } from '../context/ThemeProvider';
+import { cn } from '@/lib/utils';
 
 interface RegisteredHelpersDialogProps {
   open: boolean;
@@ -35,6 +36,8 @@ const RegisteredHelpersDialog: React.FC<RegisteredHelpersDialogProps> = ({
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [helperFilter, setHelperFilter] = useState<'all' | 'volunteer' | 'ngo'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   
   useEffect(() => {
     // Get users from localStorage where they're stored during account creation
@@ -132,7 +135,12 @@ const RegisteredHelpersDialog: React.FC<RegisteredHelpersDialogProps> = ({
               placeholder="Search helpers..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 py-2 bg-black/40 border border-white/10 rounded-lg focus:ring-1 focus:ring-white/30 focus:outline-none w-full md:w-60"
+              className={cn(
+                "pl-9 pr-4 py-2 rounded-lg focus:outline-none w-full md:w-60",
+                isLight 
+                  ? "bg-gray-100 border border-gray-300 focus:ring-1 focus:ring-gray-400" 
+                  : "bg-black/40 border border-white/10 focus:ring-1 focus:ring-white/30"
+              )}
             />
           </div>
           
@@ -179,7 +187,10 @@ const RegisteredHelpersDialog: React.FC<RegisteredHelpersDialogProps> = ({
                 />
               ))
             ) : (
-              <div className="col-span-2 py-10 text-center text-gray-400">
+              <div className={cn(
+                "col-span-2 py-10 text-center",
+                isLight ? "text-gray-600" : "text-gray-400"
+              )}>
                 <p>No helpers found matching your criteria</p>
               </div>
             )}
