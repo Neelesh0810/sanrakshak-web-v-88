@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Label } from "@/components/ui/label";
@@ -5,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, KeyRound, User, Phone, MapPin } from 'lucide-react';
+import { Mail, KeyRound, User, Phone, MapPin, Shield, Building } from 'lucide-react';
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -15,9 +16,10 @@ const Signup = () => {
   const [phone, setPhone] = useState('');
   const [location, setLocation] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<'victim' | 'volunteer'>('victim');
+  const [role, setRole] = useState<'victim' | 'volunteer' | 'ngo' | 'government' | 'admin'>('victim');
   const [canVolunteer, setCanVolunteer] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [adminCode, setAdminCode] = useState('');
   const { toast } = useToast();
   const navigate = useNavigate();
   
@@ -38,6 +40,15 @@ const Signup = () => {
       toast({
         title: "Password too short",
         description: "Password must be at least 6 characters.",
+      });
+      setLoading(false);
+      return;
+    }
+    
+    if (role === 'admin' && adminCode !== 'admin123') {
+      toast({
+        title: "Invalid admin code",
+        description: "Please enter the correct admin code to register as an admin.",
       });
       setLoading(false);
       return;
@@ -77,7 +88,11 @@ const Signup = () => {
       description: "You have successfully signed up.",
     });
     
-    navigate('/dashboard');
+    if (role === 'admin') {
+      navigate('/admin-dashboard');
+    } else {
+      navigate('/dashboard');
+    }
     setLoading(false);
     
     const isSignupSuccessful = true;
@@ -93,7 +108,7 @@ const Signup = () => {
         contactInfo: newUser.email || newUser.phone || 'No contact info',
         location: newUser.location || 'Unknown location',
         lastActive: 'just now',
-        skills: newUser.role === 'volunteer' ? ['New Volunteer'] : [],
+        skills: ['volunteer', 'ngo', 'government'].includes(newUser.role) ? ['New Volunteer'] : [],
         needsHelp: newUser.role === 'victim' ? ['Newly Registered'] : []
       });
       
@@ -191,7 +206,7 @@ const Signup = () => {
             <Label htmlFor="role" className="block mb-2">I am:</Label>
             <Select
               value={role}
-              onValueChange={(value) => setRole(value as 'victim' | 'volunteer')}
+              onValueChange={(value) => setRole(value as 'victim' | 'volunteer' | 'ngo' | 'government' | 'admin')}
             >
               <SelectTrigger id="role" className="w-full bg-black/50 border-white/20">
                 <SelectValue placeholder="Select your role" />
@@ -199,9 +214,39 @@ const Signup = () => {
               <SelectContent className="bg-black border border-white/20">
                 <SelectItem value="victim">Affected by the disaster</SelectItem>
                 <SelectItem value="volunteer">Want to volunteer</SelectItem>
+                <SelectItem value="ngo">
+                  <div className="flex items-center">
+                    <Building size={16} className="mr-2" />
+                    <span>NGO / Organization</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="government">
+                  <div className="flex items-center">
+                    <Shield size={16} className="mr-2" />
+                    <span>Government Agency</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="admin">Administrator</SelectItem>
               </SelectContent>
             </Select>
           </div>
+          
+          {role === 'admin' && (
+            <div className="space-y-2">
+              <Label htmlFor="adminCode" className="flex items-center">
+                <Shield size={16} className="mr-2 text-gray-400" />
+                <span>Admin Code</span>
+              </Label>
+              <Input
+                id="adminCode"
+                placeholder="Enter admin code"
+                type="password"
+                value={adminCode}
+                onChange={(e) => setAdminCode(e.target.value)}
+                className="bg-black/50 border-white/20"
+              />
+            </div>
+          )}
           
           {role === 'victim' && (
             <div className="flex items-center space-x-2">

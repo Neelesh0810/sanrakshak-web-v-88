@@ -1,17 +1,20 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Shield } from 'lucide-react';
 import Header from '../components/Header';
 import AnimatedTransition from '../components/AnimatedTransition';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loginType, setLoginType] = useState('user');
   const { toast } = useToast();
   const navigate = useNavigate();
   
@@ -25,63 +28,84 @@ const Login = () => {
     const storedUsers = localStorage.getItem('users');
     const users = storedUsers ? JSON.parse(storedUsers) : [];
     
-    const loggedInUser = users.find((user: any) => user.email === email && user.password === password);
+    let loggedInUser;
     
-    if (loggedInUser) {
-      localStorage.setItem('authUser', JSON.stringify(loggedInUser));
+    if (loginType === 'admin') {
+      // For admin login, make sure to check the role as well
+      loggedInUser = users.find((user: any) => 
+        user.email === email && 
+        user.password === password && 
+        user.role === 'admin'
+      );
       
-      toast({
-        title: "Login Successful",
-        description: `Welcome back, ${loggedInUser.name}!`,
-      });
-      
-      // Get current users array
-      const usersStr = localStorage.getItem('users');
-      const users = usersStr ? JSON.parse(usersStr) : [];
-      
-      // Check if this user is already in our users array
-      const userExists = users.some((u: any) => u.id === loggedInUser.id);
-      
-      if (!userExists) {
-        // Add the new user to our users array with appropriate structure
-        users.push({
-          id: loggedInUser.id,
-          name: loggedInUser.name,
-          role: loggedInUser.role,
-          contactInfo: loggedInUser.email || loggedInUser.phone || 'No contact info',
-          location: loggedInUser.location || 'Unknown location',
-          lastActive: 'just now',
-          skills: loggedInUser.role === 'volunteer' ? ['New Volunteer'] : [],
-          needsHelp: loggedInUser.role === 'victim' ? ['Newly Registered'] : []
+      if (!loggedInUser) {
+        toast({
+          title: "Admin Login Failed",
+          description: "Invalid admin credentials. Please check your email and password.",
         });
-        
-        // Save updated users array
-        localStorage.setItem('users', JSON.stringify(users));
-      } else {
-        // Update the last active time for existing user
-        const updatedUsers = users.map((u: any) => {
-          if (u.id === loggedInUser.id) {
-            return { ...u, lastActive: 'just now' };
-          }
-          return u;
-        });
-        
-        localStorage.setItem('users', JSON.stringify(updatedUsers));
-      }
-      
-      // Dispatch event to notify other components
-      window.dispatchEvent(new Event('auth-changed'));
-      
-      if (loggedInUser.role === 'admin') {
-        navigate('/admin-dashboard');
-      } else {
-        navigate('/dashboard');
+        return;
       }
     } else {
-      toast({
-        title: "Login Failed",
-        description: "Invalid credentials. Please check your email and password.",
+      // Regular user login
+      loggedInUser = users.find((user: any) => user.email === email && user.password === password);
+      
+      if (!loggedInUser) {
+        toast({
+          title: "Login Failed",
+          description: "Invalid credentials. Please check your email and password.",
+        });
+        return;
+      }
+    }
+    
+    localStorage.setItem('authUser', JSON.stringify(loggedInUser));
+    
+    toast({
+      title: "Login Successful",
+      description: `Welcome back, ${loggedInUser.name}!`,
+    });
+    
+    // Get current users array
+    const usersStr = localStorage.getItem('users');
+    const allUsers = usersStr ? JSON.parse(usersStr) : [];
+    
+    // Check if this user is already in our users array
+    const userExists = allUsers.some((u: any) => u.id === loggedInUser.id);
+    
+    if (!userExists) {
+      // Add the new user to our users array with appropriate structure
+      allUsers.push({
+        id: loggedInUser.id,
+        name: loggedInUser.name,
+        role: loggedInUser.role,
+        contactInfo: loggedInUser.email || loggedInUser.phone || 'No contact info',
+        location: loggedInUser.location || 'Unknown location',
+        lastActive: 'just now',
+        skills: ['volunteer', 'ngo', 'government'].includes(loggedInUser.role) ? ['New Volunteer'] : [],
+        needsHelp: loggedInUser.role === 'victim' ? ['Newly Registered'] : []
       });
+      
+      // Save updated users array
+      localStorage.setItem('users', JSON.stringify(allUsers));
+    } else {
+      // Update the last active time for existing user
+      const updatedUsers = allUsers.map((u: any) => {
+        if (u.id === loggedInUser.id) {
+          return { ...u, lastActive: 'just now' };
+        }
+        return u;
+      });
+      
+      localStorage.setItem('users', JSON.stringify(updatedUsers));
+    }
+    
+    // Dispatch event to notify other components
+    window.dispatchEvent(new Event('auth-changed'));
+    
+    if (loggedInUser.role === 'admin') {
+      navigate('/admin-dashboard');
+    } else {
+      navigate('/dashboard');
     }
   };
 
@@ -94,6 +118,28 @@ const Login = () => {
           <AnimatedTransition>
             <div className="bg-black/20 rounded-xl border border-white/10 p-8">
               <h1 className="text-3xl font-bold text-center mb-6">Login</h1>
+              
+              <Tabs defaultValue="user" onValueChange={setLoginType} className="w-full mb-6">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="user">User</TabsTrigger>
+                  <TabsTrigger value="admin" className="flex items-center justify-center">
+                    <Shield size={16} className="mr-2" />
+                    Admin
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="user">
+                  <div className="text-sm text-gray-400 text-center mb-4">
+                    Login as a regular user (affected person, volunteer, NGO, or government)
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="admin">
+                  <div className="text-sm text-gray-400 text-center mb-4">
+                    Login with administrator credentials
+                  </div>
+                </TabsContent>
+              </Tabs>
               
               <form onSubmit={handleLogin} className="space-y-4">
                 <div>
@@ -132,7 +178,7 @@ const Login = () => {
                 </div>
                 
                 <Button type="submit" className="w-full bg-white text-black hover:bg-white/90">
-                  Login
+                  {loginType === 'admin' ? 'Admin Login' : 'Login'}
                 </Button>
               </form>
               
