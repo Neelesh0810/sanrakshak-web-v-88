@@ -43,9 +43,9 @@ const StatusUpdate: React.FC<StatusUpdateProps> = ({
   return (
     <div 
       className={cn(
-        'rounded-lg overflow-hidden transition-all',
+        'rounded-lg overflow-hidden transition-all shadow-[0_8px_20px_rgba(0,0,0,0.12)] backdrop-blur-sm',
         isLight 
-          ? 'bg-white border border-gray-300 shadow-soft' 
+          ? 'bg-white/95 border border-black/20 shadow-soft' 
           : 'bg-black/30 backdrop-blur-sm border border-white/10',
         getPriorityStyles(),
         className
@@ -67,10 +67,10 @@ const StatusUpdate: React.FC<StatusUpdateProps> = ({
           <Link 
             to={`/status/${id}`} 
             className={cn(
-              "text-xs px-3 py-1 rounded-full transition-colors text-black",
+              "text-xs px-3 py-1 rounded-full transition-colors text-black shadow-sm",
               isLight 
-                ? "bg-blue-100 hover:bg-blue-200" 
-                : "bg-blue-900/20 hover:bg-blue-900/30"
+                ? "bg-blue-100 hover:bg-blue-200 border border-black/10" 
+                : "bg-blue-900/20 hover:bg-blue-900/30 border border-white/10"
             )}
           >
             Details

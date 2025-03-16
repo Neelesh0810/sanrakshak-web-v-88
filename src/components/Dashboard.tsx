@@ -91,9 +91,9 @@ const Dashboard: React.FC = () => {
   const EmergencyAlert = () => (
     <div className="mb-6">
       <AnimatedTransition>
-        <div className="relative overflow-hidden glass-dark rounded-xl border border-white/10 p-4 sm:p-6">
+        <div className="relative overflow-hidden glass-dark rounded-xl border border-black/20 p-4 sm:p-6 shadow-[0_10px_30px_rgba(0,0,0,0.15)] backdrop-blur-md">
           <div className="absolute top-4 right-4 z-10">
-            <span className="inline-flex items-center rounded-full bg-white/10 px-2.5 py-1 text-xs">
+            <span className="inline-flex items-center rounded-full bg-white/10 border border-black/10 px-2.5 py-1 text-xs shadow-sm">
               <Zap size={12} className="mr-1" />
               <span>Critical</span>
             </span>
@@ -114,10 +114,10 @@ const Dashboard: React.FC = () => {
             </div>
             
             <div className="flex space-x-2">
-              <Link to="/emergency-plan" className="px-4 py-2 rounded-full text-sm bg-white text-black hover:bg-white/90 transition-colors">
+              <Link to="/emergency-plan" className="px-4 py-2 rounded-full text-sm bg-white text-black hover:bg-white/90 transition-colors border border-black/10 shadow-sm">
                 Emergency Plan
               </Link>
-              <Link to="/shelter-map" className="px-4 py-2 rounded-full text-sm bg-white/10 hover:bg-white/15 transition-colors">
+              <Link to="/shelter-map" className="px-4 py-2 rounded-full text-sm bg-white/10 hover:bg-white/15 transition-colors border border-black/10 shadow-sm">
                 Shelter Map
               </Link>
             </div>
