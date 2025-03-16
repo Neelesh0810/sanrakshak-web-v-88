@@ -41,29 +41,31 @@ const useResourceData = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [responses, setResponses] = useState<ResourceResponse[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userLocation, setUserLocation] = useState<string>('Jabalpur');
+  const [userLocation, setUserLocation] = useState<{city: string} | null>(null);
 
-  // Get user's location for dummy data
+  // Try to get user's location or use Jabalpur as default
   useEffect(() => {
-    const getLocation = () => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            // For demo purposes, we'll still use Jabalpur locations but could use real location data
-            setUserLocation('Jabalpur');
-          },
-          (error) => {
-            console.log("Location permission denied or error, using default location");
-            setUserLocation('Jabalpur');
+    // First check if we can get the user's city from browser geolocation
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            // We'd normally do reverse geocoding here to get the city name
+            // For now, we'll just use Jabalpur as the location
+            setUserLocation({ city: 'Jabalpur' });
+          } catch (error) {
+            console.error('Error getting location details:', error);
+            setUserLocation({ city: 'Jabalpur' }); // Default
           }
-        );
-      } else {
-        console.log("Geolocation not supported, using default location");
-        setUserLocation('Jabalpur');
-      }
-    };
-    
-    getLocation();
+        },
+        (error) => {
+          console.error('Geolocation error:', error);
+          setUserLocation({ city: 'Jabalpur' }); // Default
+        }
+      );
+    } else {
+      setUserLocation({ city: 'Jabalpur' }); // Default
+    }
   }, []);
 
   // Load resources from localStorage
@@ -98,20 +100,18 @@ const useResourceData = () => {
         }
       }
       
-      // If no resources found or no offer type resources, create initial data
-      const offerResources = allResources.filter(r => r.type === 'offer');
-      
-      if (allResources.length === 0 || offerResources.length === 0) {
-        // Create dummy resources with more detailed location information
-        const dummyResources: Resource[] = [
+      // If no resources found, create initial data with Jabalpur locations
+      if (allResources.length === 0) {
+        const city = userLocation?.city || 'Jabalpur';
+        allResources = [
           {
             id: '1',
             type: 'need',
             category: 'water',
             title: 'Clean Drinking Water',
             description: 'Urgently need bottled water for family of 4, including infant.',
-            location: 'Madan Mahal, Jabalpur',
-            locationDetails: 'Near Madan Mahal Fort, South Block',
+            location: `Madan Mahal, ${city}`,
+            locationDetails: 'Near Railway Station',
             urgent: true,
             timestamp: Date.now() - 3600000,
             status: 'pending'
@@ -122,76 +122,13 @@ const useResourceData = () => {
             category: 'shelter',
             title: 'Temporary Housing Available',
             description: 'Can accommodate up to 3 people in spare rooms. Has generator and supplies.',
-            location: 'Civil Lines, Jabalpur',
-            locationDetails: 'Lane 3, Near City Hospital',
-            contact: '9876543210',
-            contactName: 'Priya Sharma',
+            location: `Civil Lines, ${city}`,
+            locationDetails: 'Near St. Aloysius College',
+            contact: '555-123-4567',
             timestamp: Date.now() - 7200000,
-            status: 'pending'
-          },
-          {
-            id: '3',
-            type: 'offer',
-            category: 'food',
-            title: 'Hot Meals Available',
-            description: 'Providing hot vegetarian meals three times daily for affected families.',
-            location: 'Napier Town, Jabalpur',
-            locationDetails: 'Community Center, Block B',
-            contact: '9988776655',
-            contactName: 'Vikram Singh',
-            specialNotes: 'Please bring your own containers if possible',
-            timestamp: Date.now() - 5400000,
-            status: 'pending'
-          },
-          {
-            id: '4',
-            type: 'offer',
-            category: 'medical',
-            title: 'Medical Supplies & First Aid',
-            description: 'Distributing essential medicines, bandages, and first aid supplies. Doctor available for consultation.',
-            location: 'Garha, Jabalpur',
-            locationDetails: 'Near Railway Colony',
-            contact: '8765432109',
-            contactName: 'Dr. Rajesh Kumar',
-            urgent: true,
-            timestamp: Date.now() - 2700000,
-            status: 'pending'
-          },
-          {
-            id: '5',
-            type: 'offer',
-            category: 'supplies',
-            title: 'Blankets and Clothing',
-            description: 'Offering warm blankets, children\'s clothing, and basic hygiene supplies for displaced families.',
-            location: 'Adhartal, Jabalpur',
-            locationDetails: 'Community Hall, Near Lake View',
-            contact: '7654321098',
-            contactName: 'Sunita Patel',
-            timestamp: Date.now() - 9000000,
-            status: 'pending'
-          },
-          {
-            id: '6',
-            type: 'offer',
-            category: 'safety',
-            title: 'Temporary Power Supply',
-            description: 'Generator available for charging phones and essential medical equipment. Available 8am-8pm.',
-            location: 'Katanga, Jabalpur',
-            locationDetails: 'Market Square',
-            contact: '9876123450',
-            contactName: 'Amit Verma',
-            timestamp: Date.now() - 10800000,
             status: 'pending'
           }
         ];
-        
-        if (allResources.length === 0) {
-          allResources = dummyResources;
-        } else {
-          // Just add the offer resources if there are no offers
-          const dummyOffers = dummyResources.filter(r => r.type === 'offer');
-          allResources = [...allResources, ...dummyOffers];
-        }
       }
       
       // Sort resources consistently by timestamp and urgency
@@ -225,8 +162,11 @@ const useResourceData = () => {
       setResponses(allResponses);
     };
     
-    loadResources();
-    loadResponses();
+    // Only load resources when we have location info
+    if (userLocation) {
+      loadResources();
+      loadResponses();
+    }
     
     // Listen for storage events to update in real-time across tabs
     const handleStorageChange = (event: StorageEvent) => {
@@ -264,6 +204,11 @@ const useResourceData = () => {
   
   // Function to add a new resource
   const addResource = (newResource: Omit<Resource, 'id' | 'timestamp'>) => {
+    // If location is not specified, use the user's current location or default
+    if (!newResource.location) {
+      newResource.location = `${userLocation?.city || 'Jabalpur'}`;
+    }
+    
     const resource: Resource = {
       ...newResource,
       id: Date.now().toString(),
@@ -384,7 +329,8 @@ const useResourceData = () => {
     addResource,
     addResponse,
     updateResponse,
-    cleanupInvalidResponses
+    cleanupInvalidResponses,
+    userLocation
   };
 };
 

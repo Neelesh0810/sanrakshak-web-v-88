@@ -14,14 +14,11 @@ interface ResourceCardProps {
   title: string;
   description: string;
   location: string;
-  locationDetails?: string; // Added locationDetails as an optional prop
   contact?: string;
-  contactName?: string;
   urgent?: boolean;
   className?: string;
   requestId?: string;
   isRequested?: boolean;
-  onRequest?: () => void;
 }
 
 const ResourceCard: React.FC<ResourceCardProps> = ({

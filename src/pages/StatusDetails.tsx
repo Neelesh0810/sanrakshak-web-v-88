@@ -13,52 +13,81 @@ const StatusDetails = () => {
   const { toast } = useToast();
   const isLight = theme === 'light';
   const [mapError, setMapError] = useState(false);
+  const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
   
-  // Status data mapping
+  // Get user location or default to Jabalpur
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+          // Default to Jabalpur
+          setUserLocation({
+            lat: 23.1636,
+            lng: 79.9548
+          });
+        }
+      );
+    } else {
+      // Default to Jabalpur
+      setUserLocation({
+        lat: 23.1636,
+        lng: 79.9548
+      });
+    }
+  }, []);
+  
+  // Status data mapping with Jabalpur-specific locations
   const statusMap: { [key: string]: any } = {
     'status-1': {
       title: 'Power Restoration Progress',
-      message: 'Crews are working to restore power to the eastern district. Estimated completion: 24 hours.',
-      fullDescription: 'Utility crews have been deployed across the eastern district to repair downed power lines and restore service. Areas with critical infrastructure like hospitals and emergency shelters are being prioritized. Residents should prepare for at least 24 more hours without power. Charging stations have been set up at Central High School and the Community Center.',
-      affectedAreas: ['East Side', 'Riverside', 'Downtown (partial)'],
-      source: 'City Power & Utilities',
+      message: 'Crews are working to restore power to Madan Mahal and Ranjhi areas. Estimated completion: 24 hours.',
+      fullDescription: 'Utility crews have been deployed across Madan Mahal and Ranjhi areas to repair downed power lines and restore service. Areas with critical infrastructure like Netaji Subhash Chandra Bose Medical College and Rani Durgavati University are being prioritized. Residents should prepare for at least 24 more hours without power. Charging stations have been set up at Model School Adhartal and the St. Aloysius College.',
+      affectedAreas: ['Madan Mahal', 'Ranjhi', 'Adhartal (partial)'],
+      source: 'MP Power Distribution Company',
       sourceUrl: '#',
       timestamp: '1 hour ago',
       updated: 'June 15, 2023 - 10:25 AM',
       priority: 'high',
       coordinates: {
-        lat: 23.1815,
-        lng: 79.9864
+        lat: 23.1759,
+        lng: 79.9821
       }
     },
     'status-2': {
       title: 'Road Closure Update',
-      message: 'Main Street between 5th and 8th Ave remains flooded and closed to traffic. Use alternate routes.',
-      fullDescription: 'Flooding has made Main Street impassable between 5th and 8th Avenue. Public Works is pumping water but the road is expected to remain closed for at least 48 hours. Traffic is being diverted to Highland Avenue and Park Street. Emergency vehicles have established alternate routes to maintain response times.',
-      affectedAreas: ['Downtown', 'Business District'],
-      source: 'Department of Transportation',
+      message: 'Wright Town Road between Civil Lines and Napier Town remains flooded and closed to traffic. Use alternate routes.',
+      fullDescription: 'Flooding has made Wright Town Road impassable between Civil Lines and Napier Town. Public Works Department is pumping water but the road is expected to remain closed for at least 48 hours. Traffic is being diverted to Ghamapur Road and Gol Bazaar. Emergency vehicles have established alternate routes to maintain response times.',
+      affectedAreas: ['Wright Town', 'Civil Lines', 'Napier Town'],
+      source: 'Jabalpur Municipal Corporation',
       sourceUrl: '#',
       timestamp: '3 hours ago',
       updated: 'June 15, 2023 - 8:15 AM',
       priority: 'medium',
       coordinates: {
-        lat: 23.1815,
-        lng: 79.9864
+        lat: 23.1655,
+        lng: 79.9422
       }
     },
     'status-3': {
       title: 'Medical Supply Delivery',
-      message: 'Additional medical supplies have arrived at Central Hospital and Community Clinic.',
-      fullDescription: 'A shipment of critical medical supplies including insulin, antibiotics, wound care supplies, and respiratory medications has arrived at Central Hospital and Community Clinic. Patients in need of prescription refills should contact the Community Clinic. Mobile medical units are being deployed to neighborhoods with limited transportation access.',
-      affectedAreas: ['Citywide'],
-      source: 'Health Department',
+      message: 'Additional medical supplies have arrived at Netaji Subhash Chandra Bose Medical College and Victoria Hospital.',
+      fullDescription: 'A shipment of critical medical supplies including insulin, antibiotics, wound care supplies, and respiratory medications has arrived at Netaji Subhash Chandra Bose Medical College and Victoria Hospital. Patients in need of prescription refills should contact the Victoria Hospital. Mobile medical units are being deployed to neighborhoods with limited transportation access, particularly in the low-lying areas of Gwarighat and Tilwara Ghat.',
+      affectedAreas: ['Jabalpur City-wide'],
+      source: 'District Health Department',
       sourceUrl: '#',
       timestamp: '5 hours ago',
       updated: 'June 15, 2023 - 6:30 AM',
       priority: 'low',
       coordinates: {
-        lat: 23.1815,
-        lng: 79.9864
+        lat: 23.1839,
+        lng: 79.9318
       }
     }
   };
@@ -74,8 +103,8 @@ const StatusDetails = () => {
     updated: 'Unknown',
     priority: 'medium',
     coordinates: {
-      lat: 23.1815,
-      lng: 79.9864
+      lat: 23.1636,
+      lng: 79.9548
     }
   };
   
@@ -105,16 +134,43 @@ const StatusDetails = () => {
     }
   };
 
-  // Calculate the current user's simulated location (for demo purposes)
-  const userLocation = {
-    lat: status.coordinates.lat + 0.005,
-    lng: status.coordinates.lng - 0.003
+  // Calculate the current user's location or use a simulated one near the event
+  const calculateUserLocation = () => {
+    if (userLocation) {
+      return userLocation;
+    }
+    // If no user location, simulate one near the event (slightly offset)
+    return {
+      lat: status.coordinates.lat + 0.005,
+      lng: status.coordinates.lng - 0.003
+    };
   };
+
+  const displayedUserLocation = calculateUserLocation();
 
   useEffect(() => {
     // Reset map error state when component mounts or id changes
     setMapError(false);
   }, [id]);
+
+  // Calculate distance between two coordinates in km (haversine formula)
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const R = 6371; // Radius of the earth in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2); 
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    const d = R * c; // Distance in km
+    return d;
+  };
+
+  // Calculate approximate distance to display
+  const distanceToEvent = userLocation 
+    ? calculateDistance(userLocation.lat, userLocation.lng, status.coordinates.lat, status.coordinates.lng).toFixed(1) + "km away"
+    : "Unknown distance";
 
   // Function to handle map load error
   const handleMapError = () => {
@@ -237,7 +293,7 @@ const StatusDetails = () => {
                     </div>
                     <div className={`px-2 py-1 rounded ${isLight ? "bg-white/90" : "bg-black/60"} text-xs backdrop-blur-sm flex items-center`}>
                       <Navigation className="h-3 w-3 mr-1" />
-                      <span>0.8mi away</span>
+                      <span>{distanceToEvent}</span>
                     </div>
                   </div>
                 </div>
@@ -250,10 +306,10 @@ const StatusDetails = () => {
                   <div className={`border-l-4 ${isLight ? "border-gray-500 bg-gray-50" : "border-gray-700 bg-white/5"} rounded-r-lg p-3`}>
                     <h3 className="font-medium">Weather Condition Update</h3>
                     <p className={`text-sm ${isLight ? "text-gray-700" : "text-gray-400"} mt-1`}>
-                      Heavy rain expected to continue for the next 12 hours.
+                      Heavy rain expected to continue for the next 12 hours across Jabalpur district.
                     </p>
                     <div className="flex justify-between items-center mt-2">
-                      <span className={`text-xs ${isLight ? "text-gray-600" : "text-gray-500"}`}>National Weather Service</span>
+                      <span className={`text-xs ${isLight ? "text-gray-600" : "text-gray-500"}`}>Madhya Pradesh Meteorological Department</span>
                       <Link to="/alerts" className="text-xs hover:underline">View</Link>
                     </div>
                   </div>
@@ -261,10 +317,10 @@ const StatusDetails = () => {
                   <div className={`border-l-4 ${isLight ? "border-gray-500 bg-gray-50" : "border-gray-700 bg-white/5"} rounded-r-lg p-3`}>
                     <h3 className="font-medium">Shelter Capacity Status</h3>
                     <p className={`text-sm ${isLight ? "text-gray-700" : "text-gray-400"} mt-1`}>
-                      Central High School shelter at 75% capacity, Community Center at 60%.
+                      Rani Durgavati University shelter at 75% capacity, St. Aloysius College at 60%.
                     </p>
                     <div className="flex justify-between items-center mt-2">
-                      <span className={`text-xs ${isLight ? "text-gray-600" : "text-gray-500"}`}>Emergency Management</span>
+                      <span className={`text-xs ${isLight ? "text-gray-600" : "text-gray-500"}`}>Jabalpur Disaster Management</span>
                       <Link to="/alerts" className="text-xs hover:underline">View</Link>
                     </div>
                   </div>
@@ -284,8 +340,8 @@ const StatusDetails = () => {
                   
                   <div>
                     <h3 className="text-sm font-medium">Contact</h3>
-                    <p className={`${isLight ? "text-gray-700" : "text-gray-400"} text-sm`}>Emergency Response Center</p>
-                    <p className={`${isLight ? "text-gray-700" : "text-gray-400"} text-sm`}>555-555-1234</p>
+                    <p className={`${isLight ? "text-gray-700" : "text-gray-400"} text-sm`}>Jabalpur Emergency Response Center</p>
+                    <p className={`${isLight ? "text-gray-700" : "text-gray-400"} text-sm`}>0761-2762217</p>
                   </div>
                   
                   <a 

@@ -9,7 +9,6 @@ import AnimatedTransition from '../AnimatedTransition';
 import { Link } from 'react-router-dom';
 import useResourceData from '@/hooks/useResourceData';
 import EmergencyContactsDialog from '../EmergencyContactsDialog';
-import { useToast } from '@/hooks/use-toast';
 
 interface VictimDashboardProps {
   resourceData?: ReturnType<typeof useResourceData>;
@@ -20,7 +19,6 @@ const VictimDashboard: React.FC<VictimDashboardProps> = ({ resourceData }) => {
   const { resources, responses, loading } = resourceData || useResourceData();
   const [user, setUser] = useState<any>(null);
   const [showAllContacts, setShowAllContacts] = useState(false);
-  const { toast } = useToast();
   
   // Get current user to check responses
   useEffect(() => {
@@ -50,22 +48,6 @@ const VictimDashboard: React.FC<VictimDashboardProps> = ({ resourceData }) => {
       })
       .slice(0, 4); // Only show the top 4
   }, [resources]);
-
-  const handleRequestResource = (resourceId: string) => {
-    if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "Please sign in to request resources",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    toast({
-      title: "Resource Requested",
-      description: "Your request has been submitted. You will be notified when it's processed.",
-    });
-  };
   
   return (
     <div className="container mx-auto px-4">
@@ -126,13 +108,10 @@ const VictimDashboard: React.FC<VictimDashboardProps> = ({ resourceData }) => {
                     title={resource.title}
                     description={resource.description}
                     location={resource.location}
-                    locationDetails={resource.locationDetails}
                     contact={resource.contact}
-                    contactName={resource.contactName}
                     urgent={resource.urgent}
                     requestId={resource.id}
                     isRequested={user?.id && respondedRequestIds.has(resource.id)}
-                    onRequest={() => handleRequestResource(resource.id)}
                   />
                 ))
               ) : (
@@ -157,7 +136,7 @@ const VictimDashboard: React.FC<VictimDashboardProps> = ({ resourceData }) => {
               <StatusUpdate
                 id="status-1"
                 title="Power Restoration Progress"
-                message="Crews are working to restore power to the eastern district of Jabalpur. Estimated completion: 24 hours."
+                message="Crews are working to restore power to the eastern district. Estimated completion: 24 hours."
                 source="City Power & Utilities"
                 timestamp="1 hour ago"
                 priority="high"
@@ -166,8 +145,8 @@ const VictimDashboard: React.FC<VictimDashboardProps> = ({ resourceData }) => {
               <StatusUpdate
                 id="status-2"
                 title="Road Closure Update"
-                message="Wright Town to Madan Mahal road remains flooded and closed to traffic. Use Gwarighat Road as an alternate route."
-                source="Jabalpur Municipal Corporation"
+                message="Main Street between 5th and 8th Ave remains flooded and closed to traffic. Use alternate routes."
+                source="Department of Transportation"
                 timestamp="3 hours ago"
                 priority="medium"
               />
@@ -190,17 +169,17 @@ const VictimDashboard: React.FC<VictimDashboardProps> = ({ resourceData }) => {
             
             <div className="space-y-4">
               <EmergencyContact
-                name="Jabalpur Emergency Response"
+                name="Emergency Response"
                 role="Coordination Center"
-                phone="0761-2627000"
+                phone="555-911"
                 contactId="emergency-1"
                 available={true}
               />
               
               <EmergencyContact
-                name="Dr. Mehra"
+                name="Dr. Sarah Johnson"
                 role="Medical Coordinator"
-                phone="0761-4042789"
+                phone="555-123-7890"
                 contactId="medical-1"
                 available={true}
               />
