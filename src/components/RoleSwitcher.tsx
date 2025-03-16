@@ -44,10 +44,18 @@ const RoleSwitcher: React.FC = () => {
       duration: 3000,
     });
     
-    // Always navigate to dashboard to ensure proper dashboard is loaded for the new role
-    navigate('/dashboard', { replace: true });
+    // Force a hard navigation to dashboard regardless of current route
+    if (location.pathname === '/dashboard') {
+      // If already on dashboard, dispatch events to force refresh components
+      window.dispatchEvent(new Event('auth-changed'));
+      // Force a refresh of the dashboard component
+      window.dispatchEvent(new Event('role-changed'));
+    } else {
+      // Navigate to dashboard with replace to avoid back button issues
+      navigate('/dashboard', { replace: true });
+    }
     
-    // Dispatch an event to notify other components of the role change
+    // Dispatch auth event for other components
     window.dispatchEvent(new Event('auth-changed'));
   };
   

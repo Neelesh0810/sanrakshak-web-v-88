@@ -30,15 +30,17 @@ const Dashboard: React.FC = () => {
     // Get current user from localStorage
     fetchUserRole();
     
-    // Setup event listener for auth changes
+    // Setup event listeners for auth and role changes
     const handleAuthChange = () => {
       fetchUserRole();
     };
     
     window.addEventListener('auth-changed', handleAuthChange);
+    window.addEventListener('role-changed', handleAuthChange);
     
     return () => {
       window.removeEventListener('auth-changed', handleAuthChange);
+      window.removeEventListener('role-changed', handleAuthChange);
     };
   }, [fetchUserRole]);
   
