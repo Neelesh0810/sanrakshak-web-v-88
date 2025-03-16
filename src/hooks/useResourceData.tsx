@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 
 // Define types for our resources
@@ -83,7 +82,7 @@ const useResourceData = () => {
             category: 'water',
             title: 'Clean Drinking Water',
             description: 'Urgently need bottled water for family of 4, including infant.',
-            location: 'Riverside District, Block 3',
+            location: 'Madan Mahal, Jabalpur',
             urgent: true,
             timestamp: Date.now() - 3600000,
             status: 'pending'
@@ -94,7 +93,7 @@ const useResourceData = () => {
             category: 'shelter',
             title: 'Temporary Housing Available',
             description: 'Can accommodate up to 3 people in spare rooms. Has generator and supplies.',
-            location: 'Hillcrest Area, 22 Oak Street',
+            location: 'Civil Lines, Jabalpur',
             contact: '555-123-4567',
             timestamp: Date.now() - 7200000,
             status: 'pending'

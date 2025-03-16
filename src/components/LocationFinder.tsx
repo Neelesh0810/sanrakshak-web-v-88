@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { MapPin, Compass, Search } from 'lucide-react';
@@ -23,34 +24,34 @@ interface LocationFinderProps {
 const SAMPLE_LOCATIONS: LocationPoint[] = [
   {
     id: 'loc1',
-    name: 'Central Emergency Shelter',
+    name: 'Rani Durgavati University Emergency Shelter',
     type: 'shelter',
-    distance: '0.6 miles',
-    address: '123 Main Street',
+    distance: '2.3 miles',
+    address: 'Saraswati Vihar, Pachpedi, Jabalpur',
     available: true,
   },
   {
     id: 'loc2',
-    name: 'Community Medical Center',
+    name: 'Victoria Hospital',
     type: 'medical',
-    distance: '1.2 miles',
-    address: '456 Oak Avenue',
+    distance: '1.5 miles',
+    address: 'Wright Town, Jabalpur',
     available: true,
   },
   {
     id: 'loc3',
-    name: 'Food Distribution Point',
+    name: 'Gol Bazar Relief Center',
     type: 'food',
     distance: '0.8 miles',
-    address: '789 Pine Road',
+    address: 'Gol Bazar, Jabalpur',
     available: true,
   },
   {
     id: 'loc4',
-    name: 'Water Station Alpha',
+    name: 'Bhedaghat Water Distribution',
     type: 'water',
-    distance: '1.5 miles',
-    address: '101 River Lane',
+    distance: '8.2 miles',
+    address: 'Bhedaghat, Jabalpur',
     available: false,
   },
 ];

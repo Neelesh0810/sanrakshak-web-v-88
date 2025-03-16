@@ -119,30 +119,30 @@ const ShelterMap = () => {
   const shelters = [
     {
       id: 1,
-      name: "Anubhuti Foundation",
-      address: "Civil Lines, Jabalpur",
-      capacity: 120,
-      occupancy: 65,
+      name: "Rani Durgavati University Shelter",
+      address: "Saraswati Vihar, Pachpedi, Jabalpur",
+      capacity: 220,
+      occupancy: 135,
       amenities: ["Food", "Water", "Medical", "Power"],
-      coordinates: { lat: 23.1636, lng: 79.9548 }
+      coordinates: { lat: 23.1759, lng: 79.9821 }
     },
     {
       id: 2,
-      name: "Samarpan Seva Sansthan",
+      name: "Model School Adhartal",
       address: "Adhartal, Jabalpur",
       capacity: 180,
       occupancy: 92,
       amenities: ["Food", "Water", "Power", "Pet Friendly"],
-      coordinates: { lat: 23.1812, lng: 79.9324 }
+      coordinates: { lat: 23.1988, lng: 79.9409 }
     },
     {
       id: 3,
-      name: "Jabalpur Relief Center",
-      address: "Napier Town, Jabalpur",
+      name: "St. Aloysius College Relief Center",
+      address: "Sadar, Jabalpur",
       capacity: 250,
       occupancy: 121,
       amenities: ["Food", "Water", "Medical", "Wifi"],
-      coordinates: { lat: 23.1572, lng: 79.9429 }
+      coordinates: { lat: 23.1655, lng: 79.9422 }
     }
   ];
   

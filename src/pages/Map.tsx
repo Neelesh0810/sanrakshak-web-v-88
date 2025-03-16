@@ -154,27 +154,27 @@ const Map = () => {
   const resources: MapResource[] = [
     {
       id: 1,
-      name: "Jabalpur Medical Center",
+      name: "Netaji Subhash Chandra Bose Medical College",
       type: "Medical",
-      address: "Wright Town, Jabalpur",
-      distance: 0.8,
-      coordinates: { lat: 23.1697, lng: 79.9344 }
+      address: "Nagpur Road, Jabalpur",
+      distance: 2.8,
+      coordinates: { lat: 23.1763, lng: 79.9556 }
     },
     {
       id: 2,
-      name: "Ganga Water Station",
+      name: "Gwarighat Water Station",
       type: "Water",
-      address: "Madan Mahal, Jabalpur",
-      distance: 1.2,
-      coordinates: { lat: 23.1463, lng: 79.8895 }
+      address: "Gwarighat, Jabalpur",
+      distance: 4.5,
+      coordinates: { lat: 23.1313, lng: 79.9128 }
     },
     {
       id: 3,
-      name: "Food Distribution Center",
+      name: "Municipal Corporation Food Distribution",
       type: "Food",
-      address: "Gorabazar, Jabalpur",
-      distance: 0.5,
-      coordinates: { lat: 23.1821, lng: 79.9260 }
+      address: "Wright Town, Jabalpur",
+      distance: 1.2,
+      coordinates: { lat: 23.1694, lng: 79.9424 }
     }
   ];
 
