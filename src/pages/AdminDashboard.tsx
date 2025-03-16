@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
@@ -16,20 +17,15 @@ import {
 import { useTheme } from '../context/ThemeProvider';
 import { Button } from '@/components/ui/button';
 import ReportsSection from '@/components/ReportsSection';
-
-interface Resource {
-  id: string;
-  type: 'need' | 'offer';
-  category: 'water' | 'shelter' | 'food' | 'supplies' | 'medical' | 'safety';
-  title: string;
-  description: string;
-  location: string;
-  contact?: string;
-  urgent?: boolean;
-  timestamp: number;
-  status: 'pending' | 'addressing' | 'resolved';
-  assignedTo?: string;
-}
+import useResourceData, { Resource, ResourceResponse } from '@/hooks/useResourceData';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const AdminDashboard = () => {
   const [resources, setResources] = useState<Resource[]>([]);
@@ -40,11 +36,13 @@ const AdminDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [showReports, setShowReports] = useState(false);
+  const [responseData, setResponseData] = useState<ResourceResponse[]>([]);
   
   const { toast } = useToast();
   const navigate = useNavigate();
   const { theme } = useTheme();
   const isLight = theme === 'light';
+  const resourceDataHook = useResourceData();
 
   const fetchResources = () => {
     const storedResources = localStorage.getItem('resources');
@@ -99,6 +97,26 @@ const AdminDashboard = () => {
     }
   };
 
+  // Fetch all responses to check which resources have been responded to
+  const fetchResponses = () => {
+    // Get all responses from localStorage
+    const allResponses: ResourceResponse[] = [];
+    
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('responses_')) {
+        try {
+          const userResponses = JSON.parse(localStorage.getItem(key) || '[]');
+          allResponses.push(...userResponses);
+        } catch (error) {
+          console.error(`Error parsing responses from ${key}:`, error);
+        }
+      }
+    }
+    
+    setResponseData(allResponses);
+  };
+
   useEffect(() => {
     const storedUser = localStorage.getItem('authUser');
     if (storedUser) {
@@ -117,6 +135,7 @@ const AdminDashboard = () => {
     }
 
     fetchResources();
+    fetchResponses();
     
     setIsLoading(false);
   }, [navigate, toast]);
@@ -195,6 +214,7 @@ const AdminDashboard = () => {
     
     setTimeout(() => {
       fetchResources();
+      fetchResponses();
       setIsLoading(false);
       
       toast({
@@ -227,6 +247,35 @@ const AdminDashboard = () => {
   };
 
   const counts = getRequestCounts();
+
+  // Check if a resource has been responded to
+  const getResourceResponder = (resourceId: string) => {
+    const response = responseData.find(r => r.requestId === resourceId && r.status === 'pending');
+    if (response) {
+      // Try to get the username from localStorage
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('authUser_')) {
+            const userData = JSON.parse(localStorage.getItem(key) || '{}');
+            if (key === `authUser_${response.id.split('_')[0]}`) {
+              return userData.username || userData.email || 'User';
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error finding responder:', error);
+      }
+      
+      return 'User';
+    }
+    return null;
+  };
+
+  // Check if a resource has been responded to
+  const hasResourceBeenResponded = (resourceId: string) => {
+    return responseData.some(r => r.requestId === resourceId && r.status === 'pending');
+  };
 
   return (
     <div className="min-h-screen bg-black">
@@ -367,6 +416,8 @@ const AdminDashboard = () => {
                     onAssign={handleAssignRequest}
                     onStatusChange={updateResourceStatus}
                     getCategoryLabel={getCategoryLabel}
+                    hasResourceBeenResponded={hasResourceBeenResponded}
+                    getResourceResponder={getResourceResponder}
                   />
                 </TabsContent>
                 
@@ -376,6 +427,8 @@ const AdminDashboard = () => {
                     onAssign={handleAssignRequest}
                     onStatusChange={updateResourceStatus}
                     getCategoryLabel={getCategoryLabel}
+                    hasResourceBeenResponded={hasResourceBeenResponded}
+                    getResourceResponder={getResourceResponder}
                   />
                 </TabsContent>
                 
@@ -385,6 +438,8 @@ const AdminDashboard = () => {
                     onAssign={handleAssignRequest}
                     onStatusChange={updateResourceStatus}
                     getCategoryLabel={getCategoryLabel}
+                    hasResourceBeenResponded={hasResourceBeenResponded}
+                    getResourceResponder={getResourceResponder}
                   />
                 </TabsContent>
                 
@@ -394,6 +449,8 @@ const AdminDashboard = () => {
                     onAssign={handleAssignRequest}
                     onStatusChange={updateResourceStatus}
                     getCategoryLabel={getCategoryLabel}
+                    hasResourceBeenResponded={hasResourceBeenResponded}
+                    getResourceResponder={getResourceResponder}
                   />
                 </TabsContent>
               </Tabs>
@@ -414,13 +471,17 @@ interface RequestsTableProps {
   onAssign: (id: string) => void;
   onStatusChange: (id: string, status: 'pending' | 'addressing' | 'resolved', assignedTo?: string) => void;
   getCategoryLabel: (category: string) => string;
+  hasResourceBeenResponded: (resourceId: string) => boolean;
+  getResourceResponder: (resourceId: string) => string | null;
 }
 
 const RequestsTable: React.FC<RequestsTableProps> = ({ 
   resources, 
   onAssign,
   onStatusChange,
-  getCategoryLabel
+  getCategoryLabel,
+  hasResourceBeenResponded,
+  getResourceResponder
 }) => {
   
   if (resources.length === 0) {
@@ -438,98 +499,107 @@ const RequestsTable: React.FC<RequestsTableProps> = ({
   };
   
   return (
-    <div className="overflow-auto">
-      <table className="w-full">
-        <thead>
-          <tr className="border-b border-white/10">
-            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Status</th>
-            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Type</th>
-            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Title</th>
-            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Category</th>
-            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Location</th>
-            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Time</th>
-            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Assigned To</th>
-            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {resources.map((resource) => (
-            <tr key={resource.id} className="border-b border-white/5 hover:bg-white/5">
-              <td className="py-3 px-4">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                  ${resource.status === 'pending' ? 'bg-yellow-500/20 text-yellow-300' : 
-                    resource.status === 'addressing' ? 'bg-blue-500/20 text-blue-300' : 
-                    'bg-green-500/20 text-green-300'}`
-                }>
-                  {resource.status === 'pending' ? (
-                    <Clock className="mr-1" size={12} />
-                  ) : resource.status === 'addressing' ? (
-                    <FileCheck className="mr-1" size={12} />
-                  ) : (
-                    <CheckCircle2 className="mr-1" size={12} />
-                  )}
-                  {resource.status.charAt(0).toUpperCase() + resource.status.slice(1)}
-                </span>
-              </td>
-              <td className="py-3 px-4">
-                {resource.urgent && (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500/20 text-red-300">
-                    Urgent
+    <div className="overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableRow className="border-white/10">
+            <TableHead className="text-gray-400">Status</TableHead>
+            <TableHead className="text-gray-400">Type</TableHead>
+            <TableHead className="text-gray-400">Title</TableHead>
+            <TableHead className="text-gray-400">Category</TableHead>
+            <TableHead className="text-gray-400">Location</TableHead>
+            <TableHead className="text-gray-400">Time</TableHead>
+            <TableHead className="text-gray-400">Assigned To</TableHead>
+            <TableHead className="text-gray-400">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {resources.map((resource) => {
+            const isResponded = hasResourceBeenResponded(resource.id);
+            const responder = getResourceResponder(resource.id);
+            
+            return (
+              <TableRow key={resource.id} className="border-white/5 hover:bg-white/5">
+                <TableCell>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                    ${resource.status === 'pending' ? 'bg-yellow-500/20 text-yellow-300' : 
+                      resource.status === 'addressing' ? 'bg-blue-500/20 text-blue-300' : 
+                      'bg-green-500/20 text-green-300'}`
+                  }>
+                    {resource.status === 'pending' ? (
+                      <Clock className="mr-1" size={12} />
+                    ) : resource.status === 'addressing' ? (
+                      <FileCheck className="mr-1" size={12} />
+                    ) : (
+                      <CheckCircle2 className="mr-1" size={12} />
+                    )}
+                    {resource.status.charAt(0).toUpperCase() + resource.status.slice(1)}
                   </span>
-                )}
-              </td>
-              <td className="py-3 px-4">{resource.title}</td>
-              <td className="py-3 px-4">{getCategoryLabel(resource.category)}</td>
-              <td className="py-3 px-4">{resource.location}</td>
-              <td className="py-3 px-4 text-sm text-gray-400">{formatTimestamp(resource.timestamp)}</td>
-              <td className="py-3 px-4">
-                {resource.assignedTo || (
-                  <span className="text-gray-500 italic text-sm">Not assigned</span>
-                )}
-              </td>
-              <td className="py-3 px-4">
-                <div className="flex space-x-2">
-                  {resource.status === 'pending' && (
-                    <button 
-                      onClick={() => onAssign(resource.id)}
-                      className="px-3 py-1 text-xs bg-blue-500/20 text-blue-300 rounded hover:bg-blue-500/30 transition-colors"
-                    >
-                      Assign
-                    </button>
+                </TableCell>
+                <TableCell>
+                  {resource.urgent && (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500/20 text-red-300">
+                      Urgent
+                    </span>
                   )}
-                  
-                  {resource.status === 'pending' && (
-                    <button 
-                      onClick={() => onStatusChange(resource.id, 'addressing')}
-                      className="px-3 py-1 text-xs bg-blue-500/20 text-blue-300 rounded hover:bg-blue-500/30 transition-colors"
-                    >
-                      Address
-                    </button>
+                </TableCell>
+                <TableCell>{resource.title}</TableCell>
+                <TableCell>{getCategoryLabel(resource.category)}</TableCell>
+                <TableCell>{resource.location}</TableCell>
+                <TableCell className="text-sm text-gray-400">{formatTimestamp(resource.timestamp)}</TableCell>
+                <TableCell>
+                  {resource.assignedTo || (
+                    isResponded && responder ? (
+                      <span className="text-blue-300">Responded by {responder}</span>
+                    ) : (
+                      <span className="text-gray-500 italic text-sm">Not assigned</span>
+                    )
                   )}
-                  
-                  {resource.status === 'addressing' && (
-                    <button 
-                      onClick={() => onStatusChange(resource.id, 'resolved')}
-                      className="px-3 py-1 text-xs bg-green-500/20 text-green-300 rounded hover:bg-green-500/30 transition-colors"
-                    >
-                      Resolve
-                    </button>
-                  )}
-                  
-                  {resource.status === 'resolved' && (
-                    <button 
-                      onClick={() => onStatusChange(resource.id, 'addressing')}
-                      className="px-3 py-1 text-xs bg-yellow-500/20 text-yellow-300 rounded hover:bg-yellow-500/30 transition-colors"
-                    >
-                      Reopen
-                    </button>
-                  )}
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                </TableCell>
+                <TableCell>
+                  <div className="flex space-x-2">
+                    {!isResponded && resource.status === 'pending' && (
+                      <button 
+                        onClick={() => onAssign(resource.id)}
+                        className="px-3 py-1 text-xs bg-blue-500/20 text-blue-300 rounded hover:bg-blue-500/30 transition-colors"
+                      >
+                        Assign
+                      </button>
+                    )}
+                    
+                    {!isResponded && resource.status === 'pending' && (
+                      <button 
+                        onClick={() => onStatusChange(resource.id, 'addressing')}
+                        className="px-3 py-1 text-xs bg-blue-500/20 text-blue-300 rounded hover:bg-blue-500/30 transition-colors"
+                      >
+                        Address
+                      </button>
+                    )}
+                    
+                    {resource.status === 'addressing' && (
+                      <button 
+                        onClick={() => onStatusChange(resource.id, 'resolved')}
+                        className="px-3 py-1 text-xs bg-green-500/20 text-green-300 rounded hover:bg-green-500/30 transition-colors"
+                      >
+                        Resolve
+                      </button>
+                    )}
+                    
+                    {resource.status === 'resolved' && (
+                      <button 
+                        onClick={() => onStatusChange(resource.id, 'addressing')}
+                        className="px-3 py-1 text-xs bg-yellow-500/20 text-yellow-300 rounded hover:bg-yellow-500/30 transition-colors"
+                      >
+                        Reopen
+                      </button>
+                    )}
+                  </div>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
     </div>
   );
 };
