@@ -104,10 +104,10 @@ const Dashboard: React.FC = () => {
               <div className="mb-2">
                 <h2 className="text-xl font-semibold">Hurricane Warning: Category 3</h2>
               </div>
-              <p className="text-black text-sm mb-3">
+              <p className="text-black font-medium text-sm mb-3">
                 Evacuation orders in effect for coastal areas. Shelters are open at Central High School and Community Center.
               </p>
-              <div className="flex items-center text-xs text-black">
+              <div className="flex items-center text-xs text-black font-medium">
                 <Info size={12} className="mr-1" />
                 <span>Updated 30 minutes ago from National Weather Service</span>
               </div>

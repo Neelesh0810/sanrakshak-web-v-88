@@ -72,10 +72,10 @@ const VictimDashboard: React.FC<VictimDashboardProps> = ({ resourceData }) => {
                 <div className="mb-2">
                   <h2 className="text-xl font-semibold">Need Help?</h2>
                 </div>
-                <p className="text-gray-300 text-sm mb-3">
+                <p className="text-black font-medium text-sm mb-3">
                   Request emergency assistance, find shelter, or access resources. Our priority is keeping you safe.
                 </p>
-                <div className="flex items-center text-xs text-gray-400">
+                <div className="flex items-center text-xs text-black font-medium">
                   <Info size={12} className="mr-1" />
                   <span>Your safety is our top priority</span>
                 </div>
@@ -99,7 +99,7 @@ const VictimDashboard: React.FC<VictimDashboardProps> = ({ resourceData }) => {
           <AnimatedTransition className="mb-6" delay={100}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">Available Resources</h2>
-              <Link to="/resources" className="flex items-center text-sm text-gray-400 hover:text-white transition-colors">
+              <Link to="/resources" className="flex items-center text-sm text-black font-medium hover:text-black/80 transition-colors">
                 <span className="mr-1">View All</span>
                 <ArrowRight size={14} />
               </Link>
@@ -132,7 +132,7 @@ const VictimDashboard: React.FC<VictimDashboardProps> = ({ resourceData }) => {
               ) : (
                 // No resources available
                 <div className="col-span-2 p-6 border border-white/10 rounded-xl text-center">
-                  <p className="text-gray-400">No resources available at the moment.</p>
+                  <p className="text-black font-medium">No resources available at the moment.</p>
                 </div>
               )}
             </div>
@@ -143,7 +143,7 @@ const VictimDashboard: React.FC<VictimDashboardProps> = ({ resourceData }) => {
             <AnimatedTransition className="mb-6" delay={150}>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold">My Requests</h2>
-                <Link to="/victim-resources" className="flex items-center text-sm text-gray-400 hover:text-white transition-colors">
+                <Link to="/victim-resources" className="flex items-center text-sm text-black font-medium hover:text-black/80 transition-colors">
                   <span className="mr-1">View All</span>
                   <ArrowRight size={14} />
                 </Link>
@@ -171,7 +171,7 @@ const VictimDashboard: React.FC<VictimDashboardProps> = ({ resourceData }) => {
           <AnimatedTransition delay={200}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">Status Updates</h2>
-              <Link to="/alerts" className="flex items-center text-sm text-gray-400 hover:text-white transition-colors">
+              <Link to="/alerts" className="flex items-center text-sm text-black font-medium hover:text-black/80 transition-colors">
                 <span className="mr-1">View All</span>
                 <ArrowRight size={14} />
               </Link>
@@ -205,7 +205,7 @@ const VictimDashboard: React.FC<VictimDashboardProps> = ({ resourceData }) => {
               <h2 className="text-xl font-semibold">Emergency Contacts</h2>
               <button 
                 onClick={() => setShowAllContacts(true)}
-                className="flex items-center text-sm text-gray-400 hover:text-white transition-colors"
+                className="flex items-center text-sm text-black font-medium hover:text-black/80 transition-colors"
               >
                 <span className="mr-1">View All</span>
                 <ArrowRight size={14} />
