@@ -7,35 +7,19 @@ import GovernmentDashboard from './dashboards/GovernmentDashboard';
 import { Info, Map, Users, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AnimatedTransition from './AnimatedTransition';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import useResourceData from '@/hooks/useResourceData';
 
 const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'resources' | 'updates' | 'map'>('resources');
   const [userRole, setUserRole] = useState<'victim' | 'volunteer' | 'ngo' | 'government' | null>(null);
   const resourceData = useResourceData();
-  // Force component remount when role changes using a key
-  const [dashboardKey, setDashboardKey] = useState(Date.now());
-  // Track URL search params (including timestamp) to force re-render
-  const [searchParams] = useSearchParams();
-  
-  // Force dashboard to re-render whenever the URL changes (even with just querystring changes)
-  useEffect(() => {
-    setDashboardKey(Date.now());
-  }, [searchParams]);
   
   const fetchUserRole = useCallback(() => {
     const authUser = localStorage.getItem('authUser');
     if (authUser) {
-      try {
-        const user = JSON.parse(authUser);
-        setUserRole(user.role);
-        // Update the dashboard key to force a re-render
-        setDashboardKey(Date.now());
-      } catch (e) {
-        console.error("Error parsing user data:", e);
-        setUserRole('victim'); // Default fallback
-      }
+      const user = JSON.parse(authUser);
+      setUserRole(user.role);
     } else {
       // Default to victim view for unauthenticated users
       setUserRole('victim');
@@ -46,19 +30,15 @@ const Dashboard: React.FC = () => {
     // Get current user from localStorage
     fetchUserRole();
     
-    // Setup event listeners for auth and role changes
+    // Setup event listener for auth changes
     const handleAuthChange = () => {
       fetchUserRole();
     };
     
     window.addEventListener('auth-changed', handleAuthChange);
-    window.addEventListener('role-changed', handleAuthChange);
-    window.addEventListener('storage', handleAuthChange);
     
     return () => {
       window.removeEventListener('auth-changed', handleAuthChange);
-      window.removeEventListener('role-changed', handleAuthChange);
-      window.removeEventListener('storage', handleAuthChange);
     };
   }, [fetchUserRole]);
   
@@ -122,8 +102,6 @@ const Dashboard: React.FC = () => {
   );
   
   const renderDashboardByRole = () => {
-    console.log('Rendering dashboard for role:', userRole);
-    
     switch (userRole) {
       case 'victim':
         return <VictimDashboard resourceData={resourceData} />;
@@ -134,7 +112,6 @@ const Dashboard: React.FC = () => {
       case 'government':
         return <GovernmentDashboard resourceData={resourceData} />;
       default:
-        console.warn('No role specified, defaulting to Victim dashboard');
         return <VictimDashboard resourceData={resourceData} />;
     }
   };
@@ -142,10 +119,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="container mx-auto px-4">
       <EmergencyAlert />
-      {/* Use the key to force a complete re-render when userRole changes */}
-      <div key={dashboardKey}>
-        {renderDashboardByRole()}
-      </div>
+      {renderDashboardByRole()}
     </div>
   );
 };
