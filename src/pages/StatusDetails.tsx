@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Header from '../components/Header';
 import { Clock, Info, AlertTriangle, MapPin, ExternalLink, Bookmark, Share2, Navigation, Compass } from 'lucide-react';
@@ -11,7 +12,6 @@ const StatusDetails = () => {
   const { theme } = useTheme();
   const { toast } = useToast();
   const isLight = theme === 'light';
-  const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(false);
   
   // Status data mapping
@@ -112,15 +112,13 @@ const StatusDetails = () => {
   };
 
   useEffect(() => {
-    // Reset map state when component mounts or id changes
-    setMapLoaded(false);
+    // Reset map error state when component mounts or id changes
     setMapError(false);
   }, [id]);
 
   // Function to handle map load error
   const handleMapError = () => {
     setMapError(true);
-    setMapLoaded(false);
     toast({
       title: "Map Error",
       description: "Unable to load the map. Please try again later.",
@@ -192,34 +190,44 @@ const StatusDetails = () => {
                   <span>Location Information</span>
                 </div>
                 
-                {/* Google Maps integration */}
+                {/* Map visualization with static fallback */}
                 <div className={`mb-4 overflow-hidden rounded-lg border ${isLight ? "border-gray-300" : "border-white/10"} h-[250px] relative`}>
-                  {!mapLoaded && !mapError && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm z-10">
-                      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
-                    </div>
-                  )}
-                  
                   {mapError ? (
-                    <div className={`w-full h-full flex items-center justify-center ${isLight ? "bg-gray-100" : "bg-black/40"}`}>
-                      <div className="text-center px-4">
-                        <AlertTriangle className="mx-auto h-8 w-8 text-orange-500 mb-2" />
-                        <p className="text-sm">Unable to load map. Please check your connection and try again.</p>
+                    <div className={`w-full h-full flex flex-col items-center justify-center ${isLight ? "bg-gray-100" : "bg-black/40"} p-4`}>
+                      <AlertTriangle className="h-8 w-8 text-orange-500 mb-2" />
+                      <p className="text-sm text-center">Map could not be loaded. API key issue detected.</p>
+                      
+                      {/* Static map fallback */}
+                      <div className="w-full mt-4 flex items-center justify-center">
+                        <div className={`relative w-[80%] h-[120px] ${isLight ? "bg-blue-100" : "bg-blue-900/30"} rounded-lg overflow-hidden`}>
+                          {/* Main area */}
+                          <div className={`absolute top-[30%] left-[20%] w-[60%] h-[40%] ${isLight ? "bg-blue-200" : "bg-blue-800/40"} rounded`}></div>
+                          
+                          {/* Roads */}
+                          <div className={`absolute top-[50%] left-0 w-full h-[2px] ${isLight ? "bg-gray-400" : "bg-gray-600"}`}></div>
+                          <div className={`absolute top-0 left-[50%] w-[2px] h-full ${isLight ? "bg-gray-400" : "bg-gray-600"}`}></div>
+                          
+                          {/* Affected area */}
+                          <div className={`absolute top-[40%] left-[40%] w-[20%] h-[20%] ${isLight ? "bg-red-200" : "bg-red-900/40"} rounded-full animate-pulse`}></div>
+                          
+                          {/* Incident location */}
+                          <div className="absolute top-[45%] left-[45%] w-[10%] h-[10%] bg-red-500 rounded-full z-10"></div>
+                          
+                          {/* User location */}
+                          <div className="absolute top-[30%] left-[60%] w-[8px] h-[8px] bg-blue-500 rounded-full z-10"></div>
+                        </div>
                       </div>
                     </div>
                   ) : (
-                    <iframe 
-                      src={`https://www.google.com/maps/embed/v1/view?key=AIzaSyBtLRkfZb_SQHkRxsLYgQWs04vT1WLKNSE&center=${status.coordinates.lat},${status.coordinates.lng}&zoom=15&maptype=${isLight ? 'roadmap' : 'satellite'}`}
-                      width="100%" 
-                      height="100%" 
-                      style={{ border: 0 }} 
-                      allowFullScreen={false} 
-                      loading="lazy" 
-                      referrerPolicy="no-referrer-when-downgrade"
-                      onLoad={() => setMapLoaded(true)}
-                      onError={handleMapError}
-                      title="Location Map"
-                    />
+                    <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+                      <div className="text-center p-4">
+                        <div className="animate-pulse flex flex-col items-center">
+                          <MapPin className="h-10 w-10 text-gray-400 mb-2" />
+                          <p className="text-sm text-gray-500">Loading map visualization...</p>
+                        </div>
+                        <div className="mt-4 text-xs text-gray-400">Displaying location: {status.coordinates.lat.toFixed(4)}, {status.coordinates.lng.toFixed(4)}</div>
+                      </div>
+                    </div>
                   )}
                   
                   {/* Map coordinates overlay */}
