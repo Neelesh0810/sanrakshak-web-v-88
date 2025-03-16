@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Header from '../components/Header';
@@ -98,11 +99,11 @@ const StatusDetails = () => {
         iframe.setAttribute('loading', 'lazy');
         iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
         iframe.setAttribute('src', mapSrc);
+        iframe.onload = () => setMapLoaded(true);
         
         // Clear any existing content
         mapContainer.innerHTML = '';
         mapContainer.appendChild(iframe);
-        setMapLoaded(true);
       }
     };
     
@@ -169,7 +170,7 @@ const StatusDetails = () => {
                 <span>Updated: {status.updated}</span>
               </div>
               
-              <p className={isLight ? "text-gray-800" : "text-gray-200"} mb-4>{status.message}</p>
+              <p className={`${isLight ? "text-gray-800" : "text-gray-200"} mb-4`}>{status.message}</p>
               
               <div className="flex justify-between items-center">
                 <span className={`text-xs ${isLight ? "text-gray-600" : "text-gray-500"}`}>Source: {status.source}</span>
@@ -181,7 +182,7 @@ const StatusDetails = () => {
             <div className="lg:col-span-2">
               <div className={`${isLight ? "bg-white border border-gray-300 shadow-soft" : "bg-black/30 border border-white/10"} rounded-xl p-6 mb-6`}>
                 <h2 className="text-xl font-semibold mb-4">Detailed Information</h2>
-                <p className={isLight ? "text-gray-700" : "text-gray-300"} mb-6>{status.fullDescription}</p>
+                <p className={`${isLight ? "text-gray-700" : "text-gray-300"} mb-6`}>{status.fullDescription}</p>
                 
                 <h3 className="font-medium mb-2">Affected Areas</h3>
                 <div className="flex flex-wrap gap-2 mb-6">
