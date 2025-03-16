@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import Header from '../components/Header';
 import ResourceCard from '../components/ResourceCard';
@@ -8,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import AnimatedTransition from '@/components/AnimatedTransition';
 import useResourceData, { Resource, ResourceType, ResourceCategory } from '@/hooks/useResourceData';
 import BackButton from '@/components/BackButton';
+import { useTheme } from '../context/ThemeProvider';
 
 const Resources = () => {
   const { resources, responses, addResource, loading } = useResourceData();
@@ -18,6 +20,8 @@ const Resources = () => {
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [respondedRequestIds, setRespondedRequestIds] = useState<Set<string>>(new Set());
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   
   useEffect(() => {
     const fetchRespondedRequests = () => {
@@ -180,7 +184,7 @@ const Resources = () => {
   };
   
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       <Header title="Resources" />
       
       <AnimatedTransition>
@@ -193,13 +197,13 @@ const Resources = () => {
             <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-8">
               <div>
                 <h1 className="text-2xl font-bold mb-2">Resource Exchange</h1>
-                <p className="text-gray-400">Request or offer resources in your community</p>
+                <p className={isLight ? "text-gray-600" : "text-gray-400"}>Request or offer resources in your community</p>
               </div>
               
               {!showForm && !showVictimForm && (
                 <button
                   onClick={showRequestForm}
-                  className="flex items-center space-x-2 bg-white text-black px-4 py-2 rounded-lg hover:bg-white/90 transition-colors"
+                  className="flex items-center space-x-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
                   aria-label="Create new post"
                 >
                   <PlusCircle size={18} />
@@ -226,7 +230,7 @@ const Resources = () => {
             ) : (
               <div className="mb-6 flex flex-col sm:flex-row gap-3">
                 <div className="flex items-center space-x-2">
-                  <Filter size={16} className="text-gray-400" />
+                  <Filter size={16} className={isLight ? "text-gray-600" : "text-gray-400"} />
                   <span className="text-sm">Filter:</span>
                 </div>
                 
@@ -235,8 +239,8 @@ const Resources = () => {
                     onClick={() => setFilter('all')}
                     className={`px-3 py-1 rounded-full text-sm ${
                       filter === 'all' 
-                        ? 'bg-white text-black' 
-                        : 'bg-white/10 hover:bg-white/15'
+                        ? 'bg-primary text-primary-foreground' 
+                        : isLight ? 'bg-gray-100 hover:bg-gray-200' : 'bg-white/10 hover:bg-white/15'
                     }`}
                   >
                     All
@@ -245,8 +249,8 @@ const Resources = () => {
                     onClick={() => setFilter('need')}
                     className={`px-3 py-1 rounded-full text-sm ${
                       filter === 'need' 
-                        ? 'bg-white text-black' 
-                        : 'bg-white/10 hover:bg-white/15'
+                        ? 'bg-primary text-primary-foreground' 
+                        : isLight ? 'bg-gray-100 hover:bg-gray-200' : 'bg-white/10 hover:bg-white/15'
                     }`}
                   >
                     Requests
@@ -255,8 +259,8 @@ const Resources = () => {
                     onClick={() => setFilter('offer')}
                     className={`px-3 py-1 rounded-full text-sm ${
                       filter === 'offer' 
-                        ? 'bg-white text-black' 
-                        : 'bg-white/10 hover:bg-white/15'
+                        ? 'bg-primary text-primary-foreground' 
+                        : isLight ? 'bg-gray-100 hover:bg-gray-200' : 'bg-white/10 hover:bg-white/15'
                     }`}
                   >
                     Offers
@@ -267,7 +271,7 @@ const Resources = () => {
                   <select
                     value={categoryFilter}
                     onChange={(e) => setCategoryFilter(e.target.value as string)}
-                    className="bg-white/10 border border-white/10 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-white/20"
+                    className={`${isLight ? "bg-gray-100 border-gray-200" : "bg-white/10 border-white/10"} border rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary/20`}
                   >
                     <option value="all">All Categories</option>
                     <option value="water">Water</option>
@@ -284,7 +288,7 @@ const Resources = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredResources.map(resource => (
                 <div key={resource.id} className="relative">
-                  <div className="absolute top-3 right-3 text-xs text-gray-400">
+                  <div className={`absolute top-3 right-3 text-xs ${isLight ? "text-gray-500" : "text-gray-400"}`}>
                     {formatTimestamp(resource.timestamp)}
                   </div>
                   <ResourceCard
@@ -303,13 +307,13 @@ const Resources = () => {
               
               {filteredResources.length === 0 && (
                 <div className="col-span-full py-12 text-center">
-                  <p className="text-gray-400">No resources match your filters.</p>
+                  <p className={isLight ? "text-gray-600" : "text-gray-400"}>No resources match your filters.</p>
                   <button
                     onClick={() => {
                       setFilter('all');
                       setCategoryFilter('all');
                     }}
-                    className="mt-2 px-4 py-2 bg-white/10 rounded-lg text-sm hover:bg-white/15 transition-colors"
+                    className={`mt-2 px-4 py-2 ${isLight ? "bg-gray-100 hover:bg-gray-200" : "bg-white/10 hover:bg-white/15"} rounded-lg text-sm transition-colors`}
                   >
                     Clear Filters
                   </button>

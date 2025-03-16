@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Droplet, Home, ShoppingBag, Utensils, Heart, Shield, AlertCircle, CheckCircle, MapPin, Calendar, Clock, User, Phone, AlertTriangle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { useTheme } from '../context/ThemeProvider';
 
 type ResourceCategory = 'water' | 'shelter' | 'food' | 'supplies' | 'medical' | 'safety';
 
@@ -40,6 +41,8 @@ const VictimRequestForm: React.FC<VictimRequestFormProps> = ({ onSubmit, onCance
   const [specialNotes, setSpecialNotes] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   
   // Items to deliver
   const [items, setItems] = useState<Array<Item>>([
@@ -138,19 +141,19 @@ const VictimRequestForm: React.FC<VictimRequestFormProps> = ({ onSubmit, onCance
   };
 
   return (
-    <div className="glass-dark border border-white/10 rounded-xl p-5">
+    <div className={`rounded-xl border ${isLight ? "border-gray-200 bg-white" : "border-white/10 glass-dark"} p-5`}>
       <div className="flex items-center mb-6">
-        <CheckCircle size={24} className="mr-3 text-white" />
+        <CheckCircle size={24} className="mr-3 text-primary" />
         <h2 className="text-2xl font-bold">Request Assistance</h2>
       </div>
       
       <div className="flex flex-wrap gap-2 mb-4">
         {urgent && (
-          <span className="text-xs px-3 py-1 rounded-full bg-red-900/30 text-red-400">
+          <span className={`text-xs px-3 py-1 rounded-full ${isLight ? "bg-red-100 text-red-700" : "bg-red-900/30 text-red-400"}`}>
             High Priority
           </span>
         )}
-        <span className="text-xs px-3 py-1 rounded-full bg-blue-900/30 text-blue-400">
+        <span className={`text-xs px-3 py-1 rounded-full ${isLight ? "bg-blue-100 text-blue-700" : "bg-blue-900/30 text-blue-400"}`}>
           New Request
         </span>
       </div>
@@ -168,7 +171,7 @@ const VictimRequestForm: React.FC<VictimRequestFormProps> = ({ onSubmit, onCance
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="E.g., Water Delivery, Medical Assistance, etc."
-              className={`w-full bg-black/40 border ${errors.title ? 'border-red-400' : 'border-white/10'} rounded-lg p-3 placeholder:text-gray-500 focus:ring-1 focus:ring-white/30 focus:outline-none`}
+              className={`w-full ${isLight ? "bg-white border-gray-300" : "bg-black/40 border-white/10"} border rounded-lg p-3 placeholder:text-gray-500 focus:ring-1 focus:ring-primary/30 focus:outline-none ${errors.title ? 'border-red-400' : ''}`}
             />
           </div>
           {errors.title && (
@@ -186,7 +189,7 @@ const VictimRequestForm: React.FC<VictimRequestFormProps> = ({ onSubmit, onCance
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
             placeholder="Describe your situation and needs in detail"
-            className={`w-full bg-black/40 border ${errors.description ? 'border-red-400' : 'border-white/10'} rounded-lg p-3 placeholder:text-gray-500 focus:ring-1 focus:ring-white/30 focus:outline-none resize-none`}
+            className={`w-full ${isLight ? "bg-white border-gray-300" : "bg-black/40 border-white/10"} border rounded-lg p-3 placeholder:text-gray-500 focus:ring-1 focus:ring-primary/30 focus:outline-none resize-none ${errors.description ? 'border-red-400' : ''}`}
           />
           {errors.description && (
             <p className="mt-1 text-sm text-red-400">{errors.description}</p>
@@ -206,7 +209,7 @@ const VictimRequestForm: React.FC<VictimRequestFormProps> = ({ onSubmit, onCance
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                     placeholder="Area, District, Block #"
-                    className={`w-full bg-transparent border-b ${errors.location ? 'border-red-400' : 'border-white/10'} pb-1 focus:outline-none focus:border-white/30`}
+                    className={`w-full bg-transparent border-b ${errors.location ? 'border-red-400' : isLight ? 'border-gray-300' : 'border-white/10'} pb-1 focus:outline-none focus:border-primary/30`}
                   />
                 </div>
                 {errors.location && (
@@ -220,7 +223,7 @@ const VictimRequestForm: React.FC<VictimRequestFormProps> = ({ onSubmit, onCance
                   onChange={(e) => setLocationDetails(e.target.value)}
                   placeholder="Additional location details (building type, landmarks, access instructions)"
                   rows={2}
-                  className="w-full bg-transparent border-b border-white/10 pb-1 focus:outline-none focus:border-white/30 text-gray-400"
+                  className={`w-full bg-transparent border-b ${isLight ? 'border-gray-300' : 'border-white/10'} pb-1 focus:outline-none focus:border-primary/30 text-gray-600 dark:text-gray-400`}
                 />
               </div>
             </div>
@@ -245,7 +248,7 @@ const VictimRequestForm: React.FC<VictimRequestFormProps> = ({ onSubmit, onCance
                     type="checkbox"
                     checked={urgent}
                     onChange={(e) => setUrgent(e.target.checked)}
-                    className="w-4 h-4 bg-black border-white/30 rounded focus:ring-white mr-2"
+                    className={`w-4 h-4 ${isLight ? "bg-white border-gray-300" : "bg-black border-white/30"} rounded focus:ring-primary mr-2`}
                   />
                   <label htmlFor="urgent">
                     Mark as urgent/high priority
@@ -262,7 +265,7 @@ const VictimRequestForm: React.FC<VictimRequestFormProps> = ({ onSubmit, onCance
             <button 
               type="button" 
               onClick={handleAddItem}
-              className="text-sm bg-white/10 hover:bg-white/15 px-2 py-1 rounded-lg transition-colors"
+              className={`text-sm ${isLight ? "bg-gray-100 hover:bg-gray-200" : "bg-white/10 hover:bg-white/15"} px-2 py-1 rounded-lg transition-colors`}
             >
               + Add Item
             </button>
@@ -274,7 +277,7 @@ const VictimRequestForm: React.FC<VictimRequestFormProps> = ({ onSubmit, onCance
           
           <div className="overflow-hidden">
             <table className="w-full">
-              <thead className="border-b border-white/10 text-left">
+              <thead className={`border-b ${isLight ? "border-gray-200" : "border-white/10"} text-left`}>
                 <tr>
                   <th className="py-2 font-medium">Item</th>
                   <th className="py-2 font-medium text-right">Quantity</th>
@@ -283,7 +286,7 @@ const VictimRequestForm: React.FC<VictimRequestFormProps> = ({ onSubmit, onCance
               </thead>
               <tbody>
                 {items.map((item, index) => (
-                  <tr key={index} className="border-b border-white/5">
+                  <tr key={index} className={`border-b ${isLight ? "border-gray-100" : "border-white/5"}`}>
                     <td className="py-2">
                       <input
                         type="text"
@@ -330,7 +333,7 @@ const VictimRequestForm: React.FC<VictimRequestFormProps> = ({ onSubmit, onCance
                 value={contactName}
                 onChange={(e) => setContactName(e.target.value)}
                 placeholder="Contact Name"
-                className="w-full bg-transparent border-b border-white/10 pb-1 focus:outline-none focus:border-white/30"
+                className={`w-full bg-transparent border-b ${isLight ? "border-gray-300" : "border-white/10"} pb-1 focus:outline-none focus:border-primary/30`}
               />
             </div>
             
@@ -341,7 +344,7 @@ const VictimRequestForm: React.FC<VictimRequestFormProps> = ({ onSubmit, onCance
                 value={contact}
                 onChange={(e) => setContact(e.target.value)}
                 placeholder="Contact Number"
-                className="w-full bg-transparent border-b border-white/10 pb-1 focus:outline-none focus:border-white/30"
+                className={`w-full bg-transparent border-b ${isLight ? "border-gray-300" : "border-white/10"} pb-1 focus:outline-none focus:border-primary/30`}
               />
             </div>
             
@@ -352,21 +355,21 @@ const VictimRequestForm: React.FC<VictimRequestFormProps> = ({ onSubmit, onCance
                 value={specialNotes}
                 onChange={(e) => setSpecialNotes(e.target.value)}
                 placeholder="Special notes (elderly, children, medical conditions)"
-                className="w-full bg-transparent border-b border-white/10 pb-1 focus:outline-none focus:border-white/30"
+                className={`w-full bg-transparent border-b ${isLight ? "border-gray-300" : "border-white/10"} pb-1 focus:outline-none focus:border-primary/30`}
               />
             </div>
             
             <div className="flex items-start">
               <div className="w-5 mr-2 flex-shrink-0"></div>
               <div className="flex items-center">
-                <label className="text-sm text-gray-400">
+                <label className={`text-sm ${isLight ? "text-gray-600" : "text-gray-400"}`}>
                   Number of people: 
                   <input
                     type="number"
                     min="1"
                     value={people}
                     onChange={(e) => setPeople(parseInt(e.target.value) || 1)}
-                    className={`w-12 ml-2 bg-transparent border-b ${errors.people ? 'border-red-400' : 'border-white/10'} pb-1 focus:outline-none focus:border-white/30 text-center`}
+                    className={`w-12 ml-2 bg-transparent border-b ${errors.people ? 'border-red-400' : isLight ? 'border-gray-300' : 'border-white/10'} pb-1 focus:outline-none focus:border-primary/30 text-center`}
                   />
                 </label>
                 {errors.people && (
@@ -381,13 +384,13 @@ const VictimRequestForm: React.FC<VictimRequestFormProps> = ({ onSubmit, onCance
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 rounded-lg border border-white/10 hover:bg-white/5 transition-colors"
+            className={`px-4 py-2 rounded-lg border ${isLight ? "border-gray-300 hover:bg-gray-100" : "border-white/10 hover:bg-white/5"} transition-colors`}
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="px-4 py-2 rounded-lg bg-white text-black hover:bg-white/90 transition-colors"
+            className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
           >
             Submit Request
           </button>

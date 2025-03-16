@@ -23,7 +23,7 @@ const Settings = () => {
   const [user, setUser] = useState<any>(null);
   const [settings, setSettings] = useState<SettingsState>({
     notifications: true,
-    darkMode: true,
+    darkMode: false,
     sound: true,
     location: true,
     dataProtection: true,
@@ -35,6 +35,7 @@ const Settings = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
+  const isLight = theme === 'light';
   
   useEffect(() => {
     // Check if user is logged in
@@ -158,9 +159,9 @@ const Settings = () => {
         <Header />
         <div className="pt-20 flex items-center justify-center min-h-screen">
           <div className="animate-pulse flex flex-col items-center">
-            <div className="h-6 bg-gray-200 dark:bg-white/10 rounded w-48 mb-4"></div>
-            <div className="h-4 bg-gray-200 dark:bg-white/10 rounded w-64 mb-3"></div>
-            <div className="h-4 bg-gray-200 dark:bg-white/10 rounded w-32"></div>
+            <div className={`h-6 ${isLight ? "bg-gray-200" : "bg-white/10"} rounded w-48 mb-4`}></div>
+            <div className={`h-4 ${isLight ? "bg-gray-200" : "bg-white/10"} rounded w-64 mb-3`}></div>
+            <div className={`h-4 ${isLight ? "bg-gray-200" : "bg-white/10"} rounded w-32`}></div>
           </div>
         </div>
       </div>
@@ -178,7 +179,7 @@ const Settings = () => {
             <p className="mb-4">Please sign in to access settings</p>
             <button 
               onClick={() => navigate('/login')}
-              className="px-4 py-2 bg-gray-200 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 rounded-lg"
+              className={`px-4 py-2 ${isLight ? "bg-gray-200 hover:bg-gray-300" : "bg-white/10 hover:bg-white/20"} rounded-lg`}
             >
               Go to Login
             </button>
@@ -201,7 +202,7 @@ const Settings = () => {
                 <p className="text-muted-foreground">Customize your experience and preferences</p>
               </div>
               
-              <div className="rounded-xl border border-border p-6 mb-6 bg-card">
+              <div className={`rounded-xl border border-border p-6 mb-6 ${isLight ? "bg-white" : "bg-card"}`}>
                 <h2 className="text-lg font-semibold mb-4 flex items-center">
                   <User size={18} className="mr-2" />
                   Account Settings
@@ -253,7 +254,7 @@ const Settings = () => {
                       id="language"
                       value={settings.language}
                       onChange={handleLanguageChange}
-                      className="w-full bg-background border border-border rounded-lg p-3 focus:ring-1 focus:ring-primary/30 focus:outline-none"
+                      className={`w-full ${isLight ? "bg-white" : "bg-background"} border border-border rounded-lg p-3 focus:ring-1 focus:ring-primary/30 focus:outline-none`}
                     >
                       <option value="en">English</option>
                       <option value="es">Español</option>
@@ -265,7 +266,7 @@ const Settings = () => {
                 </div>
               </div>
               
-              <div className="rounded-xl border border-border p-6 mb-6 bg-card">
+              <div className={`rounded-xl border border-border p-6 mb-6 ${isLight ? "bg-white" : "bg-card"}`}>
                 <h2 className="text-lg font-semibold mb-4">Notification Preferences</h2>
                 
                 <div className="space-y-4">
@@ -313,7 +314,7 @@ const Settings = () => {
                 </div>
               </div>
               
-              <div className="rounded-xl border border-border p-6 mb-6 bg-card">
+              <div className={`rounded-xl border border-border p-6 mb-6 ${isLight ? "bg-white" : "bg-card"}`}>
                 <h2 className="text-lg font-semibold mb-4">Privacy & Location</h2>
                 
                 <div className="space-y-4">
@@ -371,7 +372,7 @@ const Settings = () => {
                 </button>
               </div>
               
-              <div className="rounded-xl border border-destructive/10 bg-destructive/5 p-6">
+              <div className={`rounded-xl border border-destructive/10 ${isLight ? "bg-red-50" : "bg-destructive/5"} p-6`}>
                 <h3 className="text-lg font-semibold text-destructive mb-3">Danger Zone</h3>
                 <p className="text-sm text-muted-foreground mb-4">
                   These actions are permanent and cannot be undone
