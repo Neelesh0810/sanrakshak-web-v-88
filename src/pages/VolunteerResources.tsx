@@ -1,17 +1,16 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import ResourceCard from '../components/ResourceCard';
-import RequestForm from '../components/RequestForm';
-import { PlusCircle, Filter } from 'lucide-react';
+import { PlusCircle, Filter, Package } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import AnimatedTransition from '@/components/AnimatedTransition';
 import useResourceData, { Resource } from '@/hooks/useResourceData';
 import BackButton from '@/components/BackButton';
+import AddResourceDialog from '@/components/dialogs/AddResourceDialog';
 
 const VolunteerResources = () => {
   const { resources, responses, addResource, loading } = useResourceData();
-  const [showForm, setShowForm] = useState(false);
+  const [showResourceDialog, setShowResourceDialog] = useState(false);
   const [filter, setFilter] = useState<'need' | 'offer' | 'all'>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const { toast } = useToast();
@@ -73,7 +72,7 @@ const VolunteerResources = () => {
     };
   }, []);
   
-  const handleFormSubmit = (formData: any) => {
+  const handleAddResource = (resourceData: Omit<Resource, 'id' | 'timestamp'>) => {
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -82,19 +81,17 @@ const VolunteerResources = () => {
       return;
     }
     
-    // Force type to be 'offer' for volunteers
-    formData.type = 'offer';
-    
-    addResource({
-      ...formData,
+    const resource = addResource({
+      ...resourceData,
       status: 'pending'
     });
     
-    setShowForm(false);
     toast({
-      title: "Offer Posted",
-      description: "Your offer has been published successfully",
+      title: "Resource Added",
+      description: "Your resource has been published successfully",
     });
+    
+    return resource;
   };
   
   const filteredResources = resources
@@ -134,83 +131,71 @@ const VolunteerResources = () => {
                 <p className="text-gray-400">View needs, offer help, and see all resources</p>
               </div>
               
-              {!showForm && (
-                <button
-                  onClick={() => setShowForm(true)}
-                  className="flex items-center space-x-2 bg-white text-black px-4 py-2 rounded-lg hover:bg-white/90 transition-colors"
-                  aria-label="Offer resources"
-                >
-                  <PlusCircle size={18} />
-                  <span>Offer Resources</span>
-                </button>
-              )}
+              <button
+                onClick={() => setShowResourceDialog(true)}
+                className="flex items-center space-x-2 bg-white text-black px-4 py-2 rounded-lg hover:bg-white/90 transition-colors"
+                aria-label="Add new resources"
+              >
+                <Package size={18} />
+                <span>Add New Resources</span>
+              </button>
             </div>
             
-            {showForm ? (
-              <div className="mb-8">
-                <RequestForm 
-                  onSubmit={handleFormSubmit} 
-                  onCancel={() => setShowForm(false)}
-                  userRole={user?.role} 
-                />
+            <div className="mb-6 flex flex-col sm:flex-row gap-3">
+              <div className="flex items-center space-x-2">
+                <Filter size={16} className="text-gray-400" />
+                <span className="text-sm">Filter:</span>
               </div>
-            ) : (
-              <div className="mb-6 flex flex-col sm:flex-row gap-3">
-                <div className="flex items-center space-x-2">
-                  <Filter size={16} className="text-gray-400" />
-                  <span className="text-sm">Filter:</span>
-                </div>
-                
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => setFilter('all')}
-                    className={`px-3 py-1 rounded-full text-sm ${
-                      filter === 'all' 
-                        ? 'bg-white text-black' 
-                        : 'bg-white/10 hover:bg-white/15'
-                    }`}
-                  >
-                    All
-                  </button>
-                  <button
-                    onClick={() => setFilter('need')}
-                    className={`px-3 py-1 rounded-full text-sm ${
-                      filter === 'need' 
-                        ? 'bg-white text-black' 
-                        : 'bg-white/10 hover:bg-white/15'
-                    }`}
-                  >
-                    Requests
-                  </button>
-                  <button
-                    onClick={() => setFilter('offer')}
-                    className={`px-3 py-1 rounded-full text-sm ${
-                      filter === 'offer' 
-                        ? 'bg-white text-black' 
-                        : 'bg-white/10 hover:bg-white/15'
-                    }`}
-                  >
-                    Offers
-                  </button>
-                </div>
-                
-                <div className="flex flex-wrap gap-2 mt-3 sm:mt-0 sm:ml-4">
-                  <select
-                    value={categoryFilter}
-                    onChange={(e) => setCategoryFilter(e.target.value as string)}
-                    className="bg-white/10 border border-white/10 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-white/20"
-                  >
-                    <option value="all">All Categories</option>
-                    <option value="water">Water</option>
-                    <option value="shelter">Shelter</option>
-                    <option value="food">Food</option>
-                    <option value="supplies">Supplies</option>
-                    <option value="medical">Medical</option>
-                    <option value="safety">Safety</option>
-                  </select>
-                </div>
+              
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setFilter('all')}
+                  className={`px-3 py-1 rounded-full text-sm ${
+                    filter === 'all' 
+                      ? 'bg-white text-black' 
+                      : 'bg-white/10 hover:bg-white/15'
+                  }`}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => setFilter('need')}
+                  className={`px-3 py-1 rounded-full text-sm ${
+                    filter === 'need' 
+                      ? 'bg-white text-black' 
+                      : 'bg-white/10 hover:bg-white/15'
+                  }`}
+                >
+                  Requests
+                </button>
+                <button
+                  onClick={() => setFilter('offer')}
+                  className={`px-3 py-1 rounded-full text-sm ${
+                    filter === 'offer' 
+                      ? 'bg-white text-black' 
+                      : 'bg-white/10 hover:bg-white/15'
+                  }`}
+                >
+                  Offers
+                </button>
               </div>
-            )}
+              
+              <div className="flex flex-wrap gap-2 mt-3 sm:mt-0 sm:ml-4">
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value as string)}
+                  className="bg-white/10 border border-white/10 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-white/20"
+                >
+                  <option value="all">All Categories</option>
+                  <option value="water">Water</option>
+                  <option value="shelter">Shelter</option>
+                  <option value="food">Food</option>
+                  <option value="supplies">Supplies</option>
+                  <option value="medical">Medical</option>
+                  <option value="safety">Safety</option>
+                </select>
+              </div>
+            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredResources.map(resource => (
@@ -250,6 +235,12 @@ const VolunteerResources = () => {
           </div>
         </main>
       </AnimatedTransition>
+      
+      <AddResourceDialog 
+        isOpen={showResourceDialog} 
+        onClose={() => setShowResourceDialog(false)} 
+        onAddResource={handleAddResource}
+      />
     </div>
   );
 };
