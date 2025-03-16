@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, KeyRound, User, Phone, MapPin } from 'lucide-react';
-import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const Signup = () => {
   const [name, setName] = useState('');
@@ -25,7 +25,6 @@ const Signup = () => {
     e.preventDefault();
     setLoading(true);
     
-    // Validate input
     if (!name || !email || !password) {
       toast({
         title: "Missing fields",
@@ -35,7 +34,6 @@ const Signup = () => {
       return;
     }
     
-    // Check password length
     if (password.length < 6) {
       toast({
         title: "Password too short",
@@ -45,7 +43,6 @@ const Signup = () => {
       return;
     }
     
-    // Check if user already exists
     const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
     if (existingUsers.find((user: any) => user.email === email)) {
       toast({
@@ -56,7 +53,6 @@ const Signup = () => {
       return;
     }
     
-    // Create new user object
     const newUser = {
       id: `user-${Date.now()}`,
       name,
@@ -68,37 +64,28 @@ const Signup = () => {
       canVolunteer,
     };
     
-    // Save user to localStorage
     localStorage.setItem('authUser', JSON.stringify(newUser));
     
-    // Save user to users array
     const users = JSON.parse(localStorage.getItem('users') || '[]');
     users.push(newUser);
     localStorage.setItem('users', JSON.stringify(users));
     
-    // Dispatch event to notify other components
     window.dispatchEvent(new Event('auth-changed'));
     
-    // Show success message
     toast({
       title: "Signup successful",
       description: "You have successfully signed up.",
     });
     
-    // Redirect to dashboard
     navigate('/dashboard');
     setLoading(false);
     
     const isSignupSuccessful = true;
 
     if (isSignupSuccessful) {
-      // After successful signup
-      
-      // Get current users array
       const usersStr = localStorage.getItem('users');
       const users = usersStr ? JSON.parse(usersStr) : [];
       
-      // Add the new user to our users array with appropriate structure
       users.push({
         id: newUser.id,
         name: newUser.name,
@@ -110,23 +97,21 @@ const Signup = () => {
         needsHelp: newUser.role === 'victim' ? ['Newly Registered'] : []
       });
       
-      // Save updated users array
       localStorage.setItem('users', JSON.stringify(users));
       
-      // Dispatch event to notify other components
       window.dispatchEvent(new Event('auth-changed'));
     }
   };
   
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md space-y-4 bg-black/30 border border-white/10">
+      <Card className="w-full max-w-md bg-black/30 border border-white/10">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>
           <CardDescription className="text-gray-400 text-center">Enter your details below to register.</CardDescription>
         </CardHeader>
         
-        <CardContent className="grid gap-4">
+        <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name" className="flex items-center">
               <User size={16} className="mr-2 text-gray-400" />
@@ -138,6 +123,7 @@ const Signup = () => {
               type="text" 
               value={name}
               onChange={(e) => setName(e.target.value)}
+              className="bg-black/50 border-white/20"
             />
           </div>
           
@@ -152,6 +138,7 @@ const Signup = () => {
               type="email" 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="bg-black/50 border-white/20"
             />
           </div>
           
@@ -166,6 +153,7 @@ const Signup = () => {
               type="tel" 
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
+              className="bg-black/50 border-white/20"
             />
           </div>
           
@@ -180,6 +168,7 @@ const Signup = () => {
               type="text" 
               value={location}
               onChange={(e) => setLocation(e.target.value)}
+              className="bg-black/50 border-white/20"
             />
           </div>
           
@@ -194,59 +183,53 @@ const Signup = () => {
               type="password" 
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="bg-black/50 border-white/20"
             />
           </div>
           
           <div className="space-y-2">
-            <Label className="flex items-center">
-              <Input 
-                type="radio" 
-                name="role" 
-                value="victim"
-                checked={role === 'victim'}
-                onChange={() => setRole('victim')}
-                className="mr-2"
-              />
-              <span>I am affected by the disaster</span>
-            </Label>
-            
-            <Label className="flex items-center">
-              <Input 
-                type="radio" 
-                name="role" 
-                value="volunteer"
-                checked={role === 'volunteer'}
-                onChange={() => setRole('volunteer')}
-                className="mr-2"
-              />
-              <span>I want to volunteer</span>
-            </Label>
+            <Label className="block mb-2">I am:</Label>
+            <RadioGroup 
+              value={role} 
+              onValueChange={(value) => setRole(value as 'victim' | 'volunteer')}
+              className="flex flex-col space-y-2"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="victim" id="victim" />
+                <Label htmlFor="victim">Affected by the disaster</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="volunteer" id="volunteer" />
+                <Label htmlFor="volunteer">Want to volunteer</Label>
+              </div>
+            </RadioGroup>
           </div>
           
           {role === 'victim' && (
-            <div className="space-y-2">
-              <Label htmlFor="canVolunteer" className="flex items-center">
-                <Checkbox 
-                  id="canVolunteer"
-                  checked={canVolunteer}
-                  onCheckedChange={(checked) => setCanVolunteer(!!checked)}
-                  className="mr-2"
-                />
-                <span>I can also volunteer</span>
-              </Label>
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="canVolunteer"
+                checked={canVolunteer}
+                onCheckedChange={(checked) => setCanVolunteer(!!checked)}
+              />
+              <Label htmlFor="canVolunteer">I can also volunteer</Label>
             </div>
           )}
         </CardContent>
         
-        <CardFooter>
-          <Button className="w-full" onClick={handleSignup} disabled={loading}>
+        <CardFooter className="flex flex-col space-y-4">
+          <Button 
+            className="w-full" 
+            onClick={handleSignup} 
+            disabled={loading}
+          >
             {loading ? 'Creating account...' : 'Create Account'}
           </Button>
+          
+          <div className="text-center text-sm text-gray-400">
+            Already have an account? <Link to="/login" className="text-white hover:underline">Log in</Link>
+          </div>
         </CardFooter>
-        
-        <div className="text-center text-sm text-gray-400">
-          Already have an account? <Link to="/login" className="text-white hover:underline">Log in</Link>
-        </div>
       </Card>
     </div>
   );
