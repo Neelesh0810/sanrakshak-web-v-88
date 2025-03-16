@@ -53,17 +53,17 @@ const StatusUpdate: React.FC<StatusUpdateProps> = ({
     >
       <div className="p-4">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="font-semibold text-lg text-gray-900">{title}</h3>
-          <div className="flex items-center text-xs text-gray-600">
+          <h3 className="font-semibold text-lg text-black">{title}</h3>
+          <div className="flex items-center text-xs text-black">
             <Clock size={12} className="mr-1" />
             <span>{timestamp}</span>
           </div>
         </div>
         
-        <p className={cn("text-sm mb-3", isLight ? "text-gray-800" : "text-gray-300")}>{message}</p>
+        <p className="text-sm mb-3 text-black">{message}</p>
         
         <div className="flex justify-between items-center">
-          <span className={cn("text-xs", isLight ? "text-gray-700" : "text-gray-500")}>Source: {source}</span>
+          <span className="text-xs text-black">Source: {source}</span>
           <Link 
             to={`/status/${id}`} 
             className={cn(

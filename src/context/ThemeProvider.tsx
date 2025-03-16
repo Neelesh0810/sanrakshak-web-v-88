@@ -25,10 +25,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     document.body.classList.remove('dark-mode');
     document.body.classList.add('light-mode');
     
-    // Apply better text contrast
-    document.documentElement.style.setProperty('--foreground', '240 10% 10%');
-    document.documentElement.style.setProperty('--card-foreground', '240 10% 10%');
-    document.documentElement.style.setProperty('--popover-foreground', '240 10% 10%');
+    // Apply better text contrast - use full black for text in light mode
+    document.documentElement.style.setProperty('--foreground', '0 0% 0%');
+    document.documentElement.style.setProperty('--card-foreground', '0 0% 0%');
+    document.documentElement.style.setProperty('--popover-foreground', '0 0% 0%');
   }, []);
 
   useEffect(() => {

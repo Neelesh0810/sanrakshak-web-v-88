@@ -118,18 +118,18 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className, mapResources
       className
     )}>
       <div className="p-4">
-        <h2 className="text-lg font-semibold mb-4">Find Nearby Assistance</h2>
+        <h2 className="text-lg font-semibold mb-4 text-black">Find Nearby Assistance</h2>
         
         <div className="flex mb-4">
           <div className="relative flex-1">
-            <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600" />
             <input
               type="text"
               placeholder="Search by name or type..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className={cn(
-                "w-full rounded-l-lg py-2 pl-9 pr-3 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-1",
+                "w-full rounded-l-lg py-2 pl-9 pr-3 text-sm placeholder:text-gray-600 focus:outline-none focus:ring-1 text-black",
                 isLight 
                   ? "bg-gray-100 border border-gray-300 focus:ring-gray-400" 
                   : "bg-white/5 border border-white/10 focus:ring-white/20"
@@ -146,7 +146,7 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className, mapResources
             )}
             aria-label="Get current location"
           >
-            <Compass size={18} />
+            <Compass size={18} className="text-black" />
           </button>
         </div>
         
@@ -156,8 +156,8 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className, mapResources
             isLight ? "bg-gray-100 border-gray-300" : "bg-white/5 border-white/10"
           )}>
             <div className="flex items-center">
-              <MapPin size={14} className="text-gray-400 mr-1" />
-              <span>
+              <MapPin size={14} className="text-gray-600 mr-1" />
+              <span className="text-black">
                 Location acquired. Showing nearby resources.
               </span>
             </div>
@@ -181,15 +181,15 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className, mapResources
             >
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="font-medium text-sm">{location.name}</h3>
+                  <h3 className="font-medium text-sm text-black">{location.name}</h3>
                   <p className={cn(
                     "text-xs mt-0.5",
-                    isLight ? "text-gray-600" : "text-gray-400"
+                    "text-black"
                   )}>{location.address}</p>
                 </div>
                 <div className={cn(
                   "text-xs rounded-full px-2 py-0.5 border",
-                  isLight ? "bg-gray-100 border-gray-300" : "bg-white/10 border-white/5"
+                  isLight ? "bg-gray-100 border-gray-300 text-black" : "bg-white/10 border-white/5"
                 )}>
                   {location.distance}
                 </div>
@@ -198,7 +198,7 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className, mapResources
               <div className="flex justify-between items-center mt-3">
                 <span className={cn(
                   "capitalize text-xs px-2 py-0.5 rounded-full border",
-                  isLight ? "bg-gray-100 border-gray-300" : "bg-white/5 border-white/5"
+                  isLight ? "bg-gray-100 border-gray-300 text-black" : "bg-white/5 border-white/5"
                 )}>
                   {location.type}
                 </span>
@@ -206,12 +206,10 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className, mapResources
                   className={cn(
                     'text-xs rounded-full px-3 py-1',
                     location.available
-                      ? (isLight 
-                          ? 'bg-black text-white hover:bg-black/90' 
-                          : 'bg-white/10 hover:bg-white/15')
+                      ? 'bg-black text-white hover:bg-black/90 rounded-2xl'
                       : (isLight 
-                          ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
-                          : 'bg-black/30 text-gray-500 cursor-not-allowed')
+                          ? 'bg-gray-200 text-gray-500 cursor-not-allowed rounded-2xl' 
+                          : 'bg-black/30 text-gray-500 cursor-not-allowed rounded-2xl')
                   )}
                   disabled={!location.available}
                   onClick={() => location.available && navigateToResource(location)}
@@ -225,7 +223,7 @@ const LocationFinder: React.FC<LocationFinderProps> = ({ className, mapResources
           {filteredLocations.length === 0 && (
             <div className={cn(
               "text-center py-6 text-sm border rounded-lg",
-              isLight ? "text-gray-600 border-gray-300 bg-gray-50" : "text-gray-400 border-white/5 bg-black/20"
+              isLight ? "text-black border-gray-300 bg-gray-50" : "text-gray-400 border-white/5 bg-black/20"
             )}>
               No locations found matching your search.
             </div>

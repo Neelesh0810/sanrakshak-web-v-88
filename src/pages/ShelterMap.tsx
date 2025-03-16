@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import Header from '../components/Header';
 import { ArrowLeft, MapPin, Navigation, Compass, Route, Ban } from 'lucide-react';
@@ -169,7 +170,7 @@ const ShelterMap = () => {
           <Button 
             onClick={handleGoBack}
             variant="ghost"
-            className={`mb-4 flex items-center gap-1.5 ${
+            className={`mb-4 flex items-center gap-1.5 text-black ${
               isLight ? 'hover:bg-gray-100' : 'hover:bg-white/10'
             }`}
             aria-label="Go back to dashboard"
@@ -189,7 +190,7 @@ const ShelterMap = () => {
                       <div className={`animate-spin rounded-full h-10 w-10 border-t-2 ${
                         isLight ? 'border-gray-800' : 'border-white'
                       } mb-4`}></div>
-                      <p className={isLight ? 'text-gray-700' : 'text-gray-300'}>Loading map...</p>
+                      <p className="text-black">Loading map...</p>
                     </div>
                   </div>
                 )}
@@ -211,8 +212,8 @@ const ShelterMap = () => {
                     isLight ? 'bg-white/80 border border-gray-200' : 'bg-black/60 backdrop-blur-sm'
                   }`}>
                     <div className="flex items-center">
-                      <MapPin size={16} className={`mr-2 ${isLight ? 'text-gray-700' : 'text-white/70'}`} />
-                      <span>Your location is available</span>
+                      <MapPin size={16} className="text-black mr-2" />
+                      <span className="text-black">Your location is available</span>
                     </div>
                   </div>
                 )}
@@ -222,7 +223,7 @@ const ShelterMap = () => {
             <div className={`rounded-xl p-4 h-[70vh] overflow-auto ${
               isLight ? 'bg-white border border-gray-200' : 'border border-white/10 bg-black/20'
             }`}>
-              <h2 className="text-xl font-semibold mb-4">Nearby Shelters</h2>
+              <h2 className="text-xl font-semibold mb-4 text-black">Nearby Shelters</h2>
               
               <div className="space-y-4">
                 {shelters.map(shelter => (
@@ -231,23 +232,23 @@ const ShelterMap = () => {
                       ? 'border border-gray-200 bg-white hover:bg-gray-50' 
                       : 'border border-white/10 bg-black/10 hover:bg-black/30'
                   }`}>
-                    <h3 className="font-medium">{shelter.name}</h3>
-                    <p className={`text-sm mb-2 ${isLight ? 'text-gray-600' : 'text-gray-400'}`}>{shelter.address}</p>
-                    <div className={`text-xs mb-2 space-y-1 ${isLight ? 'text-gray-700' : 'text-gray-500'}`}>
+                    <h3 className="font-medium text-black">{shelter.name}</h3>
+                    <p className="text-sm mb-2 text-black">{shelter.address}</p>
+                    <div className="text-xs mb-2 space-y-1 text-black">
                       <p>Capacity: {shelter.capacity} people</p>
                       <p>Status: Open ({Math.round((shelter.occupancy / shelter.capacity) * 100)}% full)</p>
                       <div className="flex gap-1 flex-wrap mt-1">
                         {shelter.amenities.map(amenity => (
-                          <span key={amenity} className={`inline-block px-2 py-0.5 rounded-full text-gray-700 ${
-                            isLight ? 'bg-gray-100' : 'bg-black/30 text-gray-300'
-                          }`}>{amenity}</span>
+                          <span key={amenity} className="inline-block px-2 py-0.5 rounded-full text-black bg-gray-100">
+                            {amenity}
+                          </span>
                         ))}
                       </div>
                     </div>
                     <Button 
                       onClick={() => handleNavigateToShelter(shelter)}
                       size="sm" 
-                      className="w-full mt-2"
+                      className="w-full mt-2 bg-black text-white hover:bg-black/90 rounded-2xl"
                     >
                       Navigate
                     </Button>
@@ -262,27 +263,27 @@ const ShelterMap = () => {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{selectedShelter?.name || 'Shelter Details'}</DialogTitle>
+            <DialogTitle className="text-black">{selectedShelter?.name || 'Shelter Details'}</DialogTitle>
             <DialogDescription>
               {selectedShelter ? (
                 <div className="space-y-2 mt-1">
                   <div className="flex items-center text-sm">
-                    <MapPin size={16} className="mr-2 text-gray-400" />
-                    <span>{selectedShelter.address}</span>
+                    <MapPin size={16} className="mr-2 text-gray-600" />
+                    <span className="text-black">{selectedShelter.address}</span>
                   </div>
                   <div className="flex items-center text-sm">
-                    <Compass size={16} className="mr-2 text-gray-400" />
-                    <span>Capacity: {selectedShelter.capacity} people</span>
+                    <Compass size={16} className="mr-2 text-gray-600" />
+                    <span className="text-black">Capacity: {selectedShelter.capacity} people</span>
                   </div>
                   <div className={`rounded-lg border p-2 mt-4 text-sm ${
                     isLight ? 'bg-gray-50' : 'bg-background/50'
                   }`}>
-                    <span className="text-xs uppercase text-muted-foreground font-medium">Amenities</span>
+                    <span className="text-xs uppercase text-black font-medium">Amenities</span>
                     <div className="font-medium mt-1 flex flex-wrap gap-1">
                       {selectedShelter.amenities.map(amenity => (
-                        <span key={amenity} className={`inline-block px-2 py-0.5 rounded-full ${
-                          isLight ? 'bg-gray-100 text-gray-700' : 'bg-black/30 text-gray-300'
-                        }`}>{amenity}</span>
+                        <span key={amenity} className="inline-block px-2 py-0.5 rounded-full bg-gray-100 text-black">
+                          {amenity}
+                        </span>
                       ))}
                     </div>
                   </div>
@@ -293,7 +294,7 @@ const ShelterMap = () => {
           <DialogFooter className="flex flex-col gap-2 sm:flex-row pt-2">
             <Button 
               onClick={handleShowRoute}
-              className="w-full flex items-center justify-center"
+              className="w-full flex items-center justify-center bg-black text-white hover:bg-black/90 rounded-2xl"
               variant="default"
               disabled={locationPermissionDenied || !userLocation}
             >
@@ -306,14 +307,14 @@ const ShelterMap = () => {
             </Button>
             <Button 
               onClick={handleShowOnMap}
-              className="w-full"
+              className="w-full bg-black text-white hover:bg-black/90 rounded-2xl"
               variant="secondary"
             >
               <Navigation className="mr-2 h-4 w-4" />
               Show on Map
             </Button>
             <DialogClose asChild>
-              <Button variant="outline">Close</Button>
+              <Button variant="outline" className="text-black">Close</Button>
             </DialogClose>
           </DialogFooter>
         </DialogContent>
