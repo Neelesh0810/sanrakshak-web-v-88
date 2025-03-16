@@ -1,4 +1,3 @@
-
 import React, { useMemo, useState, useEffect } from 'react';
 import { Building, ArrowRight, PieChart, Users, Map, Plus } from 'lucide-react';
 import ResourceCard from '../ResourceCard';
@@ -11,6 +10,7 @@ import ResourceDetailsDialog from '../dialogs/ResourceDetailsDialog';
 import AddResourceDialog from '../dialogs/AddResourceDialog';
 import ResourceManagementDialog from '../ResourceManagementDialog';
 import HelpRequestsDialog from '../dialogs/HelpRequestsDialog';
+import { useTheme } from '@/context/ThemeProvider';
 
 interface NGODashboardProps {
   resourceData?: ReturnType<typeof useResourceData>;
@@ -18,6 +18,8 @@ interface NGODashboardProps {
 
 const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
   const { resources, loading, addResource } = resourceData || useResourceData();
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   
   const [selectedResourceId, setSelectedResourceId] = useState<string | null>(null);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
@@ -93,14 +95,14 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
     <div className="container mx-auto px-4">
       <div className="mb-6">
         <AnimatedTransition>
-          <div className="relative overflow-hidden glass-dark rounded-xl border border-white/10 p-4 sm:p-6">
+          <div className={`relative overflow-hidden rounded-xl border ${isLight ? 'border-gray-200 bg-white shadow-sm' : 'border-white/10 glass-dark'} p-4 sm:p-6`}>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between">
               <div className="mb-4 sm:mb-0 sm:mr-6">
                 <div className="flex items-center mb-2">
-                  <Building size={18} className="mr-2 text-white" />
+                  <Building size={18} className={`mr-2 ${isLight ? 'text-gray-800' : 'text-white'}`} />
                   <h2 className="text-xl font-semibold">NGO Operations</h2>
                 </div>
-                <p className="text-gray-300 text-sm mb-3">
+                <p className={`${isLight ? 'text-gray-600' : 'text-gray-300'} text-sm mb-3`}>
                   Coordinate disaster response efforts, manage resources, and track impact across affected areas.
                 </p>
               </div>
@@ -108,11 +110,11 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
               <div className="flex space-x-2">
                 <button 
                   onClick={handleOpenManageResources}
-                  className="px-4 py-2 rounded-full text-sm bg-white text-black hover:bg-white/90 transition-colors"
+                  className={`px-4 py-2 rounded-full text-sm ${isLight ? 'bg-black text-white hover:bg-black/90' : 'bg-white text-black hover:bg-white/90'} transition-colors`}
                 >
                   Manage Resources
                 </button>
-                <Link to="/reports" className="px-4 py-2 rounded-full text-sm bg-white/10 hover:bg-white/15 transition-colors">
+                <Link to="/reports" className={`px-4 py-2 rounded-full text-sm ${isLight ? 'bg-gray-100 hover:bg-gray-200 text-gray-800' : 'bg-white/10 hover:bg-white/15 text-white'} transition-colors`}>
                   View Reports
                 </Link>
               </div>
@@ -128,7 +130,7 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
               <h2 className="text-xl font-semibold">Resource Management</h2>
               <button 
                 onClick={handleOpenManageResources}
-                className="flex items-center text-sm text-gray-400 hover:text-white transition-colors"
+                className={`flex items-center text-sm ${isLight ? 'text-gray-600 hover:text-gray-800' : 'text-gray-400 hover:text-white'} transition-colors`}
               >
                 <span className="mr-1">Manage All</span>
                 <ArrowRight size={14} />
@@ -138,27 +140,27 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {loading ? (
                 Array(4).fill(0).map((_, index) => (
-                  <div key={`loading-${index}`} className="animate-pulse rounded-xl p-6 bg-white/5 h-64"></div>
+                  <div key={`loading-${index}`} className={`animate-pulse rounded-xl p-6 ${isLight ? 'bg-gray-100' : 'bg-white/5'} h-64`}></div>
                 ))
               ) : managedResources.length > 0 ? (
                 managedResources.map(resource => (
-                  <div key={resource.id} className="p-5 border border-white/10 bg-black/30 rounded-xl">
+                  <div key={resource.id} className={`p-5 border rounded-xl ${isLight ? 'border-gray-200 bg-white' : 'border-white/10 bg-black/30'}`}>
                     <div className="flex justify-between items-start mb-3">
                       <h3 className="font-medium">{resource.title}</h3>
-                      <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full capitalize">{resource.category}</span>
+                      <span className={`text-xs ${isLight ? 'bg-gray-100 text-gray-800' : 'bg-white/10 text-white'} px-2 py-0.5 rounded-full capitalize`}>{resource.category}</span>
                     </div>
-                    <p className="text-sm text-gray-400 mb-3">
+                    <p className={`text-sm ${isLight ? 'text-gray-600' : 'text-gray-400'} mb-3`}>
                       {resource.description.length > 80 
                         ? `${resource.description.substring(0, 80)}...` 
                         : resource.description}
                     </p>
                     <div className="flex justify-between items-center text-xs">
-                      <span className="text-gray-500">
+                      <span className={`${isLight ? 'text-gray-500' : 'text-gray-500'}`}>
                         {new Date(resource.timestamp).toLocaleString()}
                       </span>
                       <button 
                         onClick={() => handleViewDetails(resource.id)}
-                        className="text-white hover:underline flex items-center"
+                        className={`${isLight ? 'text-black hover:underline' : 'text-white hover:underline'} flex items-center`}
                       >
                         <span>Details</span>
                         <ArrowRight size={12} className="ml-1" />
@@ -168,17 +170,17 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
                 ))
               ) : (
                 <>
-                  <div className="p-5 border border-white/10 bg-black/30 rounded-xl">
+                  <div className={`p-5 border rounded-xl ${isLight ? 'border-gray-200 bg-white' : 'border-white/10 bg-black/30'}`}>
                     <div className="flex justify-between items-start mb-3">
                       <h3 className="font-medium">Water Supplies</h3>
-                      <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full">Available</span>
+                      <span className={`text-xs ${isLight ? 'bg-gray-100 text-gray-800' : 'bg-white/10 text-white'} px-2 py-0.5 rounded-full`}>Available</span>
                     </div>
-                    <p className="text-sm text-gray-400 mb-3">5,000 bottles ready for distribution</p>
+                    <p className={`text-sm ${isLight ? 'text-gray-600' : 'text-gray-400'} mb-3`}>5,000 bottles ready for distribution</p>
                     <div className="flex justify-between items-center text-xs">
-                      <span className="text-gray-500">Updated 30 minutes ago</span>
+                      <span className={`${isLight ? 'text-gray-500' : 'text-gray-500'}`}>Updated 30 minutes ago</span>
                       <button 
                         onClick={() => handleViewDetails('water-supplies')}
-                        className="text-white hover:underline flex items-center"
+                        className={`${isLight ? 'text-black hover:underline' : 'text-white hover:underline'} flex items-center`}
                       >
                         <span>Details</span>
                         <ArrowRight size={12} className="ml-1" />
@@ -186,17 +188,17 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
                     </div>
                   </div>
                   
-                  <div className="p-5 border border-white/10 bg-black/30 rounded-xl">
+                  <div className={`p-5 border rounded-xl ${isLight ? 'border-gray-200 bg-white' : 'border-white/10 bg-black/30'}`}>
                     <div className="flex justify-between items-start mb-3">
                       <h3 className="font-medium">Food Supplies</h3>
-                      <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full">Low Stock</span>
+                      <span className={`text-xs ${isLight ? 'bg-gray-100 text-gray-800' : 'bg-white/10 text-white'} px-2 py-0.5 rounded-full`}>Low Stock</span>
                     </div>
-                    <p className="text-sm text-gray-400 mb-3">120 meal kits remaining (Critical level)</p>
+                    <p className={`text-sm ${isLight ? 'text-gray-600' : 'text-gray-400'} mb-3`}>120 meal kits remaining (Critical level)</p>
                     <div className="flex justify-between items-center text-xs">
-                      <span className="text-gray-500">Updated 45 minutes ago</span>
+                      <span className={`${isLight ? 'text-gray-500' : 'text-gray-500'}`}>Updated 45 minutes ago</span>
                       <button 
                         onClick={() => handleViewDetails('food-supplies')}
-                        className="text-white hover:underline flex items-center"
+                        className={`${isLight ? 'text-black hover:underline' : 'text-white hover:underline'} flex items-center`}
                       >
                         <span>Details</span>
                         <ArrowRight size={12} className="ml-1" />
@@ -204,17 +206,17 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
                     </div>
                   </div>
                   
-                  <div className="p-5 border border-white/10 bg-black/30 rounded-xl">
+                  <div className={`p-5 border rounded-xl ${isLight ? 'border-gray-200 bg-white' : 'border-white/10 bg-black/30'}`}>
                     <div className="flex justify-between items-start mb-3">
                       <h3 className="font-medium">Medical Supplies</h3>
-                      <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full">Available</span>
+                      <span className={`text-xs ${isLight ? 'bg-gray-100 text-gray-800' : 'bg-white/10 text-white'} px-2 py-0.5 rounded-full`}>Available</span>
                     </div>
-                    <p className="text-sm text-gray-400 mb-3">First aid kits, medications, and basic medical equipment</p>
+                    <p className={`text-sm ${isLight ? 'text-gray-600' : 'text-gray-400'} mb-3`}>First aid kits, medications, and basic medical equipment</p>
                     <div className="flex justify-between items-center text-xs">
-                      <span className="text-gray-500">Updated 2 hours ago</span>
+                      <span className={`${isLight ? 'text-gray-500' : 'text-gray-500'}`}>Updated 2 hours ago</span>
                       <button 
                         onClick={() => handleViewDetails('medical-supplies')}
-                        className="text-white hover:underline flex items-center"
+                        className={`${isLight ? 'text-black hover:underline' : 'text-white hover:underline'} flex items-center`}
                       >
                         <span>Details</span>
                         <ArrowRight size={12} className="ml-1" />
@@ -222,17 +224,17 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
                     </div>
                   </div>
                   
-                  <div className="p-5 border border-white/10 bg-black/30 rounded-xl">
+                  <div className={`p-5 border rounded-xl ${isLight ? 'border-gray-200 bg-white' : 'border-white/10 bg-black/30'}`}>
                     <div className="flex justify-between items-start mb-3">
                       <h3 className="font-medium">Shelter Capacity</h3>
-                      <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full">65% Full</span>
+                      <span className={`text-xs ${isLight ? 'bg-gray-100 text-gray-800' : 'bg-white/10 text-white'} px-2 py-0.5 rounded-full`}>65% Full</span>
                     </div>
-                    <p className="text-sm text-gray-400 mb-3">3 shelter locations with capacity for 150 more people</p>
+                    <p className={`text-sm ${isLight ? 'text-gray-600' : 'text-gray-400'} mb-3`}>3 shelter locations with capacity for 150 more people</p>
                     <div className="flex justify-between items-center text-xs">
-                      <span className="text-gray-500">Updated 1 hour ago</span>
+                      <span className={`${isLight ? 'text-gray-500' : 'text-gray-500'}`}>Updated 1 hour ago</span>
                       <button 
                         onClick={() => handleViewDetails('shelter-capacity')}
-                        className="text-white hover:underline flex items-center"
+                        className={`${isLight ? 'text-black hover:underline' : 'text-white hover:underline'} flex items-center`}
                       >
                         <span>Details</span>
                         <ArrowRight size={12} className="ml-1" />
@@ -246,7 +248,7 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
             <div className="mt-6 text-center">
               <button 
                 onClick={handleAddResource}
-                className="inline-flex items-center px-4 py-2 bg-white/10 hover:bg-white/15 rounded-lg transition-colors cursor-pointer"
+                className={`inline-flex items-center px-4 py-2 ${isLight ? 'bg-gray-100 hover:bg-gray-200 text-gray-800' : 'bg-white/10 hover:bg-white/15 text-white'} rounded-lg transition-colors cursor-pointer`}
               >
                 <Plus size={16} className="mr-1" />
                 <span>Add New Resource</span>
@@ -259,7 +261,7 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
               <h2 className="text-xl font-semibold">Help Requests</h2>
               <button 
                 onClick={handleViewAllHelpRequests}
-                className="flex items-center text-sm text-gray-400 hover:text-white transition-colors"
+                className={`flex items-center text-sm ${isLight ? 'text-gray-600 hover:text-gray-800' : 'text-gray-400 hover:text-white'} transition-colors`}
               >
                 <span className="mr-1">View All</span>
                 <ArrowRight size={14} />
@@ -269,7 +271,7 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
             <div className="space-y-4">
               {loading ? (
                 Array(2).fill(0).map((_, index) => (
-                  <div key={`loading-${index}`} className="animate-pulse rounded-xl p-6 bg-white/5 h-64"></div>
+                  <div key={`loading-${index}`} className={`animate-pulse rounded-xl p-6 ${isLight ? 'bg-gray-100' : 'bg-white/5'} h-64`}></div>
                 ))
               ) : urgentNeeds.length > 0 ? (
                 urgentNeeds.map(resource => (
@@ -286,8 +288,8 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
                   />
                 ))
               ) : (
-                <div className="p-6 border border-white/10 rounded-xl text-center">
-                  <p className="text-gray-400">No urgent help requests at the moment.</p>
+                <div className={`p-6 border rounded-xl text-center ${isLight ? 'border-gray-200 bg-white' : 'border-white/10'}`}>
+                  <p className={`${isLight ? 'text-gray-500' : 'text-gray-400'}`}>No urgent help requests at the moment.</p>
                 </div>
               )}
             </div>
@@ -298,32 +300,32 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
           <AnimatedTransition className="mb-6" delay={150}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">Impact Dashboard</h2>
-              <Link to="/reports" className="flex items-center text-sm text-gray-400 hover:text-white transition-colors">
+              <Link to="/reports" className={`flex items-center text-sm ${isLight ? 'text-gray-600 hover:text-gray-800' : 'text-gray-400 hover:text-white'} transition-colors`}>
                 <span className="mr-1">Full Report</span>
                 <ArrowRight size={14} />
               </Link>
             </div>
             
             <div className="space-y-4">
-              <div className="p-4 border border-white/10 rounded-xl bg-black/30">
+              <div className={`p-4 border rounded-xl ${isLight ? 'border-gray-200 bg-white' : 'border-white/10 bg-black/30'}`}>
                 <div className="flex items-center mb-3">
                   <Users size={16} className="mr-2" />
                   <h3 className="font-medium">People Assisted</h3>
                 </div>
                 <div className="text-3xl font-bold mb-2">1,247</div>
-                <div className="text-xs text-gray-400">Increase of 215 from yesterday</div>
+                <div className={`text-xs ${isLight ? 'text-gray-500' : 'text-gray-400'}`}>Increase of 215 from yesterday</div>
               </div>
               
-              <div className="p-4 border border-white/10 rounded-xl bg-black/30">
+              <div className={`p-4 border rounded-xl ${isLight ? 'border-gray-200 bg-white' : 'border-white/10 bg-black/30'}`}>
                 <div className="flex items-center mb-3">
                   <Map size={16} className="mr-2" />
                   <h3 className="font-medium">Areas Covered</h3>
                 </div>
                 <div className="text-3xl font-bold mb-2">8</div>
-                <div className="text-xs text-gray-400">2 new areas since yesterday</div>
+                <div className={`text-xs ${isLight ? 'text-gray-500' : 'text-gray-400'}`}>2 new areas since yesterday</div>
               </div>
               
-              <div className="p-4 border border-white/10 rounded-xl bg-black/30">
+              <div className={`p-4 border rounded-xl ${isLight ? 'border-gray-200 bg-white' : 'border-white/10 bg-black/30'}`}>
                 <div className="flex items-center mb-3">
                   <PieChart size={16} className="mr-2" />
                   <h3 className="font-medium">Resource Distribution</h3>
@@ -335,9 +337,9 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
                         <span>{category.charAt(0).toUpperCase() + category.slice(1)}</span>
                         <span>{data.percentage}%</span>
                       </div>
-                      <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <div className={`h-1.5 ${isLight ? 'bg-gray-100' : 'bg-white/10'} rounded-full overflow-hidden`}>
                         <div 
-                          className="h-full bg-white rounded-full" 
+                          className={`h-full ${isLight ? 'bg-black' : 'bg-white'} rounded-full`} 
                           style={{ width: `${data.percentage}%` }}
                         ></div>
                       </div>
@@ -351,7 +353,7 @@ const NGODashboard: React.FC<NGODashboardProps> = ({ resourceData }) => {
           <AnimatedTransition delay={250}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">Status Updates</h2>
-              <Link to="/alerts" className="flex items-center text-sm text-gray-400 hover:text-white transition-colors">
+              <Link to="/alerts" className={`flex items-center text-sm ${isLight ? 'text-gray-600 hover:text-gray-800' : 'text-gray-400 hover:text-white'} transition-colors`}>
                 <span className="mr-1">View All</span>
                 <ArrowRight size={14} />
               </Link>
