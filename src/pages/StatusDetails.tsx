@@ -1,8 +1,7 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Header from '../components/Header';
-import { Clock, Info, AlertTriangle, MapPin, ExternalLink, Bookmark, Share2 } from 'lucide-react';
+import { Clock, Info, AlertTriangle, MapPin, ExternalLink, Bookmark, Share2, Navigation, Compass } from 'lucide-react';
 import { useTheme } from '../context/ThemeProvider';
 import BackButton from '../components/BackButton';
 import { useToast } from '@/hooks/use-toast';
@@ -12,6 +11,7 @@ const StatusDetails = () => {
   const { theme } = useTheme();
   const { toast } = useToast();
   const isLight = theme === 'light';
+  const [mapLoaded, setMapLoaded] = useState(false);
   
   // Status data mapping
   const statusMap: { [key: string]: any } = {
@@ -103,6 +103,12 @@ const StatusDetails = () => {
         return <Info size={20} className={`mr-2 ${isLight ? "text-gray-800" : "text-gray-300"}`} />;
     }
   };
+
+  // Calculate the current user's simulated location (for demo purposes)
+  const userLocation = {
+    lat: status.coordinates.lat + 0.005,
+    lng: status.coordinates.lng - 0.003
+  };
   
   return (
     <div className={`min-h-screen ${isLight ? "bg-white" : "bg-black"} text-foreground`}>
@@ -168,17 +174,78 @@ const StatusDetails = () => {
                   <span>Location Information</span>
                 </div>
                 
-                <div id="map-container" className={`mb-4 overflow-hidden rounded-lg border ${isLight ? "border-gray-300" : "border-white/10"} h-[250px]`}>
+                {/* Enhanced static map visualization */}
+                <div className={`mb-4 overflow-hidden rounded-lg border ${isLight ? "border-gray-300" : "border-white/10"} h-[250px]`}>
                   <div className={`relative w-full h-full ${isLight ? "bg-gray-100" : "bg-black/40"}`}>
-                    {/* Static map visualization as fallback */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
-                      <div className={`flex flex-col items-center justify-center text-center ${isLight ? "text-gray-700" : "text-gray-400"}`}>
-                        <MapPin size={32} className={`mb-2 ${isLight ? "text-gray-500" : "text-gray-400"}`} />
-                        <p className="font-medium">{status.coordinates.lat.toFixed(4)}, {status.coordinates.lng.toFixed(4)}</p>
-                        <p className="text-sm mt-1">Affected area: {status.affectedAreas[0]}</p>
-                        <div className={`mt-4 px-3 py-1.5 rounded ${isLight ? "bg-gray-200" : "bg-black/50"} text-xs`}>
-                          {status.title}
+                    {/* Interactive map visualization */}
+                    <div className="absolute inset-0">
+                      <div className={`w-full h-full ${isLight ? "bg-blue-50" : "bg-blue-900/20"} relative`}>
+                        {/* Road network simulation */}
+                        <div className={`absolute top-1/4 left-0 right-0 h-0.5 ${isLight ? "bg-gray-300" : "bg-gray-700"}`}></div>
+                        <div className={`absolute top-3/4 left-0 right-0 h-0.5 ${isLight ? "bg-gray-300" : "bg-gray-700"}`}></div>
+                        <div className={`absolute left-1/4 top-0 bottom-0 w-0.5 ${isLight ? "bg-gray-300" : "bg-gray-700"}`}></div>
+                        <div className={`absolute left-3/4 top-0 bottom-0 w-0.5 ${isLight ? "bg-gray-300" : "bg-gray-700"}`}></div>
+                        
+                        {/* Affected area visualization */}
+                        <div className={`absolute top-1/3 left-1/3 right-1/3 bottom-1/3 rounded-full ${
+                          status.priority === 'high' 
+                            ? `${isLight ? "bg-red-200/70" : "bg-red-900/30"} border ${isLight ? "border-red-300" : "border-red-700"}`
+                            : status.priority === 'medium'
+                              ? `${isLight ? "bg-orange-200/70" : "bg-orange-900/30"} border ${isLight ? "border-orange-300" : "border-orange-700"}`
+                              : `${isLight ? "bg-blue-200/70" : "bg-blue-900/30"} border ${isLight ? "border-blue-300" : "border-blue-700"}`
+                        } flex items-center justify-center`}>
+                          <div className={`text-xs ${isLight ? "text-gray-600" : "text-gray-300"}`}>
+                            Affected Area
+                          </div>
                         </div>
+                        
+                        {/* Incident location marker */}
+                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                          <div className={`animate-pulse h-3 w-3 rounded-full ${
+                            status.priority === 'high' 
+                              ? "bg-red-500" 
+                              : status.priority === 'medium' 
+                                ? "bg-orange-500" 
+                                : "bg-blue-500"
+                          }`}></div>
+                          <MapPin className={`h-8 w-8 -mt-7 -ml-4 ${
+                            status.priority === 'high' 
+                              ? "text-red-500" 
+                              : status.priority === 'medium' 
+                                ? "text-orange-500" 
+                                : "text-blue-500"
+                          }`} />
+                        </div>
+                        
+                        {/* User location marker */}
+                        <div className="absolute top-[40%] left-[45%]">
+                          <div className="relative">
+                            <div className="animate-ping h-2 w-2 rounded-full bg-blue-500 absolute"></div>
+                            <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+                          </div>
+                          <div className="bg-blue-500 h-4 w-4 rounded-full -mt-3 -ml-1 flex items-center justify-center">
+                            <div className="h-2 w-2 rounded-full bg-white"></div>
+                          </div>
+                        </div>
+                        
+                        {/* Distance line between user and incident */}
+                        <div className="absolute top-[45%] left-[44%] w-[6%] h-[5%] border-t border-blue-500 border-dashed transform rotate-[30deg]"></div>
+
+                        {/* Compass indicator */}
+                        <div className="absolute top-4 right-4 h-12 w-12 rounded-full bg-black/20 backdrop-blur-sm flex items-center justify-center">
+                          <Compass className="h-8 w-8 text-white/80" />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Map info overlay */}
+                    <div className="absolute bottom-3 left-3 right-3 flex justify-between">
+                      <div className={`px-2 py-1 rounded ${isLight ? "bg-white/90" : "bg-black/60"} text-xs backdrop-blur-sm`}>
+                        {status.coordinates.lat.toFixed(4)}, {status.coordinates.lng.toFixed(4)}
+                      </div>
+                      <div className={`px-2 py-1 rounded ${isLight ? "bg-white/90" : "bg-black/60"} text-xs backdrop-blur-sm flex items-center`}>
+                        <Navigation className="h-3 w-3 mr-1" />
+                        <span>0.8mi away</span>
                       </div>
                     </div>
                   </div>
