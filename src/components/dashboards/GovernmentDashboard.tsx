@@ -1,10 +1,12 @@
 
 import React from 'react';
-import { BarChart, Building2, Users, FileText, AlertTriangle } from 'lucide-react';
+import { BarChart, Building2, Users, FileText, AlertTriangle, UserCheck, BuildingCommunity } from 'lucide-react';
 import StatusUpdate from '../StatusUpdate';
 import AnimatedTransition from '../AnimatedTransition';
 import { Link } from 'react-router-dom';
 import useResourceData from '@/hooks/useResourceData';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import UserProfile from '../UserProfile';
 
 interface GovernmentDashboardProps {
   resourceData?: ReturnType<typeof useResourceData>;
@@ -28,7 +30,7 @@ const GovernmentDashboard: React.FC<GovernmentDashboardProps> = () => {
               </div>
               
               <div className="flex space-x-2">
-                <Link to="/admin-dashboard" className="px-4 py-2 rounded-full text-sm bg-white text-black hover:bg-white/90 transition-colors">
+                <Link to="/command-center" className="px-4 py-2 rounded-full text-sm bg-white text-black hover:bg-white/90 transition-colors">
                   Command Center
                 </Link>
                 <Link to="/recovery-plan" className="px-4 py-2 rounded-full text-sm bg-white/10 hover:bg-white/15 transition-colors">
@@ -85,72 +87,59 @@ const GovernmentDashboard: React.FC<GovernmentDashboardProps> = () => {
       </AnimatedTransition>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <AnimatedTransition delay={100}>
-            <div className="bg-black/20 border border-white/10 rounded-xl p-4">
-              <h3 className="text-lg font-medium mb-4">Infrastructure Recovery Status</h3>
-              
-              <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Power Grid</span>
-                    <span>68%</span>
-                  </div>
-                  <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                    <div className="h-full bg-blue-500 rounded-full" style={{ width: '68%' }}></div>
-                  </div>
-                </div>
+        <AnimatedTransition delay={100} className="lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <UserCheck className="h-5 w-5 mr-2" />
+                Registered Volunteers and NGOs
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <UserProfile
+                  name="Sarah Johnson"
+                  role="volunteer"
+                  contactInfo="sarah.j@example.com"
+                  location="Central District"
+                  lastActive="2 hours ago"
+                  skills={["First Aid", "Search & Rescue", "Logistics"]}
+                />
                 
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Water System</span>
-                    <span>82%</span>
-                  </div>
-                  <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                    <div className="h-full bg-green-500 rounded-full" style={{ width: '82%' }}></div>
-                  </div>
-                </div>
+                <UserProfile
+                  name="Red Cross Chapter"
+                  role="ngo"
+                  contactInfo="local@redcross.org"
+                  location="Multiple Districts"
+                  lastActive="30 minutes ago"
+                />
                 
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Road Network</span>
-                    <span>45%</span>
-                  </div>
-                  <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                    <div className="h-full bg-yellow-500 rounded-full" style={{ width: '45%' }}></div>
-                  </div>
-                </div>
+                <UserProfile
+                  name="Michael Chen"
+                  role="volunteer"
+                  contactInfo="m.chen@example.com"
+                  location="North District"
+                  lastActive="4 hours ago"
+                  skills={["Medical", "Transportation", "Communication"]}
+                />
                 
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Communication</span>
-                    <span>71%</span>
-                  </div>
-                  <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                    <div className="h-full bg-purple-500 rounded-full" style={{ width: '71%' }}></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </AnimatedTransition>
-          
-          <AnimatedTransition delay={150}>
-            <div className="bg-black/20 border border-white/10 rounded-xl p-4">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium">Resource Allocation</h3>
-                <select className="bg-white/10 border border-white/20 rounded px-2 py-1 text-sm">
-                  <option>Last 7 Days</option>
-                  <option>Last 30 Days</option>
-                  <option>All Time</option>
-                </select>
+                <UserProfile
+                  name="Community Relief Foundation"
+                  role="ngo"
+                  contactInfo="help@crf.org"
+                  location="South District"
+                  lastActive="1 hour ago"
+                />
               </div>
               
-              <div className="h-64 flex items-center justify-center">
-                <BarChart className="h-full w-full opacity-70" />
+              <div className="mt-4 text-center">
+                <button className="px-4 py-2 rounded-full text-sm bg-white/10 hover:bg-white/15 transition-colors">
+                  View All Registered Helpers
+                </button>
               </div>
-            </div>
-          </AnimatedTransition>
-        </div>
+            </CardContent>
+          </Card>
+        </AnimatedTransition>
         
         <div className="space-y-6">
           <AnimatedTransition delay={200}>

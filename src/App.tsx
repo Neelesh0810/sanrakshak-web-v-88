@@ -28,6 +28,8 @@ import VolunteerTaskDetails from "./pages/VolunteerTaskDetails";
 import VolunteerStats from "./pages/VolunteerStats";
 import AdminDashboard from "./pages/AdminDashboard";
 import Reports from "./pages/Reports";
+import RecoveryPlan from "./pages/RecoveryPlan";
+import CommandCenter from "./pages/CommandCenter";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -263,6 +265,18 @@ const App = () => {
               <Route path="/settings" element={
                 <ProtectedRoute>
                   <Settings />
+                </ProtectedRoute>
+              } />
+              
+              {/* New recovery plan and command center routes */}
+              <Route path="/recovery-plan" element={
+                <ProtectedRoute>
+                  <RecoveryPlan />
+                </ProtectedRoute>
+              } />
+              <Route path="/command-center" element={
+                <ProtectedRoute>
+                  <CommandCenter />
                 </ProtectedRoute>
               } />
               
