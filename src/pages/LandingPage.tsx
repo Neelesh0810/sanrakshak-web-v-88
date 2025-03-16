@@ -84,8 +84,8 @@ const LandingPage = () => {
   };
 
   return (
-    <div className={`min-h-screen bg-black text-foreground`}>
-      <header className={`py-6 px-6 bg-black`}>
+    <div className={`min-h-screen ${isLight ? "bg-white" : "bg-black"} text-foreground`}>
+      <header className={`py-6 px-6 ${isLight ? "bg-white border-b border-gray-100" : "bg-black"}`}>
         <div className="container mx-auto">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -113,18 +113,18 @@ const LandingPage = () => {
             
             <div className="flex items-center space-x-4">
               {isLoading ? (
-                <div className="w-24 h-8 bg-white/10 animate-pulse rounded-lg"></div>
+                <div className="w-24 h-8 bg-gray-100 animate-pulse rounded-lg"></div>
               ) : user ? (
                 <>
                   <Link 
                     to="/profile" 
-                    className="text-sm font-medium py-1.5 px-3 rounded-lg hover:bg-white/5 transition-colors"
+                    className={`text-sm font-medium py-1.5 px-3 rounded-lg hover:bg-gray-50 transition-colors ${isLight ? "" : "hover:bg-white/5"}`}
                   >
                     Profile
                   </Link>
                   <button 
                     onClick={handleLogout}
-                    className="text-sm font-medium py-1.5 px-3 rounded-lg bg-white text-black hover:bg-white/90 transition-colors"
+                    className={`text-sm font-medium py-1.5 px-3 rounded-lg ${isLight ? "bg-black text-white hover:bg-gray-800" : "bg-white text-black hover:bg-white/90"} transition-colors`}
                   >
                     Sign out
                   </button>
@@ -133,13 +133,13 @@ const LandingPage = () => {
                 <>
                   <Link 
                     to="/login" 
-                    className="text-sm font-medium py-1.5 px-3 rounded-lg hover:bg-white/5 transition-colors"
+                    className={`text-sm font-medium py-1.5 px-3 rounded-lg ${isLight ? "hover:bg-gray-50" : "hover:bg-white/5"} transition-colors`}
                   >
                     Sign in
                   </Link>
                   <Link 
                     to="/signup" 
-                    className="text-sm font-medium py-1.5 px-3 rounded-lg bg-white text-black hover:bg-white/90 transition-colors"
+                    className={`text-sm font-medium py-1.5 px-3 rounded-lg ${isLight ? "bg-black text-white hover:bg-gray-800" : "bg-white text-black hover:bg-white/90"} transition-colors`}
                   >
                     Sign up
                   </Link>
@@ -147,7 +147,7 @@ const LandingPage = () => {
               )}
               
               <button 
-                className="md:hidden p-2 rounded-full hover:bg-white/5 transition-colors focus-ring"
+                className={`md:hidden p-2 rounded-full ${isLight ? "hover:bg-gray-50" : "hover:bg-white/5"} transition-colors focus-ring`}
                 onClick={toggleMenu}
                 aria-label="Menu"
               >
@@ -159,7 +159,7 @@ const LandingPage = () => {
       </header>
 
       {menuOpen && (
-        <div className="fixed inset-0 pt-16 bg-black/95 backdrop-blur-md z-40 animate-fade-in md:hidden">
+        <div className={`fixed inset-0 pt-16 ${isLight ? "bg-white/95" : "bg-black/95"} backdrop-blur-md z-40 animate-fade-in md:hidden`}>
           <nav className="flex flex-col items-center justify-center h-full space-y-8 p-6">
             {user ? (
               <>
@@ -209,14 +209,14 @@ const LandingPage = () => {
               <div className="flex flex-col items-center space-y-4 mt-6">
                 <Link 
                   to="/login" 
-                  className="text-xl font-medium py-2 px-6 rounded-lg hover:bg-white/5 transition-colors"
+                  className={`text-xl font-medium py-2 px-6 rounded-lg ${isLight ? "hover:bg-gray-50" : "hover:bg-white/5"} transition-colors`}
                   onClick={toggleMenu}
                 >
                   Sign in
                 </Link>
                 <Link 
                   to="/signup" 
-                  className="text-xl font-medium py-2 px-6 rounded-lg bg-white text-black hover:bg-white/90 transition-colors"
+                  className={`text-xl font-medium py-2 px-6 rounded-lg ${isLight ? "bg-black text-white hover:bg-gray-800" : "bg-white text-black hover:bg-white/90"} transition-colors`}
                   onClick={toggleMenu}
                 >
                   Sign up
@@ -232,7 +232,7 @@ const LandingPage = () => {
           <div className="container mx-auto px-4">
             <AnimatedTransition>
               <div className="max-w-4xl mx-auto text-center">
-                <div className="inline-flex items-center px-4 py-2 mb-6 rounded-full bg-primary/10 text-primary-foreground text-sm md:text-base font-medium">
+                <div className={`inline-flex items-center px-4 py-2 mb-6 rounded-full ${isLight ? "bg-gray-100 text-gray-800" : "bg-primary/10 text-primary-foreground"} text-sm md:text-base font-medium`}>
                   <span>Emergency Response Platform</span>
                 </div>
                 
@@ -246,11 +246,11 @@ const LandingPage = () => {
                 
                 <div className="flex flex-col sm:flex-row justify-center gap-4">
                   {isLoading ? (
-                    <div className="h-12 bg-white/10 animate-pulse rounded-lg w-40"></div>
+                    <div className={`h-12 ${isLight ? "bg-gray-100" : "bg-white/10"} animate-pulse rounded-lg w-40`}></div>
                   ) : user ? (
                     <Link 
                       to="/dashboard" 
-                      className="inline-flex items-center justify-center px-6 py-3 rounded-lg text-base font-medium bg-white text-black hover:bg-white/90 transition-colors"
+                      className={`inline-flex items-center justify-center px-6 py-3 rounded-lg text-base font-medium ${isLight ? "bg-black text-white hover:bg-gray-800" : "bg-white text-black hover:bg-white/90"} transition-colors`}
                     >
                       Go to Dashboard
                       <ArrowRight size={18} className="ml-2" />
@@ -258,7 +258,7 @@ const LandingPage = () => {
                   ) : (
                     <button 
                       onClick={handleGetStarted}
-                      className="inline-flex items-center justify-center px-6 py-3 rounded-lg text-base font-medium bg-white text-black hover:bg-white/90 transition-colors"
+                      className={`inline-flex items-center justify-center px-6 py-3 rounded-lg text-base font-medium ${isLight ? "bg-black text-white hover:bg-gray-800" : "bg-white text-black hover:bg-white/90"} transition-colors`}
                     >
                       Get Started
                       <ArrowRight size={18} className="ml-2" />
@@ -267,7 +267,7 @@ const LandingPage = () => {
                   
                   <Link 
                     to="/emergency-plan" 
-                    className="inline-flex items-center justify-center px-6 py-3 rounded-lg text-base font-medium bg-transparent border border-white/20 hover:bg-white/5 transition-colors"
+                    className={`inline-flex items-center justify-center px-6 py-3 rounded-lg text-base font-medium ${isLight ? "bg-transparent border border-gray-200 hover:bg-gray-50" : "bg-transparent border border-white/20 hover:bg-white/5"} transition-colors`}
                   >
                     Emergency Resources
                   </Link>
@@ -277,7 +277,7 @@ const LandingPage = () => {
           </div>
         </section>
         
-        <section className="py-16 bg-black/40">
+        <section className={`py-16 ${isLight ? "bg-gray-50" : "bg-black/40"}`}>
           <div className="container mx-auto px-4">
             <AnimatedTransition>
               <div className="max-w-4xl mx-auto text-center mb-12">
@@ -288,8 +288,8 @@ const LandingPage = () => {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="p-6 rounded-xl bg-black/20 border border-white/10">
-                  <div className="w-12 h-12 mb-4 rounded-full flex items-center justify-center bg-white/10">
+                <div className={`p-6 rounded-xl ${isLight ? "bg-white border border-gray-100 shadow-soft" : "bg-black/20 border border-white/10"}`}>
+                  <div className={`w-12 h-12 mb-4 rounded-full flex items-center justify-center ${isLight ? "bg-gray-100" : "bg-white/10"}`}>
                     <AlertTriangle size={20} />
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Report Needs</h3>
@@ -298,8 +298,8 @@ const LandingPage = () => {
                   </p>
                 </div>
                 
-                <div className="p-6 rounded-xl bg-black/20 border border-white/10">
-                  <div className="w-12 h-12 mb-4 rounded-full flex items-center justify-center bg-white/10">
+                <div className={`p-6 rounded-xl ${isLight ? "bg-white border border-gray-100 shadow-soft" : "bg-black/20 border border-white/10"}`}>
+                  <div className={`w-12 h-12 mb-4 rounded-full flex items-center justify-center ${isLight ? "bg-gray-100" : "bg-white/10"}`}>
                     <CheckCircle size={20} />
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Coordinate Response</h3>
@@ -308,8 +308,8 @@ const LandingPage = () => {
                   </p>
                 </div>
                 
-                <div className="p-6 rounded-xl bg-black/20 border border-white/10">
-                  <div className="w-12 h-12 mb-4 rounded-full flex items-center justify-center bg-white/10">
+                <div className={`p-6 rounded-xl ${isLight ? "bg-white border border-gray-100 shadow-soft" : "bg-black/20 border border-white/10"}`}>
+                  <div className={`w-12 h-12 mb-4 rounded-full flex items-center justify-center ${isLight ? "bg-gray-100" : "bg-white/10"}`}>
                     <MapPin size={20} />
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Track Progress</h3>
@@ -323,7 +323,7 @@ const LandingPage = () => {
         </section>
       </main>
       
-      <footer className="py-8 bg-black border-t border-white/10">
+      <footer className={`py-8 ${isLight ? "bg-white border-t border-gray-100" : "bg-black border-t border-white/10"}`}>
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">

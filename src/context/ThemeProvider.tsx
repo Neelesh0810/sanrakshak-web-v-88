@@ -11,8 +11,8 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // Change default theme to 'dark'
-  const [theme, setTheme] = useState<Theme>('dark');
+  // Change default theme to 'light'
+  const [theme, setTheme] = useState<Theme>('light');
 
   useEffect(() => {
     // Check if user has saved theme preference
@@ -20,9 +20,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (storedTheme === 'light' || storedTheme === 'dark') {
       setTheme(storedTheme);
     } else {
-      // If no preference, default to dark
-      setTheme('dark');
-      localStorage.setItem('theme', 'dark');
+      // If no preference, default to light
+      setTheme('light');
+      localStorage.setItem('theme', 'light');
     }
 
     // Check if user has settings with darkMode preference

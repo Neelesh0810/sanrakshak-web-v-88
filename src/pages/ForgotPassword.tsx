@@ -44,7 +44,7 @@ const ForgotPassword = () => {
       <div className="flex-1 flex items-center justify-center p-4">
         <AnimatedTransition className="w-full max-w-md">
           {!isSubmitted ? (
-            <div className={`${isLight ? "border border-gray-300 shadow-soft bg-white" : "glass-dark"} rounded-xl p-6 sm:p-8`}>
+            <div className={`${isLight ? "border border-gray-200 shadow-soft bg-white" : "glass-dark"} rounded-xl p-6 sm:p-8`}>
               <div className="text-center mb-8">
                 <h1 className="text-2xl font-bold mb-2">Reset Password</h1>
                 <p className={isLight ? "text-gray-600" : "text-gray-400"}>Enter your email to receive reset instructions</p>
@@ -66,7 +66,7 @@ const ForgotPassword = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className={`w-full ${isLight ? "bg-white border-gray-300 placeholder:text-gray-400 focus:ring-gray-400" : "bg-black/40 border-white/10 placeholder:text-gray-500 focus:ring-white/30"} border rounded-lg py-3 pl-10 pr-4 focus:ring-1 focus:outline-none`}
+                      className={`w-full ${isLight ? "bg-white border-gray-200 placeholder:text-gray-400 focus:ring-gray-400" : "bg-black/40 border-white/10 placeholder:text-gray-500 focus:ring-white/30"} border rounded-lg py-3 pl-10 pr-4 focus:ring-1 focus:outline-none`}
                     />
                   </div>
                 </div>
@@ -95,7 +95,7 @@ const ForgotPassword = () => {
               </form>
             </div>
           ) : (
-            <div className={`${isLight ? "border border-gray-300 shadow-soft bg-white" : "glass-dark"} rounded-xl p-6 sm:p-8 text-center`}>
+            <div className={`${isLight ? "border border-gray-200 shadow-soft bg-white" : "glass-dark"} rounded-xl p-6 sm:p-8 text-center`}>
               <div className="flex justify-center mb-6">
                 <div className={`w-16 h-16 rounded-full ${isLight ? "bg-gray-100" : "bg-white/10"} flex items-center justify-center`}>
                   <CheckCircle size={32} className={isLight ? "text-black" : "text-white"} />

@@ -39,35 +39,37 @@
     --radius: 0.75rem;
   }
 
-  /* Light mode - Updated to be white with proper contrast */
+  /* Light mode - Improved white theme with modern look */
   :root, .light-mode {
     --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --foreground: 222 47% 11%;
     
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    --card-foreground: 222 47% 11%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
+    --popover-foreground: 222 47% 11%;
     
-    --primary: 0 0% 0%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 222 47% 11%;
+    --primary-foreground: 210 40% 98%;
     
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 3.9%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11%;
     
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
     
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 3.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222 47% 11%;
     
     --destructive: 0 72.2% 50.6%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 210 40% 98%;
     
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222 47% 11%;
+    
+    --radius: 0.5rem;
   }
 }
 
@@ -102,6 +104,15 @@
   
   .dark-mode .glass-dark {
     @apply backdrop-blur-lg bg-black/30 border border-white/5;
+  }
+  
+  /* Light mode styles */
+  .light-mode .glass-morphism {
+    @apply backdrop-blur-xl bg-white border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)];
+  }
+  
+  .light-mode .glass-dark {
+    @apply bg-white border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)];
   }
   
   .card, .neo-element {

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
@@ -149,14 +150,14 @@ const Signup = () => {
       </div>
       <div className="flex-1 flex items-center justify-center p-4">
         <AnimatedTransition className="w-full max-w-md">
-          <div className={`${isLight ? "border border-gray-300 shadow-soft bg-white" : "glass-dark border border-white/10"} rounded-xl p-6 sm:p-8`}>
+          <div className={`${isLight ? "border border-gray-200 shadow-soft bg-white" : "glass-dark border border-white/10"} rounded-xl p-6 sm:p-8`}>
             <div className="text-center mb-8">
               <h1 className="text-2xl font-bold mb-2">Create an Account</h1>
               <p className={isLight ? "text-gray-600" : "text-gray-400"}>Join Relief Connect and help your community</p>
             </div>
             
             {error && (
-              <div className={`mb-4 p-3 ${isLight ? "bg-red-50 border border-red-200 text-red-600" : "bg-white/5 border border-white/10 text-red-400"} rounded-lg text-sm`}>
+              <div className={`mb-4 p-3 ${isLight ? "bg-red-50 border border-red-100 text-red-600" : "bg-white/5 border border-white/10 text-red-400"} rounded-lg text-sm`}>
                 {error}
               </div>
             )}
@@ -177,7 +178,7 @@ const Signup = () => {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
-                    className={`w-full ${isLight ? "bg-white border-gray-300 placeholder:text-gray-400 focus:ring-gray-400" : "bg-black/40 border-white/10 placeholder:text-gray-500 focus:ring-white/30"} border rounded-lg py-3 pl-10 pr-4 focus:ring-1 focus:outline-none`}
+                    className={`w-full ${isLight ? "bg-white border-gray-200 placeholder:text-gray-400 focus:ring-gray-400" : "bg-black/40 border-white/10 placeholder:text-gray-500 focus:ring-white/30"} border rounded-lg py-3 pl-10 pr-4 focus:ring-1 focus:outline-none`}
                   />
                 </div>
               </div>
@@ -197,7 +198,7 @@ const Signup = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className={`w-full ${isLight ? "bg-white border-gray-300 placeholder:text-gray-400 focus:ring-gray-400" : "bg-black/40 border-white/10 placeholder:text-gray-500 focus:ring-white/30"} border rounded-lg py-3 pl-10 pr-4 focus:ring-1 focus:outline-none`}
+                    className={`w-full ${isLight ? "bg-white border-gray-200 placeholder:text-gray-400 focus:ring-gray-400" : "bg-black/40 border-white/10 placeholder:text-gray-500 focus:ring-white/30"} border rounded-lg py-3 pl-10 pr-4 focus:ring-1 focus:outline-none`}
                   />
                 </div>
               </div>
@@ -218,7 +219,7 @@ const Signup = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength={8}
-                    className={`w-full ${isLight ? "bg-white border-gray-300 placeholder:text-gray-400 focus:ring-gray-400" : "bg-black/40 border-white/10 placeholder:text-gray-500 focus:ring-white/30"} border rounded-lg py-3 pl-10 pr-4 focus:ring-1 focus:outline-none`}
+                    className={`w-full ${isLight ? "bg-white border-gray-200 placeholder:text-gray-400 focus:ring-gray-400" : "bg-black/40 border-white/10 placeholder:text-gray-500 focus:ring-white/30"} border rounded-lg py-3 pl-10 pr-4 focus:ring-1 focus:outline-none`}
                   />
                 </div>
               </div>
@@ -238,7 +239,7 @@ const Signup = () => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
-                    className={`w-full ${isLight ? "bg-white border-gray-300 placeholder:text-gray-400 focus:ring-gray-400" : "bg-black/40 border-white/10 placeholder:text-gray-500 focus:ring-white/30"} border rounded-lg py-3 pl-10 pr-4 focus:ring-1 focus:outline-none`}
+                    className={`w-full ${isLight ? "bg-white border-gray-200 placeholder:text-gray-400 focus:ring-gray-400" : "bg-black/40 border-white/10 placeholder:text-gray-500 focus:ring-white/30"} border rounded-lg py-3 pl-10 pr-4 focus:ring-1 focus:outline-none`}
                   />
                 </div>
               </div>
@@ -255,7 +256,7 @@ const Signup = () => {
                     id="role"
                     value={role}
                     onChange={handleRoleChange}
-                    className={`w-full ${isLight ? "bg-white border-gray-300 focus:ring-gray-400" : "bg-black/40 border-white/10 focus:ring-white/30"} border rounded-lg py-3 pl-10 pr-4 appearance-none focus:ring-1 focus:outline-none`}
+                    className={`w-full ${isLight ? "bg-white border-gray-200 focus:ring-gray-400" : "bg-black/40 border-white/10 focus:ring-white/30"} border rounded-lg py-3 pl-10 pr-4 appearance-none focus:ring-1 focus:outline-none`}
                   >
                     <option value="victim">Someone affected by disaster</option>
                     <option value="volunteer">A volunteer</option>
@@ -288,7 +289,7 @@ const Signup = () => {
                       value={adminCode}
                       onChange={(e) => setAdminCode(e.target.value)}
                       required={role === 'admin'}
-                      className={`w-full ${isLight ? "bg-white border-gray-300 placeholder:text-gray-400 focus:ring-gray-400" : "bg-black/40 border-white/10 placeholder:text-gray-500 focus:ring-white/30"} border rounded-lg py-3 pl-10 pr-4 focus:ring-1 focus:outline-none`}
+                      className={`w-full ${isLight ? "bg-white border-gray-200 placeholder:text-gray-400 focus:ring-gray-400" : "bg-black/40 border-white/10 placeholder:text-gray-500 focus:ring-white/30"} border rounded-lg py-3 pl-10 pr-4 focus:ring-1 focus:outline-none`}
                     />
                   </div>
                   <p className={`mt-1 text-xs ${isLight ? "text-gray-600" : "text-gray-400"}`}>Contact system administrator for this code</p>
@@ -313,8 +314,8 @@ const Signup = () => {
                 )}
               </button>
               
-              <div className="text-center text-sm text-gray-400">
-                <span>Already have an account? </span>
+              <div className="text-center text-sm">
+                <span className={isLight ? "text-gray-600" : "text-gray-400"}>Already have an account? </span>
                 <Link to="/login" className={isLight ? "text-black hover:underline" : "text-white hover:underline"}>
                   Sign in
                 </Link>
