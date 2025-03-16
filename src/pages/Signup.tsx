@@ -24,11 +24,10 @@ const Signup = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Signup form submitted, preventing default");
     setLoading(true);
-    
-    console.log("Signup form submitted");
     
     if (!name || !email || !password) {
       toast({
@@ -58,6 +57,7 @@ const Signup = () => {
     }
     
     try {
+      // Check if user with same email already exists
       const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
       if (existingUsers.find((user: any) => user.email === email)) {
         toast({
@@ -68,6 +68,7 @@ const Signup = () => {
         return;
       }
       
+      // Create new user object
       const newUser = {
         id: `user-${Date.now()}`,
         name,
@@ -78,6 +79,7 @@ const Signup = () => {
         role,
         canVolunteer,
       };
+      console.log("Creating new user:", newUser);
       
       // Save user to localStorage for authentication
       localStorage.setItem('authUser', JSON.stringify(newUser));
@@ -92,7 +94,7 @@ const Signup = () => {
       
       toast({
         title: "Signup successful",
-        description: "You have successfully signed up.",
+        description: "Your account has been created successfully.",
       });
       
       // Update the user in the users array with more details
@@ -117,19 +119,20 @@ const Signup = () => {
         localStorage.setItem('users', JSON.stringify(allUsers));
       }
       
-      console.log("Signup successful, redirecting to:", role === 'admin' ? '/admin-dashboard' : '/dashboard');
+      // Determine redirect path based on user role
+      const redirectPath = role === 'admin' ? '/admin-dashboard' : '/dashboard';
+      console.log("Signup successful, redirecting to:", redirectPath);
       
-      // Redirect based on user role with replace: true to prevent back navigation
-      if (role === 'admin') {
-        navigate('/admin-dashboard', { replace: true });
-      } else {
-        navigate('/dashboard', { replace: true });
-      }
+      // Use a slight delay to ensure state updates before navigation
+      setTimeout(() => {
+        navigate(redirectPath, { replace: true });
+      }, 100);
+      
     } catch (error) {
       console.error("Error during signup:", error);
       toast({
         title: "Signup failed",
-        description: "An error occurred during signup. Please try again.",
+        description: "An error occurred. Please try again.",
       });
     } finally {
       setLoading(false);

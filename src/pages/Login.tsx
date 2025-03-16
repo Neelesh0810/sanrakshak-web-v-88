@@ -24,21 +24,24 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     // Prevent default form submission
     e.preventDefault();
+    console.log("Login form submitted, preventing default");
     setIsSubmitting(true);
     
     try {
-      console.log("Login form submitted. Login type:", loginType);
+      console.log("Login attempt - Email:", email, "Type:", loginType);
       
+      // Get users from localStorage
       const storedUsers = localStorage.getItem('users');
       const users = storedUsers ? JSON.parse(storedUsers) : [];
+      console.log("Retrieved users from localStorage:", users.length, "users found");
       
       let loggedInUser;
       
       if (loginType === 'admin') {
-        // For admin login, make sure to check the role as well
+        // For admin login
         loggedInUser = users.find((user: any) => 
           user.email === email && 
           user.password === password && 
@@ -46,7 +49,7 @@ const Login = () => {
         );
         
         if (!loggedInUser) {
-          console.log("Admin login failed");
+          console.log("Admin login failed - invalid credentials");
           toast({
             title: "Admin Login Failed",
             description: "Invalid admin credentials. Please check your email and password.",
@@ -59,7 +62,7 @@ const Login = () => {
         loggedInUser = users.find((user: any) => user.email === email && user.password === password);
         
         if (!loggedInUser) {
-          console.log("User login failed");
+          console.log("User login failed - invalid credentials");
           toast({
             title: "Login Failed",
             description: "Invalid credentials. Please check your email and password.",
@@ -69,7 +72,8 @@ const Login = () => {
         }
       }
       
-      // Save authenticated user to localStorage
+      // User found, save to localStorage
+      console.log("Login successful - User found:", loggedInUser.name);
       localStorage.setItem('authUser', JSON.stringify(loggedInUser));
       
       toast({
@@ -114,14 +118,15 @@ const Login = () => {
       // Dispatch event to notify other components
       window.dispatchEvent(new Event('auth-changed'));
       
-      console.log("Login successful, redirecting to:", loggedInUser.role === 'admin' ? '/admin-dashboard' : '/dashboard');
+      // Determine redirect path based on user role
+      const redirectPath = loggedInUser.role === 'admin' ? '/admin-dashboard' : '/dashboard';
+      console.log("Redirecting to:", redirectPath);
       
-      // Redirect based on user role (with replace: true to prevent back navigation to login)
-      if (loggedInUser.role === 'admin') {
-        navigate('/admin-dashboard', { replace: true });
-      } else {
-        navigate('/dashboard', { replace: true });
-      }
+      // Use a slight delay to ensure state updates before navigation
+      setTimeout(() => {
+        navigate(redirectPath, { replace: true });
+      }, 100);
+      
     } catch (error) {
       console.error("Error during login:", error);
       toast({
