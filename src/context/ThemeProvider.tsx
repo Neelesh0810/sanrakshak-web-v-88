@@ -24,6 +24,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.classList.add('light-mode');
     document.body.classList.remove('dark-mode');
     document.body.classList.add('light-mode');
+    
+    // Apply better text contrast
+    document.documentElement.style.setProperty('--foreground', '240 10% 10%');
+    document.documentElement.style.setProperty('--card-foreground', '240 10% 10%');
+    document.documentElement.style.setProperty('--popover-foreground', '240 10% 10%');
   }, []);
 
   useEffect(() => {

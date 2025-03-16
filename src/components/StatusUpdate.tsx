@@ -32,11 +32,11 @@ const StatusUpdate: React.FC<StatusUpdateProps> = ({
       case 'high':
         return 'border-l-4 border-red-500';
       case 'medium':
-        return isLight ? 'border-l-4 border-gray-800' : 'border-l-4 border-gray-400';
+        return 'border-l-4 border-amber-500';
       case 'low':
-        return isLight ? 'border-l-4 border-gray-500' : 'border-l-4 border-gray-700';
+        return 'border-l-4 border-blue-500';
       default:
-        return isLight ? 'border-l-4 border-gray-800' : 'border-l-4 border-gray-400';
+        return 'border-l-4 border-amber-500';
     }
   };
 
@@ -53,24 +53,24 @@ const StatusUpdate: React.FC<StatusUpdateProps> = ({
     >
       <div className="p-4">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="font-semibold text-lg">{title}</h3>
-          <div className="flex items-center text-xs text-gray-400">
+          <h3 className="font-semibold text-lg text-gray-900">{title}</h3>
+          <div className="flex items-center text-xs text-gray-600">
             <Clock size={12} className="mr-1" />
             <span>{timestamp}</span>
           </div>
         </div>
         
-        <p className={cn("text-sm mb-3", isLight ? "text-gray-700" : "text-gray-300")}>{message}</p>
+        <p className={cn("text-sm mb-3", isLight ? "text-gray-800" : "text-gray-300")}>{message}</p>
         
         <div className="flex justify-between items-center">
-          <span className={cn("text-xs", isLight ? "text-gray-600" : "text-gray-500")}>Source: {source}</span>
+          <span className={cn("text-xs", isLight ? "text-gray-700" : "text-gray-500")}>Source: {source}</span>
           <Link 
             to={`/status/${id}`} 
             className={cn(
               "text-xs px-3 py-1 rounded-full transition-colors",
               isLight 
-                ? "bg-gray-200 hover:bg-gray-300 text-gray-800" 
-                : "bg-white/10 hover:bg-white/15"
+                ? "bg-blue-100 hover:bg-blue-200 text-blue-800" 
+                : "bg-blue-900/20 hover:bg-blue-900/30 text-blue-300"
             )}
           >
             Details

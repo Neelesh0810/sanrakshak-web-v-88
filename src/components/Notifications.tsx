@@ -34,6 +34,21 @@ const NotificationIcon = ({ type }: { type: NotificationType }) => {
   }
 };
 
+const getIconBackgroundColor = (type: NotificationType, isLight: boolean) => {
+  switch (type) {
+    case 'alert':
+      return isLight ? "bg-red-500" : "bg-red-500/80";
+    case 'request':
+      return isLight ? "bg-amber-500" : "bg-amber-500/80";
+    case 'response':
+      return isLight ? "bg-blue-500" : "bg-blue-500/80";
+    case 'update':
+      return isLight ? "bg-emerald-500" : "bg-emerald-500/80";
+    default:
+      return isLight ? "bg-purple-500" : "bg-purple-500/80";
+  }
+};
+
 const Notifications: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -161,9 +176,9 @@ const Notifications: React.FC = () => {
         onClick={toggleNotifications}
         aria-label="Notifications"
       >
-        <Bell size={20} />
+        <Bell size={20} className={unreadCount > 0 ? "text-blue-500" : ""} />
         {unreadCount > 0 && (
-          <span className="absolute top-0 right-0 w-4 h-4 bg-white text-black text-xs flex items-center justify-center rounded-full">
+          <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white text-xs flex items-center justify-center rounded-full">
             {unreadCount}
           </span>
         )}
@@ -179,12 +194,12 @@ const Notifications: React.FC = () => {
             className={`absolute right-0 mt-2 w-80 sm:w-96 ${isLight ? "bg-white border border-gray-300" : "bg-black border border-white/10"} shadow-xl rounded-xl z-50 overflow-hidden`}
           >
             <div className={`p-4 ${isLight ? "border-b border-gray-200" : "border-b border-white/10"} flex justify-between items-center`}>
-              <h3 className="font-medium">Notifications</h3>
+              <h3 className="font-medium text-gray-900">Notifications</h3>
               <div className="flex items-center space-x-2">
                 {unreadCount > 0 && (
                   <button 
                     onClick={markAllAsRead}
-                    className={`text-xs flex items-center ${isLight ? "text-gray-600 hover:text-gray-900" : "text-gray-400 hover:text-white"}`}
+                    className={`text-xs flex items-center ${isLight ? "text-blue-600 hover:text-blue-800" : "text-blue-400 hover:text-blue-300"}`}
                   >
                     <CheckCheck size={14} className="mr-1" />
                     Mark all as read
@@ -207,25 +222,21 @@ const Notifications: React.FC = () => {
                       key={notification.id}
                       onClick={() => handleNotificationClick(notification)}
                       className={`p-4 ${isLight ? "border-b border-gray-200 hover:bg-gray-50" : "border-b border-white/5 hover:bg-white/5"} cursor-pointer transition-colors ${
-                        !notification.read ? (isLight ? "bg-gray-50" : "bg-white/5") : ''
+                        !notification.read ? (isLight ? "bg-blue-50" : "bg-blue-900/10") : ''
                       }`}
                     >
                       <div className="flex items-start">
-                        <div className={`p-2 rounded-full mr-3 ${
-                          notification.type === 'alert' 
-                            ? (isLight ? "bg-red-100" : "bg-white/20") 
-                            : (isLight ? "bg-gray-100" : "bg-white/10")
-                        }`}>
+                        <div className={`p-2 rounded-full mr-3 ${getIconBackgroundColor(notification.type, isLight)}`}>
                           <NotificationIcon type={notification.type} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-start">
-                            <h4 className="font-medium text-sm">{notification.title}</h4>
-                            <span className={`text-xs ${isLight ? "text-gray-500" : "text-gray-400"} whitespace-nowrap ml-2`}>
+                            <h4 className="font-semibold text-sm text-gray-900">{notification.title}</h4>
+                            <span className={`text-xs ${isLight ? "text-gray-600" : "text-gray-400"} whitespace-nowrap ml-2`}>
                               {formatTime(notification.time)}
                             </span>
                           </div>
-                          <p className={`text-sm ${isLight ? "text-gray-600" : "text-gray-300"} mt-1 line-clamp-2`}>
+                          <p className={`text-sm ${isLight ? "text-gray-800" : "text-gray-300"} mt-1 line-clamp-2`}>
                             {notification.message}
                           </p>
                         </div>
@@ -235,7 +246,7 @@ const Notifications: React.FC = () => {
                 </div>
               ) : (
                 <div className="py-6 text-center">
-                  <p className={`${isLight ? "text-gray-500" : "text-gray-400"} text-sm`}>No notifications yet</p>
+                  <p className={`${isLight ? "text-gray-700" : "text-gray-400"} text-sm`}>No notifications yet</p>
                 </div>
               )}
             </div>
