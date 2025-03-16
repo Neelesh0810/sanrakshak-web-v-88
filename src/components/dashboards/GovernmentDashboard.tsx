@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BarChart, Building2, Users, FileText, AlertTriangle, UserCheck, Building } from 'lucide-react';
 import StatusUpdate from '../StatusUpdate';
 import AnimatedTransition from '../AnimatedTransition';
@@ -8,6 +8,7 @@ import useResourceData from '@/hooks/useResourceData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import UserProfile from '../UserProfile';
 import { Button } from '@/components/ui/button';
+import RegisteredHelpersDialog from '../RegisteredHelpersDialog';
 
 interface GovernmentDashboardProps {
   resourceData?: ReturnType<typeof useResourceData>;
@@ -15,44 +16,69 @@ interface GovernmentDashboardProps {
 
 const GovernmentDashboard: React.FC<GovernmentDashboardProps> = () => {
   const [helperFilter, setHelperFilter] = useState<'all' | 'volunteer' | 'ngo'>('all');
+  const [showAllHelpersDialog, setShowAllHelpersDialog] = useState(false);
+  const [users, setUsers] = useState<any[]>([]);
   
-  // Sample user data - in a real app, this would come from a database or API
-  const users = [
-    {
-      id: "volunteer-1",
-      name: "Sarah Johnson",
-      role: "volunteer",
-      contactInfo: "sarah.j@example.com",
-      location: "Central District",
-      lastActive: "2 hours ago",
-      skills: ["First Aid", "Search & Rescue", "Logistics"]
-    },
-    {
-      id: "ngo-1",
-      name: "Red Cross Chapter",
-      role: "ngo",
-      contactInfo: "local@redcross.org",
-      location: "Multiple Districts",
-      lastActive: "30 minutes ago"
-    },
-    {
-      id: "volunteer-2",
-      name: "Michael Chen",
-      role: "volunteer",
-      contactInfo: "m.chen@example.com",
-      location: "North District",
-      lastActive: "4 hours ago",
-      skills: ["Medical", "Transportation", "Communication"]
-    },
-    {
-      id: "ngo-2",
-      name: "Community Relief Foundation",
-      role: "ngo",
-      contactInfo: "help@crf.org",
-      location: "South District",
-      lastActive: "1 hour ago"
+  useEffect(() => {
+    // Get users from localStorage where they're stored during account creation
+    const storedUsers = localStorage.getItem('users');
+    if (storedUsers) {
+      try {
+        const parsedUsers = JSON.parse(storedUsers);
+        // Only include volunteers and NGOs and limit to 4 for the preview
+        const helpersOnly = parsedUsers
+          .filter((user: any) => user.role === 'volunteer' || user.role === 'ngo')
+          .slice(0, 4);
+        setUsers(helpersOnly);
+      } catch (error) {
+        console.error('Error parsing stored users:', error);
+        // Fallback to sample users if error
+        setUsers(getSampleUsers());
+      }
+    } else {
+      // If no users found in localStorage, use sample data
+      setUsers(getSampleUsers());
     }
-  ];
+  }, []);
+
+  const getSampleUsers = () => {
+    return [
+      {
+        id: "volunteer-1",
+        name: "Sarah Johnson",
+        role: "volunteer",
+        contactInfo: "sarah.j@example.com",
+        location: "Central District",
+        lastActive: "2 hours ago",
+        skills: ["First Aid", "Search & Rescue", "Logistics"]
+      },
+      {
+        id: "ngo-1",
+        name: "Red Cross Chapter",
+        role: "ngo",
+        contactInfo: "local@redcross.org",
+        location: "Multiple Districts",
+        lastActive: "30 minutes ago"
+      },
+      {
+        id: "volunteer-2",
+        name: "Michael Chen",
+        role: "volunteer",
+        contactInfo: "m.chen@example.com",
+        location: "North District",
+        lastActive: "4 hours ago",
+        skills: ["Medical", "Transportation", "Communication"]
+      },
+      {
+        id: "ngo-2",
+        name: "Community Relief Foundation",
+        role: "ngo",
+        contactInfo: "help@crf.org",
+        location: "South District",
+        lastActive: "1 hour ago"
+      }
+    ];
+  };
   
   const filteredUsers = users.filter(user => {
     if (helperFilter === 'all') return true;
@@ -179,7 +205,7 @@ const GovernmentDashboard: React.FC<GovernmentDashboardProps> = () => {
                     contactInfo={user.contactInfo}
                     location={user.location}
                     lastActive={user.lastActive}
-                    skills={user.role === 'volunteer' ? (user as any).skills : undefined}
+                    skills={user.role === 'volunteer' ? user.skills : undefined}
                     userId={user.id}
                   />
                 ))}
@@ -193,9 +219,13 @@ const GovernmentDashboard: React.FC<GovernmentDashboardProps> = () => {
               </div>
               
               <div className="mt-4 text-center">
-                <Link to="/all-helpers" className="px-4 py-2 rounded-full text-sm bg-white/10 hover:bg-white/15 transition-colors inline-block">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowAllHelpersDialog(true)}
+                  className="px-4 py-2 rounded-full text-sm bg-white/10 hover:bg-white/15 transition-colors inline-block"
+                >
                   View All Registered Helpers
-                </Link>
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -269,6 +299,11 @@ const GovernmentDashboard: React.FC<GovernmentDashboardProps> = () => {
           </AnimatedTransition>
         </div>
       </div>
+      
+      <RegisteredHelpersDialog 
+        open={showAllHelpersDialog} 
+        onOpenChange={setShowAllHelpersDialog} 
+      />
     </div>
   );
 };

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Header from '../components/Header';
@@ -21,7 +22,28 @@ const ChatSection = () => {
   useEffect(() => {
     // Get contact info based on contactId
     const getContactInfo = () => {
-      // In a real app, this would be an API call
+      // First, check if this contactId exists in real users
+      const storedUsers = localStorage.getItem('users');
+      if (storedUsers) {
+        try {
+          const parsedUsers = JSON.parse(storedUsers);
+          const foundUser = parsedUsers.find((user: any) => user.id === contactId);
+          
+          if (foundUser) {
+            setContact({
+              name: foundUser.name,
+              role: foundUser.role,
+              phone: foundUser.contactInfo,
+              isOnline: true, // Assume online for simplicity
+            });
+            return;
+          }
+        } catch (error) {
+          console.error("Error parsing stored users:", error);
+        }
+      }
+      
+      // If not found in real users, fall back to predefined contacts
       const contactMap: {[key: string]: any} = {
         'emergency-1': {
           name: 'Emergency Response',
