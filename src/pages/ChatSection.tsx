@@ -171,11 +171,11 @@ const ChatSection = () => {
   };
   
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
+    <div className="min-h-screen bg-white text-black flex flex-col">
       <Header emergency={true} />
       
       <main className="flex-grow pt-16 flex flex-col">
-        <div className="border-b border-white/10 bg-black/50 backdrop-blur-md">
+        <div className="border-b border-black/10 bg-white/50 backdrop-blur-md">
           <div className="container mx-auto px-4">
             <div className="flex items-center py-3">
               <BackButton className="mr-4" />
@@ -183,16 +183,16 @@ const ChatSection = () => {
               <div className="flex-grow">
                 <h2 className="font-medium">{contact?.name}</h2>
                 <div className="flex items-center">
-                  <div className={`h-2 w-2 rounded-full mr-2 ${contact?.isOnline ? 'bg-white' : 'bg-gray-600'}`}></div>
-                  <span className="text-xs text-gray-400">{contact?.role}</span>
+                  <div className={`h-2 w-2 rounded-full mr-2 ${contact?.isOnline ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                  <span className="text-xs text-gray-600">{contact?.role}</span>
                 </div>
               </div>
               
               <div className="flex space-x-3">
-                <button className="p-2 rounded-full hover:bg-white/10 transition-colors">
+                <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
                   <Phone size={20} />
                 </button>
-                <button className="p-2 rounded-full hover:bg-white/10 transition-colors">
+                <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
                   <Video size={20} />
                 </button>
               </div>
@@ -200,7 +200,7 @@ const ChatSection = () => {
           </div>
         </div>
         
-        <div className="flex-grow overflow-y-auto px-4 py-6">
+        <div className="flex-grow overflow-y-auto px-4 py-6 bg-white">
           <div className="container mx-auto max-w-3xl space-y-4">
             {messages.map((message) => (
               <div 
@@ -208,14 +208,14 @@ const ChatSection = () => {
                 className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div 
-                  className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                  className={`max-w-[80%] rounded-2xl px-4 py-3 border-2 ${
                     message.sender === 'user' 
-                      ? 'bg-white/10 rounded-tr-none' 
-                      : 'bg-white/5 rounded-tl-none'
+                      ? 'bg-gray-100 border-black/20 rounded-tr-none' 
+                      : 'bg-white border-black/20 shadow-[0_4px_12px_rgba(0,0,0,0.08)] rounded-tl-none'
                   }`}
                 >
-                  <div className="text-sm mb-1">{message.text}</div>
-                  <div className="text-xs text-gray-400 flex justify-end">
+                  <div className="text-sm mb-1 text-black">{message.text}</div>
+                  <div className="text-xs text-gray-500 flex justify-end">
                     {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     {message.sender === 'user' && message.status && (
                       <span className="ml-2">{message.status === 'read' ? '✓✓' : '✓'}</span>
@@ -227,10 +227,10 @@ const ChatSection = () => {
           </div>
         </div>
         
-        <div className="border-t border-white/10 bg-black/50 backdrop-blur-md py-4">
+        <div className="border-t border-black/10 bg-white/50 backdrop-blur-md py-4">
           <div className="container mx-auto max-w-3xl px-4">
             <form onSubmit={handleSubmit} className="flex items-center space-x-2">
-              <button type="button" className="p-2 rounded-full hover:bg-white/10 transition-colors">
+              <button type="button" className="p-2 rounded-full hover:bg-gray-100 transition-colors">
                 <Paperclip size={20} />
               </button>
               
@@ -240,26 +240,26 @@ const ChatSection = () => {
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Type a message..."
-                  className="w-full bg-white/5 border border-white/10 rounded-full px-4 py-2 focus:outline-none focus:border-white/30"
+                  className="w-full bg-white border-2 border-black/20 rounded-full px-4 py-2 focus:outline-none focus:border-black/30"
                 />
                 
                 <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex space-x-1">
-                  <button type="button" className="p-1.5 rounded-full hover:bg-white/10 transition-colors">
-                    <Image size={18} className="text-gray-400" />
+                  <button type="button" className="p-1.5 rounded-full hover:bg-gray-100 transition-colors">
+                    <Image size={18} className="text-gray-500" />
                   </button>
-                  <button type="button" className="p-1.5 rounded-full hover:bg-white/10 transition-colors">
-                    <MapPin size={18} className="text-gray-400" />
+                  <button type="button" className="p-1.5 rounded-full hover:bg-gray-100 transition-colors">
+                    <MapPin size={18} className="text-gray-500" />
                   </button>
                 </div>
               </div>
               
-              <button type="button" className="p-2 rounded-full hover:bg-white/10 transition-colors">
+              <button type="button" className="p-2 rounded-full hover:bg-gray-100 transition-colors">
                 <Mic size={20} />
               </button>
               
               <button 
                 type="submit" 
-                className="p-2 rounded-full bg-white text-black hover:bg-white/90 transition-colors"
+                className="p-2 rounded-full bg-black text-white hover:bg-black/90 transition-colors border-2 border-black"
               >
                 <Send size={20} />
               </button>
