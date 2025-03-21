@@ -73,46 +73,46 @@ const LandingPage = () => {
       
       <AnimatedTransition>
         <div className="relative min-h-screen flex flex-col">
-          <div className="absolute inset-1">
-            <BackgroundPaths title="Sanrakshak" />
-          </div>
-          
-          <div className="relative z-10 flex flex-col items-center justify-center min-h-screen">
-            <div className="container mx-auto px-4 text-center">
-              <div className="max-w-3xl mx-auto flex flex-col items-center space-y-6 -mt-20">
-{/*                  <h2 className="text-3xl md:text-4xl font-bold mb-4 text-neutral-900 dark:text-white">Sanrakshak</h2> */}
-                
-                <div className="inline-flex items-center px-4 py-2 rounded-full bg-black/5 dark:bg-white/5 text-sm md:text-base font-medium">
-                  <span>Emergency Response Platform</span>
-                </div>
-                
-                <p className="text-lg md:text-xl mb-6 text-neutral-700 dark:text-neutral-300">
-                  Connect those in need with volunteers, NGOs, and government resources during emergencies.
-                </p>
-                
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-4">
-                  {isLoading ? (
-                    <div className="h-12 bg-gray-100 dark:bg-white/10 animate-pulse rounded-lg w-40"></div>
-                  ) : user ? (
-                    <RainbowButton onClick={() => navigate('/dashboard')}>
-                      Go to Dashboard
+          {/* Content Section - Now positioned above the animation */}
+          <div className="relative z-20 container mx-auto px-4 text-center pt-16">
+            <div className="max-w-3xl mx-auto flex flex-col items-center space-y-6">
+              <h2 className="text-4xl md:text-5xl font-bold mb-2 text-neutral-900 dark:text-white">Sanrakshak</h2>
+              
+              <div className="inline-flex items-center px-4 py-2 rounded-full bg-black/5 dark:bg-white/5 text-sm md:text-base font-medium">
+                <span>Emergency Response Platform</span>
+              </div>
+              
+              <p className="text-lg md:text-xl mb-4 text-neutral-700 dark:text-neutral-300">
+                Connect those in need with volunteers, NGOs, and government resources during emergencies.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-2 mb-8">
+                {isLoading ? (
+                  <div className="h-12 bg-gray-100 dark:bg-white/10 animate-pulse rounded-lg w-40"></div>
+                ) : user ? (
+                  <RainbowButton onClick={() => navigate('/dashboard')}>
+                    Go to Dashboard
+                  </RainbowButton>
+                ) : (
+                  <>
+                    <RainbowButton onClick={handleGetStarted}>
+                      Get Started
                     </RainbowButton>
-                  ) : (
-                    <>
-                      <RainbowButton onClick={handleGetStarted}>
-                        Get Started
-                      </RainbowButton>
-                      <Link 
-                        to="/login" 
-                        className="inline-flex items-center justify-center px-6 py-2 rounded-xl text-base font-medium bg-transparent border-2 border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-                      >
-                        Sign In
-                      </Link>
-                    </>
-                  )}
-                </div>
+                    <Link 
+                      to="/login" 
+                      className="inline-flex items-center justify-center px-6 py-2 rounded-xl text-base font-medium bg-transparent border-2 border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                    >
+                      Sign In
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
+          </div>
+          
+          {/* Animation Section - Now below the content */}
+          <div className="absolute inset-0 z-10">
+            <BackgroundPaths title="" />
           </div>
         </div>
       </AnimatedTransition>
