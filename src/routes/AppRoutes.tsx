@@ -154,6 +154,7 @@ const AppRoutes = () => {
           </ProtectedRoute>
         } />
         
+        {/* Add a catch-all route at the end */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

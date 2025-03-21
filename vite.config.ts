@@ -6,7 +6,8 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: "/sanrakshak-web-v-01/",
+  // Remove the base path to serve from root instead of subdirectory
+  // base: "/sanrakshak-web-v-01/",
   server: {
     host: "::",
     port: 8080,
