@@ -59,14 +59,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       document.documentElement.classList.remove('dark');
     }
     
-    // Add CSS for landing page dark mode
-    const style = document.createElement('style');
-    style.innerHTML = `
-      .landing-dark-mode .bg-black\/5 { background-color: rgba(255, 255, 255, 0.05); }
-      .landing-dark-mode { color-scheme: dark; }
-    `;
-    document.head.appendChild(style);
-    
     // Save theme preference to localStorage
     localStorage.setItem('theme', theme);
   }, [theme]);
