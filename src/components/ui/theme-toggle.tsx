@@ -1,26 +1,31 @@
 
 "use client"
 
+import { useState } from "react"
 import { Moon, Sun } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useTheme } from "@/context/ThemeProvider"
 
 interface ThemeToggleProps {
   className?: string
-  theme?: string
 }
 
-export function ThemeToggle({ className, theme }: ThemeToggleProps) {
+export function ThemeToggle({ className }: ThemeToggleProps) {
+  const { theme, setTheme } = useTheme();
   const isDark = theme === "dark";
 
   return (
     <div
       className={cn(
-        "flex w-16 h-8 p-1 rounded-full transition-all duration-300",
+        "flex w-16 h-8 p-1 rounded-full cursor-pointer transition-all duration-300",
         isDark 
           ? "bg-zinc-950 border border-zinc-800" 
           : "bg-white border border-zinc-200",
         className
       )}
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      role="button"
+      tabIndex={0}
     >
       <div className="flex justify-between items-center w-full">
         <div

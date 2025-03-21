@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BackgroundPaths } from '@/components/ui/background-paths';
+import { useTheme } from '@/context/ThemeProvider';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import AnimatedTransition from '@/components/AnimatedTransition';
@@ -10,9 +11,6 @@ const LandingPage = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [localTheme, setLocalTheme] = useState<'dark' | 'light'>(
-    window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-  );
 
   // Check if user is already logged in and update state
   useEffect(() => {
@@ -67,44 +65,30 @@ const LandingPage = () => {
     }
   };
 
-  const toggleLocalTheme = () => {
-    setLocalTheme(prev => prev === 'dark' ? 'light' : 'dark');
-  };
-
-  // Apply theme only to this page's container
-  const themeClass = localTheme === 'dark' ? 'dark-mode' : 'light-mode';
-
   return (
-    <div className={`min-h-screen relative overflow-hidden ${themeClass}`}>
+    <div className="min-h-screen relative overflow-hidden bg-white dark:bg-neutral-950">
       <div className="absolute top-4 right-4 z-20">
-        <div 
-          onClick={toggleLocalTheme}
-          className="cursor-pointer"
-        >
-          <ThemeToggle className="pointer-events-none" />
-        </div>
+        <ThemeToggle />
       </div>
       
       <AnimatedTransition>
         <div className="relative min-h-screen flex flex-col">
-          {/* Title Section - moved higher */}
-          <div className="pt-4 pb-6 relative z-10">
-            <BackgroundPaths title="Sanrakshak" />
-          </div>
+          <BackgroundPaths title="Sanrakshak" />
           
-          {/* Content Section - moved higher and given more specific placement */}
-          <div className="relative w-full z-10 mt-8">
+          <div className="absolute inset-0 flex items-center justify-center z-10">
             <div className="container mx-auto px-4 text-center">
-              <div className="max-w-3xl mx-auto">
-                <div className="inline-flex items-center px-4 py-2 mb-6 rounded-full bg-black/5 dark:bg-white/5 text-sm md:text-base font-medium">
+              <div className="max-w-3xl mx-auto flex flex-col items-center space-y-6">
+                <h2 className="text-3xl md:text-4xl font-bold mb-2 text-neutral-900 dark:text-white">Sanrakshak</h2>
+                
+                <div className="inline-flex items-center px-4 py-2 rounded-full bg-black/5 dark:bg-white/5 text-sm md:text-base font-medium">
                   <span>Emergency Response Platform</span>
                 </div>
                 
-                <p className="text-lg md:text-xl mb-12 text-neutral-700 dark:text-neutral-300">
+                <p className="text-lg md:text-xl mb-6 text-neutral-700 dark:text-neutral-300">
                   Connect those in need with volunteers, NGOs, and government resources during emergencies.
                 </p>
                 
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-4">
                   {isLoading ? (
                     <div className="h-12 bg-gray-100 dark:bg-white/10 animate-pulse rounded-lg w-40"></div>
                   ) : user ? (
