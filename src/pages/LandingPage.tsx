@@ -73,12 +73,14 @@ const LandingPage = () => {
       
       <AnimatedTransition>
         <div className="relative min-h-screen flex flex-col">
-          <BackgroundPaths title="Sanrakshak" />
+          <div className="absolute inset-0">
+            <BackgroundPaths title="Sanrakshak" />
+          </div>
           
-          <div className="absolute inset-0 flex items-center justify-center z-10">
+          <div className="relative z-10 flex flex-col items-center justify-center min-h-screen">
             <div className="container mx-auto px-4 text-center">
-              <div className="max-w-3xl mx-auto flex flex-col items-center space-y-6">
-                <h2 className="text-3xl md:text-4xl font-bold mb-2 text-neutral-900 dark:text-white">Sanrakshak</h2>
+              <div className="max-w-3xl mx-auto flex flex-col items-center space-y-6 -mt-20">
+                <h2 className="text-3xl md:text-4xl font-bold mb-4 text-neutral-900 dark:text-white">Sanrakshak</h2>
                 
                 <div className="inline-flex items-center px-4 py-2 rounded-full bg-black/5 dark:bg-white/5 text-sm md:text-base font-medium">
                   <span>Emergency Response Platform</span>
