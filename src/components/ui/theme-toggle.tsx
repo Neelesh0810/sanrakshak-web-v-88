@@ -1,17 +1,16 @@
 
 "use client"
 
-import { useState } from "react"
 import { Moon, Sun } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useTheme } from "@/context/ThemeProvider"
 
 interface ThemeToggleProps {
-  className?: string
+  className?: string;
+  theme: "dark" | "light";
+  setTheme: (theme: "dark" | "light") => void;
 }
 
-export function ThemeToggle({ className }: ThemeToggleProps) {
-  const { theme, setTheme } = useTheme();
+export function ThemeToggle({ className, theme, setTheme }: ThemeToggleProps) {
   const isDark = theme === "dark";
 
   return (
