@@ -73,14 +73,14 @@ const LandingPage = () => {
       
       <AnimatedTransition>
         <div className="relative min-h-screen flex flex-col">
-          {/* Title Section */}
-          <div className="pt-16 pb-32 relative z-10">
+          {/* Title Section - reduced padding top and bottom */}
+          <div className="pt-8 pb-16 relative z-10">
             <BackgroundPaths title="Sanrakshak" />
           </div>
           
-          {/* Content Section */}
+          {/* Content Section - adjusted top margin */}
           <div className="absolute inset-0 flex items-center justify-center z-10">
-            <div className="container mx-auto px-4 text-center mt-24">
+            <div className="container mx-auto px-4 text-center mt-36">
               <div className="max-w-3xl mx-auto">
                 <div className="inline-flex items-center px-4 py-2 mb-6 rounded-full bg-black/5 dark:bg-white/5 text-sm md:text-base font-medium">
                   <span>Emergency Response Platform</span>
