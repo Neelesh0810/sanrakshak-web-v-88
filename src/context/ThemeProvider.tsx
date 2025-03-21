@@ -11,33 +11,48 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // Always default to light theme
   const [theme, setTheme] = useState<Theme>('light');
 
   useEffect(() => {
-    // Force light theme as default
-    setTheme('light');
-    localStorage.setItem('theme', 'light');
-
-    // Apply the theme immediately
-    document.documentElement.classList.remove('dark-mode');
-    document.documentElement.classList.add('light-mode');
-    document.body.classList.remove('dark-mode');
-    document.body.classList.add('light-mode');
-    
-    // Apply better text contrast - use full black for text in light mode
-    document.documentElement.style.setProperty('--foreground', '0 0% 0%');
-    document.documentElement.style.setProperty('--card-foreground', '0 0% 0%');
-    document.documentElement.style.setProperty('--popover-foreground', '0 0% 0%');
-    document.documentElement.style.setProperty('--muted-foreground', '0 0% 5%');
+    // Load theme from localStorage if available
+    const savedTheme = localStorage.getItem('theme') as Theme;
+    if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
+      setTheme(savedTheme);
+    }
   }, []);
 
   useEffect(() => {
     // Update document with current theme class
-    document.documentElement.classList.remove('light-mode', 'dark-mode');
-    document.documentElement.classList.add(`${theme}-mode`);
-    document.body.classList.remove('light-mode', 'dark-mode');
-    document.body.classList.add(`${theme}-mode`);
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark-mode');
+      document.documentElement.classList.remove('light-mode');
+      document.body.classList.add('dark-mode');
+      document.body.classList.remove('light-mode');
+      
+      // Apply better text contrast for dark mode
+      document.documentElement.style.setProperty('--foreground', '0 0% 98%');
+      document.documentElement.style.setProperty('--card-foreground', '0 0% 98%');
+      document.documentElement.style.setProperty('--popover-foreground', '0 0% 98%');
+      document.documentElement.style.setProperty('--muted-foreground', '0 0% 90%');
+    } else {
+      document.documentElement.classList.remove('dark-mode');
+      document.documentElement.classList.add('light-mode');
+      document.body.classList.remove('dark-mode');
+      document.body.classList.add('light-mode');
+      
+      // Apply better text contrast - use full black for text in light mode
+      document.documentElement.style.setProperty('--foreground', '0 0% 0%');
+      document.documentElement.style.setProperty('--card-foreground', '0 0% 0%');
+      document.documentElement.style.setProperty('--popover-foreground', '0 0% 0%');
+      document.documentElement.style.setProperty('--muted-foreground', '0 0% 5%');
+    }
+    
+    // Add dark class for libraries that use the .dark class
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
     
     // Save theme preference to localStorage
     localStorage.setItem('theme', theme);

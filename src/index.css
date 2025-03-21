@@ -37,6 +37,13 @@
     --ring: 0 0% 83.9%;
     
     --radius: 0.75rem;
+
+    /* Rainbow animation colors */
+    --color-1: 166 84% 67%;
+    --color-2: 219 84% 67%;
+    --color-3: 294 84% 67%;
+    --color-4: 43 84% 67%;
+    --color-5: 358 72% 65%;
   }
 
   /* Light mode - with darker text for better visibility */
@@ -70,6 +77,13 @@
     --ring: 0 0% 0%;
     
     --radius: 0.5rem;
+
+    /* Rainbow animation colors */
+    --color-1: 166 84% 67%;
+    --color-2: 219 84% 67%;
+    --color-3: 294 84% 67%;
+    --color-4: 43 84% 67%;
+    --color-5: 358 72% 65%;
   }
 }
 
@@ -164,6 +178,25 @@
   
   .light-mode {
     @apply bg-white text-black;
+  }
+
+  /* Rainbow animation */
+  .animate-rainbow {
+    animation: rainbow 8s linear infinite;
+    background-size: 200% auto;
+  }
+}
+
+/* Rainbow animation keyframes */
+@keyframes rainbow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 25%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
 
