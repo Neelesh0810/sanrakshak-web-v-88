@@ -72,9 +72,9 @@ const LandingPage = () => {
       </div>
       
       <AnimatedTransition>
-        <div className="relative min-h-screen flex flex-col">
-          {/* Content Section - Now positioned above the animation */}
-          <div className="relative z-20 container mx-auto px-4 text-center pt-16">
+        <div className="relative min-h-screen flex flex-col justify-center items-center">
+          {/* Content Section - Centered on the page */}
+          <div className="relative z-20 container mx-auto px-4 text-center">
             <div className="max-w-3xl mx-auto flex flex-col items-center space-y-6">
               <h2 className="text-4xl md:text-5xl font-bold mb-2 text-neutral-900 dark:text-white">Sanrakshak</h2>
               
@@ -110,7 +110,7 @@ const LandingPage = () => {
             </div>
           </div>
           
-          {/* Animation Section - Now below the content */}
+          {/* Animation Section - As background */}
           <div className="absolute inset-0 z-10">
             <BackgroundPaths title="" />
           </div>
