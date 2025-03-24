@@ -1,65 +1,48 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { User, UserCheck, Building, Shield, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
 
 const RoleSwitcher: React.FC = () => {
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const { user, updateUser } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   
-  useEffect(() => {
-    // Load current user
-    const loadUser = () => {
-      const authUser = localStorage.getItem('authUser');
-      if (authUser) {
-        setCurrentUser(JSON.parse(authUser));
+  const switchRole = async (role: 'victim' | 'volunteer' | 'ngo' | 'government') => {
+    if (!user) return;
+    
+    try {
+      await updateUser({ role });
+      
+      toast({
+        title: "Role Changed",
+        description: `You are now viewing as: ${getRoleName(role)}`,
+        duration: 3000,
+      });
+      
+      // Generate a timestamp to force dashboard refresh
+      const timestamp = Date.now();
+      
+      // If already on dashboard, force a reload to refresh content
+      if (location.pathname === '/dashboard') {
+        // Use a combination of navigate and window.location.reload for a full refresh
+        navigate(`/dashboard?refresh=${timestamp}`, { replace: true });
+        // Add a slight delay before reloading to ensure navigation completes
+        setTimeout(() => window.location.reload(), 100);
+      } else {
+        // Otherwise just navigate to dashboard
+        navigate(`/dashboard?refresh=${timestamp}`, { replace: true });
       }
-    };
-    
-    loadUser();
-    
-    // Listen for auth state changes
-    window.addEventListener('auth-state-changed', loadUser);
-    window.addEventListener('storage', loadUser);
-    
-    return () => {
-      window.removeEventListener('auth-state-changed', loadUser);
-      window.removeEventListener('storage', loadUser);
-    };
-  }, []);
-  
-  const switchRole = (role: 'victim' | 'volunteer' | 'ngo' | 'government') => {
-    if (!currentUser) return;
-    
-    const updatedUser = { ...currentUser, role };
-    localStorage.setItem('authUser', JSON.stringify(updatedUser));
-    setCurrentUser(updatedUser);
-    
-    toast({
-      title: "Role Changed",
-      description: `You are now viewing as: ${getRoleName(role)}`,
-      duration: 3000,
-    });
-    
-    // Generate a timestamp to force dashboard refresh
-    const timestamp = Date.now();
-    
-    // If already on dashboard, force a reload to refresh content
-    if (location.pathname === '/dashboard') {
-      // Use a combination of navigate and window.location.reload for a full refresh
-      navigate(`/dashboard?refresh=${timestamp}`, { replace: true });
-      // Add a slight delay before reloading to ensure navigation completes
-      setTimeout(() => window.location.reload(), 100);
-    } else {
-      // Otherwise just navigate to dashboard
-      navigate(`/dashboard?refresh=${timestamp}`, { replace: true });
+    } catch (error) {
+      console.error("Failed to switch role:", error);
+      toast({
+        title: "Error",
+        description: "Failed to switch role. Please try again.",
+        variant: "destructive",
+      });
     }
-    
-    // Dispatch events to notify other components of the role change
-    window.dispatchEvent(new Event('auth-changed'));
-    window.dispatchEvent(new CustomEvent('role-changed', { detail: { role } }));
   };
   
   const getRoleName = (role: string): string => {
@@ -77,8 +60,8 @@ const RoleSwitcher: React.FC = () => {
   // 2. User role is admin
   // 3. Current page is the admin dashboard
   // 4. Current URL path includes "/admin"
-  if (!currentUser || 
-      currentUser.role === 'admin' || 
+  if (!user || 
+      user.role === 'admin' || 
       window.location.pathname.includes('/admin-dashboard') || 
       window.location.pathname.includes('/admin')) {
     return null;
@@ -99,39 +82,39 @@ const RoleSwitcher: React.FC = () => {
         </div>
         
         <button
-          className={`flex items-center w-full px-3 py-2 text-sm hover:bg-white/10 ${currentUser.role === 'victim' ? 'bg-white/5' : ''}`}
+          className={`flex items-center w-full px-3 py-2 text-sm hover:bg-white/10 ${user.role === 'victim' ? 'bg-white/5' : ''}`}
           onClick={() => switchRole('victim')}
         >
           <User size={16} className="mr-2" />
           <span className="flex-1 text-left">Affected Person</span>
-          {currentUser.role === 'victim' && <Check size={16} className="text-green-400" />}
+          {user.role === 'victim' && <Check size={16} className="text-green-400" />}
         </button>
         
         <button
-          className={`flex items-center w-full px-3 py-2 text-sm hover:bg-white/10 ${currentUser.role === 'volunteer' ? 'bg-white/5' : ''}`}
+          className={`flex items-center w-full px-3 py-2 text-sm hover:bg-white/10 ${user.role === 'volunteer' ? 'bg-white/5' : ''}`}
           onClick={() => switchRole('volunteer')}
         >
           <UserCheck size={16} className="mr-2" />
           <span className="flex-1 text-left">Volunteer</span>
-          {currentUser.role === 'volunteer' && <Check size={16} className="text-green-400" />}
+          {user.role === 'volunteer' && <Check size={16} className="text-green-400" />}
         </button>
         
         <button
-          className={`flex items-center w-full px-3 py-2 text-sm hover:bg-white/10 ${currentUser.role === 'ngo' ? 'bg-white/5' : ''}`}
+          className={`flex items-center w-full px-3 py-2 text-sm hover:bg-white/10 ${user.role === 'ngo' ? 'bg-white/5' : ''}`}
           onClick={() => switchRole('ngo')}
         >
           <Building size={16} className="mr-2" />
           <span className="flex-1 text-left">NGO</span>
-          {currentUser.role === 'ngo' && <Check size={16} className="text-green-400" />}
+          {user.role === 'ngo' && <Check size={16} className="text-green-400" />}
         </button>
         
         <button
-          className={`flex items-center w-full px-3 py-2 text-sm hover:bg-white/10 ${currentUser.role === 'government' ? 'bg-white/5' : ''}`}
+          className={`flex items-center w-full px-3 py-2 text-sm hover:bg-white/10 ${user.role === 'government' ? 'bg-white/5' : ''}`}
           onClick={() => switchRole('government')}
         >
           <Shield size={16} className="mr-2" />
           <span className="flex-1 text-left">Government</span>
-          {currentUser.role === 'government' && <Check size={16} className="text-green-400" />}
+          {user.role === 'government' && <Check size={16} className="text-green-400" />}
         </button>
       </div>
     </div>

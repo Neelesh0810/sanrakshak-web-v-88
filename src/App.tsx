@@ -7,7 +7,7 @@ import RoleSwitcher from './components/RoleSwitcher';
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="light">
+    <ThemeProvider>
       <AuthProvider>
         <AppRoutes />
         <Toaster />
