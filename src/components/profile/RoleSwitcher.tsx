@@ -1,8 +1,6 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ArrowRightLeft } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 import { User } from '@/context/AuthContext';
 
 interface RoleSwitcherProps {

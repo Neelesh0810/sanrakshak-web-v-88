@@ -1,6 +1,5 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabaseClient } from '@/lib/supabase-client';
 import { useAuthActions } from '@/hooks/useAuthActions';
 
 // Define user type
@@ -17,8 +16,8 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string, isAdmin?: boolean) => Promise<{ error?: string }>;
-  signup: (email: string, password: string, name: string, role?: string) => Promise<{ error?: string }>;
+  login: (email: string, password: string, isAdmin?: boolean) => Promise<{ error?: string; user?: User }>;
+  signup: (email: string, password: string, name: string, role?: string) => Promise<{ error?: string; user?: User }>;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => Promise<void>;
 }
@@ -30,86 +29,63 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const authActions = useAuthActions();
 
-  // Initialize and check for existing session
+  // Initialize and check for existing session from localStorage
   useEffect(() => {
-    const fetchUserProfile = async (userId: string) => {
-      const { data: userData, error: profileError } = await supabaseClient
-        .from('users')
-        .select('*')
-        .eq('id', userId)
-        .single();
-        
-      if (profileError || !userData) {
-        console.error("Error fetching user profile:", profileError);
-        setUser(null);
-        return null;
-      }
-      
-      return {
-        id: userData.id,
-        email: userData.email,
-        name: userData.name,
-        role: userData.role,
-        profileImg: userData.profile_img,
-        canVolunteer: userData.can_volunteer,
-        isActive: userData.is_active
-      };
-    };
-    
-    const checkAuth = async () => {
+    const checkAuth = () => {
       setLoading(true);
       try {
-        // Get current user session
-        const { data: { session }, error } = await supabaseClient.auth.getSession();
-        
-        if (error) {
-          console.error("Error checking auth:", error);
-          setUser(null);
-        } else if (session) {
-          const userProfile = await fetchUserProfile(session.user.id);
-          setUser(userProfile);
+        const storedUser = localStorage.getItem('authUser');
+        if (storedUser) {
+          const parsedUser = JSON.parse(storedUser);
+          if (parsedUser && parsedUser.id) {
+            setUser(parsedUser);
+          } else {
+            localStorage.removeItem('authUser');
+            setUser(null);
+          }
         } else {
+          localStorage.removeItem('authUser');
           setUser(null);
         }
       } catch (e) {
-        console.error("Unexpected auth error:", e);
+        console.error("Invalid authUser data:", e);
+        localStorage.removeItem('authUser');
         setUser(null);
       } finally {
         setLoading(false);
       }
     };
     
-    // Initial auth check
     checkAuth();
     
-    // Subscribe to auth changes
-    const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(
-      async (event, session) => {
-        if (event === 'SIGNED_IN' && session) {
-          const userProfile = await fetchUserProfile(session.user.id);
-          setUser(userProfile);
-        } else if (event === 'SIGNED_OUT') {
-          setUser(null);
-        }
-        
-        // Dispatch custom event for components listening for auth changes
-        window.dispatchEvent(new Event('auth-state-changed'));
-      }
-    );
+    const handleAuthChange = () => {
+      checkAuth();
+    };
     
-    // Cleanup subscription
+    window.addEventListener('storage', handleAuthChange);
+    window.addEventListener('auth-state-changed', handleAuthChange);
+    
     return () => {
-      subscription.unsubscribe();
+      window.removeEventListener('storage', handleAuthChange);
+      window.removeEventListener('auth-state-changed', handleAuthChange);
     };
   }, []);
 
   // Wrap the auth actions to update local state
   const login = async (email: string, password: string, isAdmin = false) => {
-    return authActions.login(email, password, isAdmin);
+    const result = await authActions.login(email, password, isAdmin);
+    if (result.user) {
+      setUser(result.user);
+    }
+    return result;
   };
 
   const signup = async (email: string, password: string, name: string, role = 'victim') => {
-    return authActions.signup(email, password, name, role);
+    const result = await authActions.signup(email, password, name, role);
+    if (result.user) {
+      setUser(result.user);
+    }
+    return result;
   };
 
   const logout = async () => {

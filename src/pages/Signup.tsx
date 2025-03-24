@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
@@ -6,6 +5,7 @@ import AnimatedTransition from '@/components/AnimatedTransition';
 import { Lock, Mail, User, ArrowRight, UserCheck, Building, UserCog, Shield } from 'lucide-react';
 import { useTheme } from '../context/ThemeProvider';
 import BackButton from '@/components/BackButton';
+import { useAuth } from '@/context/AuthContext';
 
 const Signup = () => {
   const [email, setEmail] = useState('');
@@ -21,23 +21,19 @@ const Signup = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const isLight = theme === 'light';
+  const { signup, user } = useAuth();
 
   useEffect(() => {
-    const authUser = localStorage.getItem('authUser');
-    if (authUser) {
-      try {
-        const parsedUser = JSON.parse(authUser);
-        if (parsedUser && parsedUser.id) {
-          navigate('/dashboard', { replace: true });
-        }
-      } catch (e) {
-        console.error("Invalid authUser data:", e);
-        localStorage.removeItem('authUser');
+    if (user) {
+      if (user.role === 'admin') {
+        navigate('/admin-dashboard', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
       }
     }
-  }, [navigate]);
+  }, [user, navigate]);
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
@@ -60,63 +56,39 @@ const Signup = () => {
       return;
     }
     
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const existingUser = users.find((user: any) => user.email === email.toLowerCase());
-    
-    if (existingUser) {
-      setError('Email is already registered');
+    try {
+      const { error: signupError } = await signup(email, password, name, role);
+      
+      if (signupError) {
+        setError(signupError);
+        
+        if (signupError.includes('already registered')) {
+          toast({
+            title: "Account Already Exists",
+            description: "Redirecting you to the login page...",
+          });
+          
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+        }
+      } else {
+        toast({
+          title: "Account Created",
+          description: "Welcome to Relief Connect!",
+        });
+        
+        if (role === 'admin') {
+          navigate('/admin-dashboard', { replace: true });
+        } else {
+          navigate('/dashboard', { replace: true });
+        }
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
       setIsLoading(false);
-      
-      toast({
-        title: "Account Already Exists",
-        description: "Redirecting you to the login page...",
-      });
-      
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
-      
-      return;
-    }
-    
-    const newUser = {
-      id: Date.now().toString(),
-      email: email.toLowerCase(),
-      password,
-      name,
-      role,
-      profileImg: null,
-      createdAt: Date.now(),
-      canVolunteer: role === 'victim' ? true : false,
-      isActive: true
-    };
-    
-    users.push(newUser);
-    localStorage.setItem('users', JSON.stringify(users));
-    
-    localStorage.setItem('authUser', JSON.stringify({
-      id: newUser.id,
-      email: newUser.email,
-      name: newUser.name,
-      role: newUser.role,
-      profileImg: newUser.profileImg,
-      canVolunteer: newUser.canVolunteer
-    }));
-    
-    window.dispatchEvent(new Event('auth-state-changed'));
-    window.dispatchEvent(new Event('storage'));
-    
-    toast({
-      title: "Account Created",
-      description: "Welcome to Relief Connect!",
-    });
-    
-    setIsLoading(false);
-    
-    if (role === 'admin') {
-      navigate('/admin-dashboard', { replace: true });
-    } else {
-      navigate('/dashboard', { replace: true });
     }
   };
 
