@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import AnimatedTransition from '@/components/AnimatedTransition';
@@ -8,6 +7,7 @@ import BackButton from '@/components/BackButton';
 import { useTheme } from '../context/ThemeProvider';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAuth } from '@/context/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -19,29 +19,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const isLight = theme === 'light';
-
-  useEffect(() => {
-    const checkAuth = () => {
-      const authUser = localStorage.getItem('authUser');
-      if (authUser) {
-        try {
-          const parsedUser = JSON.parse(authUser);
-          if (parsedUser && parsedUser.id) {
-            if (parsedUser.role === 'admin') {
-              navigate('/admin-dashboard', { replace: true });
-            } else {
-              navigate('/dashboard', { replace: true });
-            }
-          }
-        } catch (e) {
-          console.error("Invalid authUser data:", e);
-          localStorage.removeItem('authUser');
-        }
-      }
-    };
-    
-    checkAuth();
-  }, [navigate]);
+  const { login } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,40 +27,11 @@ const Login = () => {
     setError('');
     
     try {
-      const usersJson = localStorage.getItem('users') || '[]';
-      const users = JSON.parse(usersJson);
+      const { error: loginError } = await login(email, password, isAdmin);
       
-      const user = users.find(
-        (u: any) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
-      );
-      
-      if (user) {
-        if (!user.isActive) {
-          setError('Your account has been deactivated. Please contact support.');
-          setIsLoading(false);
-          return;
-        }
-        
-        if (isAdmin && user.role !== 'admin') {
-          setError('You do not have administrator access.');
-          setIsLoading(false);
-          return;
-        }
-        
-        const authUser = {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role || 'victim',
-          profileImg: user.profileImg,
-          canVolunteer: user.canVolunteer
-        };
-        
-        localStorage.setItem('authUser', JSON.stringify(authUser));
-        
-        window.dispatchEvent(new Event('auth-state-changed')); 
-        window.dispatchEvent(new Event('storage'));
-        
+      if (loginError) {
+        setError(loginError);
+      } else {
         toast({
           title: "Login Successful",
           description: `Welcome back to ${isAdmin ? 'the admin panel' : 'Relief Connect'}`,
@@ -91,13 +40,11 @@ const Login = () => {
         setEmail('');
         setPassword('');
         
-        if (user.role === 'admin') {
+        if (isAdmin) {
           navigate('/admin-dashboard', { replace: true });
         } else {
           navigate('/dashboard', { replace: true });
         }
-      } else {
-        setError('Invalid email or password');
       }
     } catch (error) {
       console.error("Login error:", error);

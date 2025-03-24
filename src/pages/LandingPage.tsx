@@ -1,61 +1,17 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BackgroundPaths } from '@/components/ui/background-paths';
 import { useTheme } from '@/context/ThemeProvider';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import AnimatedTransition from '@/components/AnimatedTransition';
+import { useAuth } from '@/context/AuthContext';
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Check if user is already logged in and update state
-  useEffect(() => {
-    const checkAuth = () => {
-      setIsLoading(true);
-      try {
-        const authUser = localStorage.getItem('authUser');
-        if (authUser) {
-          // Verify that the stored data is valid JSON
-          const parsedUser = JSON.parse(authUser);
-          if (parsedUser && parsedUser.id) {
-            setUser(parsedUser);
-          } else {
-            localStorage.removeItem('authUser');
-            setUser(null);
-          }
-        } else {
-          localStorage.removeItem('authUser'); // Ensure it's removed
-          setUser(null);
-        }
-      } catch (e) {
-        // Clear invalid data
-        console.error("Invalid authUser data:", e);
-        localStorage.removeItem('authUser');
-        setUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    checkAuth();
-    
-    // Listen for auth state changes
-    const handleAuthChange = () => {
-      checkAuth();
-    };
-    
-    window.addEventListener('storage', handleAuthChange);
-    window.addEventListener('auth-state-changed', handleAuthChange);
-    
-    return () => {
-      window.removeEventListener('storage', handleAuthChange);
-      window.removeEventListener('auth-state-changed', handleAuthChange);
-    };
-  }, []);
+  const { user, loading } = useAuth();
+  const { theme } = useTheme();
 
   const handleGetStarted = () => {
     if (user) {
@@ -87,7 +43,7 @@ const LandingPage = () => {
               </p>
               
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-2 mb-8">
-                {isLoading ? (
+                {loading ? (
                   <div className="h-12 bg-gray-100 dark:bg-white/10 animate-pulse rounded-lg w-40"></div>
                 ) : user ? (
                   <RainbowButton onClick={() => navigate('/dashboard')}>
